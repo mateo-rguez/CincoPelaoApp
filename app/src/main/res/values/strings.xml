@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Cinco Pelao</string>
+    <string name="title_activity_add_edit_subject">AddEditSubjectActivity</string>
+    <string name="title_activity_subject">SubjectActivity</string>
+    <string name="title_activity_completed_tasks">CompletedTasksActivity</string>
+    <string name="title_activity_transmit">TransmitActivity</string>
+    <string name="title_activity_receive">ReceiveActivity</string>
+    <string name="title_activity_instances">InstancesActivity</string>
+    <string name="title_activity_notifications">NotificationsActivity</string>
+</resources>
