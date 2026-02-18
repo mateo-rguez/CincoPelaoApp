@@ -1,1 +1,2 @@
+# CincoPelaoApp
 [WIP] A personal project: an Android app for academic self-management, primarily focused on university life. It includes features that allow you to keep track of your assignments, due dates, exams, schedules, grades, statistics, calendar, timeline, and more. It also includes a feature for easily and wirelessly sharing events with classmates.
