@@ -145,7 +145,7 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
     val scope = rememberCoroutineScope()
 
     if (showTaskInfo && taskToShowState != null) {
-        TaskInfo(
+        TaskInfoSheet(
             task = taskToShowState!!,
             enableCheckbox = false,
             showEdit = false,
