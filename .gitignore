@@ -1,15 +1,21 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
+# Gradle / Kotlin
+.gradle/
+.kotlin/
 /build
 /captures
 .externalNativeBuild
 .cxx
+
+# Configuración local (ruta del SDK, claves...)
 local.properties
+
+# Android Studio / IntelliJ
+# Solo se versionan el estilo de código y las inspecciones, que son compartidos.
+# El resto de .idea es configuración personal de cada máquina.
+*.iml
+/.idea/*
+!/.idea/codeStyles/
+!/.idea/inspectionProfiles/
+
+# Sistema
+.DS_Store
