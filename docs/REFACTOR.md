@@ -26,6 +26,10 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 | 6 | Compartición BLE / Wi‑Fi Direct | ⏳ |
 | 7 | Mejoras y funcionalidades nuevas | ⏳ |
 
+**Siguiente paso:** fase 6. Se dejó en pausa porque probarla de verdad necesita **dos móviles
+Android** (Wi‑Fi Direct no funciona entre dos apps del mismo teléfono). La lógica y el protocolo
+se pueden reescribir y probar con tests sin ellos; la prueba de conexión real, no.
+
 ## Hecho
 
 ### Fase 0 — Red de seguridad
