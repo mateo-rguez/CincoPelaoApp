@@ -38,7 +38,7 @@ object StatsUtils {
 
         val weights: List<Float> = events
             .filter { it.isPuntuable }
-            .map { it.weight!! }
+            .map { it.weight ?: 0f } // un evento puntuable sin peso no cuenta en la nota
 
         val minScores: List<Float?> = events
             .filter { it.isPuntuable }
@@ -75,7 +75,7 @@ object StatsUtils {
             }
         val noPuntCount = events.count { !it.isPuntuable }
         val noPuntDoneCount = events.count { !it.isPuntuable && it.noPuntuableDone }
-        val average = filtered.average().toFloat()
+        val average = if (filtered.isEmpty()) 0f else filtered.average().toFloat()
         val minScore = filtered.minOrNull() ?: 0f
         val maxScore = filtered.maxOrNull() ?: 0f
 
@@ -105,7 +105,8 @@ object StatsUtils {
             }
         }.toFloat()
 
-        val eventCompletedPerc = (scores.count { it != null }.toFloat() / weights.size) * 100
+        val eventCompletedPerc =
+            if (weights.isEmpty()) 0f else (scores.count { it != null }.toFloat() / weights.size) * 100
 
         val scoreCompletedPerc = scores.zip(weights)
             .sumOf { (score, weight) -> if (score != null) weight.toDouble() else 0.0 }.toFloat()
@@ -121,8 +122,10 @@ object StatsUtils {
     }
 
     fun stdDev(scores: List<Float?>): Float {
-        val mean = scores.mapNotNull { it }.average()
-        return kotlin.math.sqrt(scores.map { (it!! - mean) * (it!! - mean) }.average()).toFloat()
+        val values = scores.filterNotNull()
+        if (values.isEmpty()) return 0f
+        val mean = values.average()
+        return kotlin.math.sqrt(values.map { (it - mean) * (it - mean) }.average()).toFloat()
     }
 
     fun median(scores: List<Float?>): Float {

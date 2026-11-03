@@ -2,7 +2,6 @@ package io.github.mateorguez.cincopelao.domain.stats
 
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import org.junit.Assert.assertEquals
-import org.junit.Ignore
 import org.junit.Test
 
 /**
@@ -124,16 +123,17 @@ class StatsUtilsTest {
         assertEquals(0f, StatsUtils.calculateTrend(listOf(5f)), delta)
     }
 
-    // --- Bugs conocidos: describen el comportamiento deseado. Se activarán al arreglarlos. ---
+    // --- Casos límite (antes provocaban un crash o devolvían NaN) ---
 
-    @Ignore("BUG: weight!! lanza NullPointerException si un evento puntuable no tiene peso")
     @Test
-    fun `un evento puntuable sin peso no provoca un crash`() {
+    fun `un evento puntuable sin peso no provoca un crash y no suma a la nota`() {
         val sinPeso = graded(7f, 0f).copy(weight = null)
-        StatsUtils.calculateStats(listOf(sinPeso))
+        val stats = StatsUtils.calculateStats(listOf(sinPeso, graded(8f, 100f)))
+
+        assertEquals(8f, stats.currentWeighted, delta)
+        assertEquals(2, stats.eventCount)
     }
 
-    @Ignore("BUG: sin eventos puntuables, average, stdDeviation y eventCompletedPerc salen NaN")
     @Test
     fun `sin eventos puntuables las estadisticas valen 0 y no NaN`() {
         val stats = StatsUtils.calculateStats(listOf(ungraded(done = true)))
