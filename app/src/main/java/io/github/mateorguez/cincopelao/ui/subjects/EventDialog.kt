@@ -238,7 +238,7 @@ fun EventDialog(
 }
 
 /** Muestra 40.0 como "40" y 37.5 como "37.5". */
-private fun formatNumber(value: Float): String =
+internal fun formatNumber(value: Float): String =
     if (value % 1f == 0f) value.toInt().toString() else value.toString()
 
 /** Desplegable de solo lectura con una lista fija de opciones. */

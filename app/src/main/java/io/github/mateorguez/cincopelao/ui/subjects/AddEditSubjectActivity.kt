@@ -336,7 +336,7 @@ private fun EditableEventList(
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 fontWeight = FontWeight.Normal
                                             )
-                                        ) { append("${it}%") }
+                                        ) { append("${formatNumber(it)}%") }
                                     }
                                 },
                                 style = MaterialTheme.typography.titleMedium
@@ -358,7 +358,7 @@ private fun EditableEventList(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "Nota: ${event.score ?: "N/A"} (Mínima: ${event.minScore})",
+                            text = "Nota: ${event.score?.let(::formatNumber) ?: "N/A"} (Mínima: ${event.minScore?.let(::formatNumber) ?: "N/A"})",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
