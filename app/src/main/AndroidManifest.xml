@@ -28,32 +28,32 @@
         android:theme="@style/Theme.CincoPelao"
         tools:targetApi="31">
         <activity
-            android:name=".NotificationsActivity"
+            android:name=".ui.notifications.NotificationsActivity"
             android:exported="false"
             android:label="@string/title_activity_notifications"
             android:theme="@style/Theme.CincoPelao" />
         <activity
-            android:name=".InstancesActivity"
+            android:name=".ui.instances.InstancesActivity"
             android:exported="false"
             android:label="@string/title_activity_instances"
             android:theme="@style/Theme.CincoPelao" />
         <activity
-            android:name=".ReceiveActivity"
+            android:name=".ui.sharing.ReceiveActivity"
             android:exported="false"
             android:label="@string/title_activity_receive"
             android:theme="@style/Theme.CincoPelao" />
         <activity
-            android:name=".TransmitActivity"
+            android:name=".ui.sharing.TransmitActivity"
             android:exported="false"
             android:label="@string/title_activity_transmit"
             android:theme="@style/Theme.CincoPelao" />
         <activity
-            android:name=".SubjectActivity"
+            android:name=".ui.subjects.SubjectActivity"
             android:exported="false"
             android:label="@string/title_activity_subject"
             android:theme="@style/Theme.CincoPelao" />
         <activity
-            android:name=".AddEditSubjectActivity"
+            android:name=".ui.subjects.AddEditSubjectActivity"
             android:exported="false"
             android:label="@string/title_activity_add_edit_subject"
             android:theme="@style/Theme.CincoPelao" />

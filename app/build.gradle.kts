@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.cincopelao"
+    namespace = "io.github.mateorguez.cincopelao"
     compileSdk = 35
 
     defaultConfig {
