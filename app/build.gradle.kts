@@ -43,10 +43,12 @@ android {
         compose = true
     }
 
-//    compileOptions {
-//        sourceCompatibility = JavaVersion.VERSION_1_8
-//        targetCompatibility = JavaVersion.VERSION_1_8
-//    }
+}
+
+// Room exporta aquí un JSON con el esquema de cada versión de la BD.
+// Se versiona en git para poder escribir y probar migraciones.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {
