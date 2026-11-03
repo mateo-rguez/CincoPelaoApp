@@ -10,6 +10,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 import androidx.datastore.preferences.core.edit
@@ -53,12 +55,7 @@ object ReminderScheduler {
 
                     val template = eventMessages.random()
                     val title = template.replace("evento", event.name).replace("tipo", event.type.toLowerCase()).replace("abbrev", subjects.find { it.subjectId == event.subjectId }?.abbrev ?: "asignatura eliminada? ta mal hecho esto entonces")
-                    val message = when {
-                        offset == 1 -> "Es mañana, ¿Preparado? 💪"
-                        offset <= 3 -> "Quedan $offset unidades de día, tocó cookear 🐐"
-                        offset < 7 -> "Faltan $offset días, habrá que ir espabilando 🙄"
-                        else -> "Aún quedan $offset días, hay tiempo 🥱"
-                    }
+                    val message = reminderMessageFor(offset)
 
                     if (!isScheduledEvent(context, key)) {
                         scheduleReminderIfValid(
@@ -84,12 +81,7 @@ object ReminderScheduler {
 
                         val template = taskMessages.random()
                         val title = template.replace("tarea", task.title.toLowerCase()).replace("abbrev", subjects.find { it.subjectId.toLong() == task.subjectId }?.abbrev ?: "asignatura eliminada? ta mal hecho esto entonces")
-                        val message = when {
-                            offset == 1 -> "Es mañana, ¿Preparado? 💪"
-                            offset <= 3 -> "Quedan $offset unidades de día, tocó cookear 🐐"
-                            offset < 7 -> "Faltan $offset días, habrá que ir espabilando 🙄"
-                            else -> "Aún quedan $offset días, hay tiempo 🥱"
-                        }
+                        val message = reminderMessageFor(offset)
 
                         if (!isScheduledTask(context, key)) {
                             scheduleReminderIfValid(
@@ -120,43 +112,15 @@ object ReminderScheduler {
         startHour: Int,
         endHour: Int
     ) {
-        // Día base: X días antes del target
-        val notifyBaseTime = targetTime - TimeUnit.DAYS.toMillis(offsetDays.toLong())
-
-        // Ajustamos el calendario a la medianoche local del día de la notificación
-        val calendar = java.util.Calendar.getInstance().apply {
-            timeInMillis = notifyBaseTime
-            set(java.util.Calendar.HOUR_OF_DAY, 0)
-            set(java.util.Calendar.MINUTE, 0)
-            set(java.util.Calendar.SECOND, 0)
-            set(java.util.Calendar.MILLISECOND, 0)
-        }
-
-        // Generamos hora aleatoria dentro del rango configurado
-        var randomMillis = generateRandomMillisInRange(startHour, endHour)
-        var notifyTime = calendar.timeInMillis + randomMillis
-
         val now = System.currentTimeMillis()
-
-        // Si el día de la notificación es hoy y la hora aleatoria ya pasó...
-        if (calendar.get(java.util.Calendar.YEAR) == java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) &&
-            calendar.get(java.util.Calendar.DAY_OF_YEAR) == java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_YEAR) &&
-            notifyTime < now
-        ) {
-            val currentHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
-
-            // Si estamos dentro de la ventana horaria, recalculamos desde la hora actual hasta el endHour
-            if (currentHour < endHour) {
-                randomMillis = generateRandomMillisInRange(currentHour, endHour)
-                notifyTime = System.currentTimeMillis() - System.currentTimeMillis() % TimeUnit.DAYS.toMillis(1) + randomMillis
-            } else {
-                // Si ya hemos pasado la ventana horaria, salimos y no programamos nada
-                return
-            }
-        }
-
-        // Si aún así sigue quedando en el pasado, no programamos nada
-        if (notifyTime < now) return
+        val notifyTime = computeNotifyTime(
+            targetTime = targetTime,
+            offsetDays = offsetDays,
+            startHour = startHour,
+            endHour = endHour,
+            now = now,
+            random = Random.Default
+        ) ?: return
 
         val delay = notifyTime - now
         val data = Data.Builder()
@@ -181,9 +145,72 @@ object ReminderScheduler {
     }
 
 
-    private fun generateRandomMillisInRange(startHour: Int, endHour: Int): Long {
-        val randomHour = Random.nextInt(startHour, endHour)
-        val randomMinute = Random.nextInt(0, 60)
+    /**
+     * Calcula el instante en que debe saltar un recordatorio: un momento aleatorio entre
+     * [startHour] y [endHour] del día situado [offsetDays] días antes de [targetTime].
+     *
+     * Devuelve `null` si ese momento ya ha pasado y no se puede programar.
+     * Es una función pura (no lee el reloj ni el Random del sistema) para poder probarla.
+     */
+    internal fun computeNotifyTime(
+        targetTime: Long,
+        offsetDays: Int,
+        startHour: Int,
+        endHour: Int,
+        now: Long,
+        random: Random,
+        timeZone: TimeZone = TimeZone.getDefault()
+    ): Long? {
+        // Día base: X días antes del target
+        val notifyBaseTime = targetTime - TimeUnit.DAYS.toMillis(offsetDays.toLong())
+
+        // Ajustamos el calendario a la medianoche local del día de la notificación
+        val calendar = Calendar.getInstance(timeZone).apply {
+            timeInMillis = notifyBaseTime
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val today = Calendar.getInstance(timeZone).apply { timeInMillis = now }
+
+        // Generamos hora aleatoria dentro del rango configurado
+        var notifyTime = calendar.timeInMillis + generateRandomMillisInRange(startHour, endHour, random)
+
+        // Si el día de la notificación es hoy y la hora aleatoria ya pasó...
+        if (calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+            calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) &&
+            notifyTime < now
+        ) {
+            val currentHour = today.get(Calendar.HOUR_OF_DAY)
+
+            // Si estamos dentro de la ventana horaria, recalculamos desde la hora actual hasta el endHour
+            if (currentHour < endHour) {
+                // TODO(Fase 4): esto calcula la medianoche en UTC, no en la zona local,
+                //  así que la hora resultante sale desplazada (1-2 h en España).
+                notifyTime = now - now % TimeUnit.DAYS.toMillis(1) +
+                        generateRandomMillisInRange(currentHour, endHour, random)
+            } else {
+                // Si ya hemos pasado la ventana horaria, no programamos nada
+                return null
+            }
+        }
+
+        // Si aún así sigue quedando en el pasado, no programamos nada
+        return if (notifyTime < now) null else notifyTime
+    }
+
+    /** Texto del recordatorio según los días que faltan. */
+    internal fun reminderMessageFor(offsetDays: Int): String = when {
+        offsetDays == 1 -> "Es mañana, ¿Preparado? 💪"
+        offsetDays <= 3 -> "Quedan $offsetDays unidades de día, tocó cookear 🐐"
+        offsetDays < 7 -> "Faltan $offsetDays días, habrá que ir espabilando 🙄"
+        else -> "Aún quedan $offsetDays días, hay tiempo 🥱"
+    }
+
+    private fun generateRandomMillisInRange(startHour: Int, endHour: Int, random: Random): Long {
+        val randomHour = random.nextInt(startHour, endHour)
+        val randomMinute = random.nextInt(0, 60)
         return TimeUnit.HOURS.toMillis(randomHour.toLong()) +
                 TimeUnit.MINUTES.toMillis(randomMinute.toLong())
     }
