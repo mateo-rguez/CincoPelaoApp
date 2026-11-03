@@ -41,3 +41,13 @@ fun getScheduleState(context: Context, instanceId: String): Flow<Triple<String?,
         Triple(uriString, zoom, Offset(offsetX, offsetY))
     }
 }
+
+/** Borra el horario guardado de una instancia (al eliminar la instancia). */
+suspend fun clearScheduleState(context: Context, instanceId: String) {
+    context.dataStore.edit { prefs ->
+        prefs.remove(ScheduleSettingsKeys.fileUriKey(instanceId))
+        prefs.remove(ScheduleSettingsKeys.zoomKey(instanceId))
+        prefs.remove(ScheduleSettingsKeys.offsetXKey(instanceId))
+        prefs.remove(ScheduleSettingsKeys.offsetYKey(instanceId))
+    }
+}

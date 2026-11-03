@@ -8,8 +8,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.AnimatedContentTransitionScope
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
-import io.github.mateorguez.cincopelao.ui.MainViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.compose.BackHandler
@@ -126,7 +124,6 @@ private fun NavGraphBuilder.tab(
 
 @Composable
 fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
-    val mainViewModel: MainViewModel = hiltViewModel()
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -186,10 +183,7 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
 
                 tab(BottomNavItem.Tareas) { TaskScreenManager(showCompletedTasks, snackbarHostState) }
 
-                tab(BottomNavItem.Horarios) {
-                    val instanceId by mainViewModel.currentInstanceId.collectAsState()
-                    ScheduleScreen(instanceId)
-                }
+                tab(BottomNavItem.Horarios) { ScheduleScreen() }
 
                 tab(
                     BottomNavItem.Calendario,

@@ -104,8 +104,7 @@ import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.prefs.getScheduleState
 import io.github.mateorguez.cincopelao.sharing.protocol.DataToSend
 import io.github.mateorguez.cincopelao.ui.MainViewModel
-import io.github.mateorguez.cincopelao.ui.schedule.loadImageAsBitmap
-import io.github.mateorguez.cincopelao.ui.schedule.loadPdfAsBitmap
+import io.github.mateorguez.cincopelao.ui.schedule.ScheduleFileLoader
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
@@ -177,17 +176,7 @@ class TransmitActivity : ComponentActivity() {
             var bitmap by remember { mutableStateOf<Bitmap?>(null) }
             LaunchedEffect(instanceId) {
                 getScheduleState(context, instanceId).firstOrNull()?.let { (uriString, _, _) ->
-                    uriString?.let {
-                        val uri = Uri.parse(uriString)
-                        val mimeType = context.contentResolver.getType(uri) ?: ""
-                        val isPdf = mimeType == "application/pdf"
-
-                        bitmap = if (isPdf) {
-                            loadPdfAsBitmap(context, uri)
-                        } else {
-                            loadImageAsBitmap(context, uri)
-                        }
-                    }
+                    uriString?.let { bitmap = ScheduleFileLoader.load(context, Uri.parse(it)) }
                 }
             }
 

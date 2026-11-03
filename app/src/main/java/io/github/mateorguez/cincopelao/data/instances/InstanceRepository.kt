@@ -6,6 +6,7 @@ import androidx.core.content.edit
 import androidx.room.withTransaction
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.mateorguez.cincopelao.data.local.AppDatabase
+import io.github.mateorguez.cincopelao.data.prefs.clearScheduleState
 import io.github.mateorguez.cincopelao.data.repository.parentsFirst
 import io.github.mateorguez.cincopelao.data.repository.withoutDanglingReferences
 import io.github.mateorguez.cincopelao.sharing.protocol.DataToSend
@@ -114,6 +115,7 @@ class InstanceRepository @Inject constructor(
             context.deleteDatabase(instanceId)
             File(context.filesDir, "SCHEDULE_$instanceId").deleteRecursively()
         }
+        clearScheduleState(context, instanceId)
     }
 
     /**
