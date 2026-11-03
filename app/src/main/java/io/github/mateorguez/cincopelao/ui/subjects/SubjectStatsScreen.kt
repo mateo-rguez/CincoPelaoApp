@@ -1,5 +1,8 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import io.github.mateorguez.cincopelao.domain.stats.Stats
+import io.github.mateorguez.cincopelao.domain.stats.GradedEvent
+import io.github.mateorguez.cincopelao.domain.stats.GradeCalculator
 import android.graphics.Paint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -77,16 +80,14 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubjectStatsScreen(
-    events: List<Event>,
-    onBackClick: () -> Unit,
-    viewModel: SubjectViewModel
+    state: SubjectDetailUiState,
+    onBackClick: () -> Unit
 ) {
-    val selectedSubject by viewModel.subject.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Estadísticas - ${selectedSubject?.abbrev}") },
+                title = { Text("Estadísticas - ${state.subject?.abbrev.orEmpty()}") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -127,26 +128,10 @@ fun SubjectStatsScreen(
                 )
             }
 
-            val scores: List<Float?> = events
-                .filter { it.isPuntuable }
-                .map { it.score }
-
-            val weights: List<Float> = events
-                .filter { it.isPuntuable }
-                .map { it.weight!! }
-
-            val minScores: List<Float?> = events
-                .filter { it.isPuntuable }
-                .map { it.minScore }
-
-            val labels: List<String> = events
-                .filter { it.isPuntuable }
-                .map { it.name }
-
             LineChart(
-                data = scores,
-                minScores = minScores,
-                labels = labels,
+                data = state.gradedEvents.map { it.score },
+                minScores = state.gradedEvents.map { it.minScore },
+                labels = state.gradedEvents.map { it.name },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(300.dp)
@@ -170,7 +155,7 @@ fun SubjectStatsScreen(
                 )
             }
 
-            StatsTable(events)
+            state.stats?.let { StatsTable(it) }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -192,7 +177,7 @@ fun SubjectStatsScreen(
                 )
             }
 
-            GradeTargetCalculator(scores, weights, minScores, labels)
+            GradeTargetCalculator(state.gradedEvents)
         }
     }
 }
@@ -526,16 +511,13 @@ fun LineChart(
 }
 
 @Composable
-fun StatsTable(events: List<Event>) {
+fun StatsTable(stats: Stats) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small)
             .padding(8.dp)
     ) {
-        val subjectViewModel: SubjectViewModel = hiltViewModel()
-        subjectViewModel.loadStats(events)
-        val stats by subjectViewModel.stats.collectAsState()
 
         val stdLabel = when {
             stats.stdDeviation <= 0.9f -> "Muy regular"
@@ -652,52 +634,11 @@ fun TableRow(label: String, value: String) {
 }
 
 @Composable
-fun GradeTargetCalculator(
-    scores: List<Float?>,
-    weights: List<Float>,
-    minScores: List<Float?>,
-    labels: List<String>
-) {
+fun GradeTargetCalculator(events: List<GradedEvent>) {
     var targetGrade by remember { mutableStateOf(5f) }
-
-    val actualGrade = scores.mapIndexed { i, score ->
-        if (score != null) score * weights[i]/100 else 0f
-    }.sum()
-
-    val remainingWeights = weights.mapIndexed { i, w -> if (scores[i] == null) w else 0f }
-    val remainingWeightSum = remainingWeights.sum()/100f
-
-    val neededGrade = targetGrade - actualGrade
-
-    val remainingTarget = if (remainingWeightSum > 0) neededGrade / remainingWeightSum else 0f
-
-    val adjustedRequiredScores = scores.mapIndexed { i, score ->
-        if (score == null) {
-            val base = remainingTarget
-            val minScore = (minScores.getOrNull(i) ?: 0f) / 10f
-            max(minScore, base)
-        } else null
-    }
-
-    // Redistribuir si alguna nota mínima es mayor a la requerida base
-    val totalFixedWeight = adjustedRequiredScores.mapIndexed { i, score ->
-        if (score != null && score > remainingTarget) weights[i]/100 else 0f
-    }.sum()
-
-    val fixedContribution = adjustedRequiredScores.mapIndexed { i, score ->
-        if (score != null && score > remainingTarget) score * weights[i]/100 else 0f
-    }.sum()
-
-    val remainingToDistribute = (neededGrade - fixedContribution).coerceAtLeast(0f)
-    val weightToDistribute = remainingWeightSum - totalFixedWeight
-
-    val finalAdjustedScores = adjustedRequiredScores.mapIndexed { i, score ->
-        if (score != null && score <= remainingTarget) {
-            val proportion = if (weightToDistribute > 0) weights[i] / weightToDistribute else 0f
-            val minScore = (minScores.getOrNull(i) ?: 0f) / 10f
-            max(minScore, proportion * remainingToDistribute / weights[i])
-        } else score
-    }
+    val plan = remember(events, targetGrade) { GradeCalculator.requiredScores(events, targetGrade) }
+    val actualGrade = plan.currentGrade
+    val labels = events.map { it.name }
 
     Column(modifier = Modifier) {
         Text("Nota actual: ${"%.2f".format(actualGrade)}", style = MaterialTheme.typography.bodyLarge)
@@ -748,9 +689,9 @@ fun GradeTargetCalculator(
             }
 
             itemsIndexed(labels) { i, label ->
-                val score = scores[i]
-                val required = finalAdjustedScores[i]
-                val minScore = (minScores.getOrNull(i) ?: 0f) / 10f
+                val score = events[i].score
+                val required = plan.required[i]
+                val minScore = (events[i].minScore ?: 0f) / 10f
 
                 val statusText = if (score == null) {
                     when {

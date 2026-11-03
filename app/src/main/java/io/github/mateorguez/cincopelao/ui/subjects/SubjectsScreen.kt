@@ -159,10 +159,7 @@ fun SubjectCard(
                     onClick = {
                         if (isExpanded) onCollapse()
                         else {
-                            val intent = Intent(context, SubjectActivity::class.java).apply {
-                                putExtra("subjectId", subject.subjectId)
-                            }
-                            context.startActivity(intent)
+                            context.startActivity(SubjectActivity.intent(context, subject.subjectId))
                         }
                     },
                     onLongClick = {

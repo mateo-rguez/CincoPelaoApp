@@ -69,7 +69,7 @@ class AddEditSubjectActivity : ComponentActivity() {
                 lifecycleScope.launch {
                     val subject = mainViewModel.getSubjectById(subjectId)
                     val events = mainViewModel.getEventsForSubject(subjectId)
-                    addSubjectViewModel.setSubject(subject)
+                    subject?.let { addSubjectViewModel.setSubject(it) }
                     addSubjectViewModel.setEvents(events)
                 }
             }

@@ -55,7 +55,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    suspend fun getSubjectById(id: Int): Subject = subjects.subject(id).first()
+    suspend fun getSubjectById(id: Int): Subject? = subjects.subject(id).first()
 
     // EVENTOS --------------------------------
 

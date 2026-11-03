@@ -29,7 +29,7 @@ class SubjectRepository @Inject constructor(
     val subjects: Flow<List<Subject>> =
         instances.currentDatabase.flatMapLatest { it.subjectDao().getAllSubjects() }
 
-    fun subject(id: Int): Flow<Subject> =
+    fun subject(id: Int): Flow<Subject?> =
         instances.currentDatabase.flatMapLatest { it.subjectDao().getSubjectById(id) }
 
     /** Crea o edita una asignatura junto con sus eventos (en una transacción). */

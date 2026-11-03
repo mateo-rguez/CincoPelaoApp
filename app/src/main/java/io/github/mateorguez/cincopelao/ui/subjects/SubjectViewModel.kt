@@ -1,97 +1,64 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.repository.EventRepository
 import io.github.mateorguez.cincopelao.data.repository.SubjectRepository
+import io.github.mateorguez.cincopelao.domain.stats.GradeCalculator
+import io.github.mateorguez.cincopelao.domain.stats.GradedEvent
 import io.github.mateorguez.cincopelao.domain.stats.Stats
-import io.github.mateorguez.cincopelao.domain.stats.StatsUtils.calculateStats
-import javax.inject.Inject
+import io.github.mateorguez.cincopelao.domain.stats.StatsUtils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
+/** Estado del detalle de una asignatura y de su pantalla de estadísticas. */
+data class SubjectDetailUiState(
+    val subject: Subject? = null,
+    val events: List<Event> = emptyList(),
+    /** Nota ponderada actual (null si aún no hay notas). */
+    val weightedGrade: Float? = null,
+    /** Media simple de las notas (null si aún no hay notas). */
+    val meanGrade: Float? = null,
+    /** Eventos puntuables, para la gráfica y la calculadora. */
+    val gradedEvents: List<GradedEvent> = emptyList(),
+    val stats: Stats? = null
+) {
+    val hasGradedEvents: Boolean get() = gradedEvents.isNotEmpty()
+}
+
 @HiltViewModel
 class SubjectViewModel @Inject constructor(
-    private val subjectRepository: SubjectRepository,
-    private val eventRepository: EventRepository
+    savedStateHandle: SavedStateHandle,
+    subjects: SubjectRepository,
+    private val events: EventRepository
 ) : ViewModel() {
 
-    private val _subjectId = MutableStateFlow<Int?>(null)
-    val subjectId: StateFlow<Int?> = _subjectId
+    /** Llega en los extras del intent que abre SubjectActivity. */
+    private val subjectId: Int = savedStateHandle[SubjectActivity.EXTRA_SUBJECT_ID] ?: -1
 
-    val subject: StateFlow<Subject?> = _subjectId
-        .filterNotNull()
-        .flatMapLatest { id ->
-            subjectRepository.subject(id)
+    val uiState: StateFlow<SubjectDetailUiState> =
+        combine(subjects.subject(subjectId), events.eventsForSubject(subjectId)) { subject, eventList ->
+            SubjectDetailUiState(
+                subject = subject,
+                events = eventList,
+                weightedGrade = GradeCalculator.weightedGrade(eventList),
+                meanGrade = GradeCalculator.meanGrade(eventList),
+                gradedEvents = GradeCalculator.gradedEvents(eventList),
+                stats = StatsUtils.calculateStats(eventList)
+            )
         }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            null
-        )
+            .flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SubjectDetailUiState())
 
-    fun setSubjectId(id: Int) {
-        _subjectId.value = id
-    }
-
-    val events: StateFlow<List<Event>> = _subjectId
-        .filterNotNull()
-        .flatMapLatest { id ->
-            eventRepository.eventsForSubject(id)
-        }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            emptyList()
-        )
-
-    fun updateEvent(updated: Event) {
-        viewModelScope.launch {
-            eventRepository.update(updated)
-        }
-    }
-
-    fun calculateWeightedGrade(events: List<Event>): Float? {
-        val scored = events.filter {
-            it.score != null && it.weight != null && it.score!! >= (it.minScore ?: 0f)/10
-        }
-        if (scored.isEmpty()) return null
-
-        val weightedSum = scored.sumOf { (it.score!! * it.weight!!).toDouble() }
-        return (weightedSum / 100).toFloat()
-    }
-
-    fun calculateMeanGrade(events: List<Event>): Float? {
-        val scores = events.filter { it.isPuntuable }.mapNotNull { it.score }
-        if (scores.isEmpty()) return null
-        return scores.average().toFloat()
-    }
-
-    // Estadísticas ---------------------
-
-    private val _stats = MutableStateFlow<Stats>(value = Stats(0f, 0f, 0f, 0f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f))
-    val stats: StateFlow<Stats> = _stats.asStateFlow()
-
-    fun loadStats(events: List<Event>) {
-        viewModelScope.launch(Dispatchers.Default) {
-            val calculated = calculateStats(events)
-            _stats.value = calculated
-        }
-    }
+    fun updateEvent(updated: Event) = viewModelScope.launch { events.update(updated) }
 }
