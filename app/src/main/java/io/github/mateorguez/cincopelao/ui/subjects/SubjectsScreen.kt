@@ -102,7 +102,6 @@ fun SubjectsScreen(snackbarHostState: SnackbarHostState) {
         )  {
             items(subjects) { subject ->
                 val context = LocalContext.current
-                val subjectTasks = allTasks.filter { it.subjectId?.toInt() == subject.subjectId }
 
                 SubjectCard(
                     subject = subject,
@@ -112,15 +111,11 @@ fun SubjectsScreen(snackbarHostState: SnackbarHostState) {
                     onCollapse = { expandedCardId = null },
                     onDelete = {
                         scope.launch {
-                            val events = mainViewModel.getEventsForSubject(subject.subjectId)
-
-                            mainViewModel.deleteSubject(subject)
-                            subjectTasks.forEach { task ->
-                                mainViewModel.deleteTask(task)
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                    ReminderScheduler.clearAllScheduledReminders(context)
-                                }
+                            // Borra la asignatura con sus eventos y tareas en una sola transacción
+                            val deleted = mainViewModel.deleteSubject(subject)
+                            CoroutineScope(Dispatchers.IO).launch {
+                                WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
+                                ReminderScheduler.clearAllScheduledReminders(context)
                             }
 
                             val result = snackbarHostState.showSnackbar(
@@ -130,10 +125,7 @@ fun SubjectsScreen(snackbarHostState: SnackbarHostState) {
                             )
 
                             if (result == SnackbarResult.ActionPerformed) {
-                                mainViewModel.insertSubjectWithEvents(false, subject, events)
-                                subjectTasks.forEach { task ->
-                                    mainViewModel.insertTask(task)
-                                }
+                                mainViewModel.restoreSubject(deleted)
                             }
                         }
                     }

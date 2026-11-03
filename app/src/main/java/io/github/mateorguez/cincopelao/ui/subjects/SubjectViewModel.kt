@@ -6,7 +6,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
-import io.github.mateorguez.cincopelao.data.repository.RepositoryDB
+import io.github.mateorguez.cincopelao.data.repository.EventRepository
+import io.github.mateorguez.cincopelao.data.repository.SubjectRepository
 import io.github.mateorguez.cincopelao.domain.stats.Stats
 import io.github.mateorguez.cincopelao.domain.stats.StatsUtils.calculateStats
 import javax.inject.Inject
@@ -27,7 +28,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SubjectViewModel @Inject constructor(
-    private val repository: RepositoryDB
+    private val subjectRepository: SubjectRepository,
+    private val eventRepository: EventRepository
 ) : ViewModel() {
 
     private val _subjectId = MutableStateFlow<Int?>(null)
@@ -36,7 +38,7 @@ class SubjectViewModel @Inject constructor(
     val subject: StateFlow<Subject?> = _subjectId
         .filterNotNull()
         .flatMapLatest { id ->
-            repository.getSubjectById(id)
+            subjectRepository.subject(id)
         }
         .stateIn(
             viewModelScope,
@@ -51,7 +53,7 @@ class SubjectViewModel @Inject constructor(
     val events: StateFlow<List<Event>> = _subjectId
         .filterNotNull()
         .flatMapLatest { id ->
-            repository.getEventsForSubject(id)
+            eventRepository.eventsForSubject(id)
         }
         .stateIn(
             viewModelScope,
@@ -61,7 +63,7 @@ class SubjectViewModel @Inject constructor(
 
     fun updateEvent(updated: Event) {
         viewModelScope.launch {
-            repository.updateEvent(updated)
+            eventRepository.update(updated)
         }
     }
 

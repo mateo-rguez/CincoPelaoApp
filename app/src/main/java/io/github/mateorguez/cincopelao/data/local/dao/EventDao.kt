@@ -27,6 +27,9 @@ interface EventDao {
     @Query("SELECT * FROM events ORDER BY date ASC")
     fun getAllEvents(): Flow<List<Event>>
 
+    @Query("SELECT * FROM events WHERE subjectId = :subjectId")
+    suspend fun getEventsForSubjectOnce(subjectId: Int): List<Event>
+
     @Delete
     suspend fun deleteEvent(event: Event)
 }

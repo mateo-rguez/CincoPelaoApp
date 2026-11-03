@@ -284,18 +284,14 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
                                         },
                                         onDelete = {
                                             scope.launch {
-                                                val deletedParentTask = task
-                                                val deletedSubtasks = subtasks.toList()
-                                                subtasks.forEach { mainViewModel.deleteTask(it) }
-                                                mainViewModel.deleteTask(task)
+                                                val deleted = mainViewModel.deleteTaskWithSubtasks(task)
                                                 val result = snackbarHostState.showSnackbar(
                                                     message = "Tarea y subtareas eliminadas",
                                                     actionLabel = "Deshacer",
                                                     duration = SnackbarDuration.Short
                                                 )
                                                 if (result == SnackbarResult.ActionPerformed) {
-                                                    mainViewModel.insertTask(deletedParentTask)
-                                                    deletedSubtasks.forEach { mainViewModel.insertTask(it) }
+                                                    mainViewModel.restoreTasks(deleted)
                                                 }
                                             }
                                         }
@@ -350,14 +346,14 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
                                                 },
                                                 onDelete = {
                                                     scope.launch {
-                                                        mainViewModel.deleteTask(task)
+                                                        val deleted = mainViewModel.deleteTaskWithSubtasks(task)
                                                         val result = snackbarHostState.showSnackbar(
                                                             message = "Tarea eliminada",
                                                             actionLabel = "Deshacer",
                                                             duration = SnackbarDuration.Short
                                                         )
                                                         if (result == SnackbarResult.ActionPerformed) {
-                                                            mainViewModel.insertTask(task)
+                                                            mainViewModel.restoreTasks(deleted)
                                                         }
                                                     }
                                                 }
@@ -384,7 +380,7 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
             text = { Text("¿Estás seguro de que quieres eliminar todas las tareas archivadas?") },
             confirmButton = {
                 TextButton(onClick = {
-                    archivedTasks.forEach{ mainViewModel.deleteTask(it) }
+                    mainViewModel.deleteTasks(archivedTasks)
                     showDeleteAllDialog = false
                 }) {
                     Text("Aceptar")
@@ -423,10 +419,7 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
                 ) {
                     if (hasSubtasks) {
                         TextButton(onClick = {
-                            subtasks.forEach {
-                                mainViewModel.updateTask(it.copy(parentTaskId = null))
-                            }
-                            mainViewModel.deleteTask(taskToDelete!!)
+                            mainViewModel.deleteTaskKeepingSubtasks(taskToDelete!!)
                             showDeleteDialog = false
                             taskToDelete = null
                         }) {

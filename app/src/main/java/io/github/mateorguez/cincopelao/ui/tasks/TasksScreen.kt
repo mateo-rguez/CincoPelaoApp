@@ -661,10 +661,7 @@ fun TasksScreen() {
                                 WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
                                 ReminderScheduler.clearAllScheduledReminders(context)
                             }
-                            subtasks.forEach {
-                                mainViewModel.updateTask(it.copy(parentTaskId = null))
-                            }
-                            mainViewModel.deleteTask(taskToDelete!!)
+                            mainViewModel.deleteTaskKeepingSubtasks(taskToDelete!!)
                             showDeleteDialog = false
                             taskToDelete = null
                         }) {

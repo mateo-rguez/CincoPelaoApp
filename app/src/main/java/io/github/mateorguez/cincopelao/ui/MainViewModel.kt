@@ -1,32 +1,30 @@
 package io.github.mateorguez.cincopelao.ui
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.mateorguez.cincopelao.data.instances.DatabaseInstance
+import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.local.entity.Task
-import io.github.mateorguez.cincopelao.data.instances.DatabaseInstance
-import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
-import io.github.mateorguez.cincopelao.data.repository.RepositoryDB
-import java.util.Calendar
-import javax.inject.Inject
-import kotlinx.coroutines.delay
+import io.github.mateorguez.cincopelao.data.repository.DeletedSubject
+import io.github.mateorguez.cincopelao.data.repository.EventRepository
+import io.github.mateorguez.cincopelao.data.repository.SubjectRepository
+import io.github.mateorguez.cincopelao.data.repository.TaskRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: RepositoryDB,
+    private val subjects: SubjectRepository,
+    private val events: EventRepository,
+    private val tasks: TaskRepository,
     instanceRepository: InstanceRepository
 ) : ViewModel() {
 
@@ -40,154 +38,65 @@ class MainViewModel @Inject constructor(
         instanceRepository.instances.value.find { it.id == instanceRepository.currentInstanceId.value }
     )
 
-    init {
-        manageTasks()
-    }
-
     // ASIGNATURAS --------------------------------
 
-    val allSubjects = repository.allSubjects
+    val allSubjects: Flow<List<Subject>> = subjects.subjects
 
-    fun deleteSubject(subject: Subject) = viewModelScope.launch {
-        repository.deleteSubject(subject)
+    /** Borra la asignatura con sus eventos y tareas; devuelve lo borrado para poder deshacerlo. */
+    suspend fun deleteSubject(subject: Subject): DeletedSubject = subjects.delete(subject)
+
+    fun restoreSubject(deleted: DeletedSubject) = viewModelScope.launch {
+        subjects.restore(deleted)
     }
 
     fun insertSubjectWithEvents(isEditing: Boolean, subject: Subject, events: List<Event>) {
         viewModelScope.launch {
-            repository.insertSubjectWithEvents(isEditing, subject, events)
+            subjects.saveWithEvents(isEditing, subject, events)
         }
     }
 
-    suspend fun getSubjectById(id: Int): Subject {
-        return repository.getSubjectById(id).first()
-    }
+    suspend fun getSubjectById(id: Int): Subject = subjects.subject(id).first()
 
     // EVENTOS --------------------------------
 
-    val allEvents = repository.allEvents
+    val allEvents: Flow<List<Event>> = events.events
 
     suspend fun getEventsForSubject(subjectId: Int): List<Event> =
-        repository.getEventsForSubject(subjectId).first()
+        events.eventsForSubject(subjectId).first()
 
-    fun getEventsForSubjectFlow(subjectId: Int): Flow<List<Event>> {
-        return repository.getEventsForSubject(subjectId)
-    }
+    fun getEventsForSubjectFlow(subjectId: Int): Flow<List<Event>> = events.eventsForSubject(subjectId)
 
-    fun insertEvent(event: Event) = viewModelScope.launch {
-        repository.insertEvent(event)
-    }
+    fun insertEvent(event: Event) = viewModelScope.launch { events.insert(event) }
 
-    fun insertEvents(events: List<Event>) = viewModelScope.launch {
-        repository.insertEvents(events)
-    }
+    fun insertEvents(list: List<Event>) = viewModelScope.launch { events.insertAll(list) }
 
-    fun deleteEvent(event: Event) = viewModelScope.launch {
-        repository.deleteEvent(event)
-    }
+    fun deleteEvent(event: Event) = viewModelScope.launch { events.delete(event) }
 
     // TAREAS --------------------------------
 
-    val allTasks = repository.allTasks
+    val allTasks: Flow<List<Task>> = tasks.tasks
 
-    fun getTasksBySubject(subjectId: Long): Flow<List<Task>> {
-        return repository.getTasksBySubject(subjectId)
-    }
+    fun getTasksBySubject(subjectId: Long): Flow<List<Task>> = tasks.tasksBySubject(subjectId)
 
-    fun getGeneralTasks(): Flow<List<Task>> {
-        return repository.getGeneralTasks()
-    }
+    fun getGeneralTasks(): Flow<List<Task>> = tasks.generalTasks()
 
-    fun getSubTasks(parentId: Long): Flow<List<Task>> {
-        return repository.getSubTasks(parentId)
-    }
+    fun getSubTasks(parentId: Long): Flow<List<Task>> = tasks.subtasks(parentId)
 
-    fun insertTask(task: Task) = viewModelScope.launch {
-        repository.insertTask(task)
-    }
+    fun insertTask(task: Task) = viewModelScope.launch { tasks.insert(task) }
 
-    fun updateTask(task: Task) = viewModelScope.launch {
-        repository.updateTask(task)
-    }
+    fun updateTask(task: Task) = viewModelScope.launch { tasks.update(task) }
 
-    fun deleteTask(task: Task) = viewModelScope.launch {
-        repository.deleteTask(task)
-    }
+    /** Borra la tarea; sus subtareas se borran con ella. */
+    fun deleteTask(task: Task) = viewModelScope.launch { tasks.delete(task) }
 
-    private fun manageTasks() {
-        viewModelScope.launch {
-            archiveOldCompletedTasks()
-        }
-        validateParentTaskCompletion()
-        startAutoArchivingLoop()
-    }
+    /** Borra la tarea pero conserva sus subtareas como tareas independientes. */
+    fun deleteTaskKeepingSubtasks(task: Task) = viewModelScope.launch { tasks.deleteKeepingSubtasks(task) }
 
-    private fun validateParentTaskCompletion() {
-        viewModelScope.launch {
-            repository.allTasks.collect { tasks ->
-                val tasksByParent = tasks.groupBy { it.parentTaskId }
+    /** Borra la tarea y sus subtareas; devuelve lo borrado para poder deshacerlo. */
+    suspend fun deleteTaskWithSubtasks(task: Task): List<Task> = tasks.deleteWithSubtasks(task)
 
-                tasks.forEach { task ->
-                    val subtasks = tasksByParent[task.taskId] ?: emptyList()
+    fun deleteTasks(list: List<Task>) = viewModelScope.launch { tasks.deleteAll(list) }
 
-                    if (subtasks.isNotEmpty()) {
-                        val allSubtasksCompleted = subtasks.all { it.isCompleted }
-
-                        when {
-                            // está marcada como completada pero alguna sub no lo está → desmarcar
-                            task.isCompleted && !allSubtasksCompleted -> {
-                                updateTask(task.copy(isCompleted = false, completedAt = null))
-                            }
-
-                            // no está completada y todas las subtareas sí → marcar y poner timestamp
-                            !task.isCompleted && allSubtasksCompleted -> {
-                                updateTask(task.copy(isCompleted = true, completedAt = System.currentTimeMillis()))
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun startAutoArchivingLoop() {
-        viewModelScope.launch {
-            while (isActive) {
-                val now = Calendar.getInstance()
-                val nextMidnight = Calendar.getInstance().apply {
-                    timeInMillis = now.timeInMillis
-                    add(Calendar.DAY_OF_YEAR, 1)
-                    set(Calendar.HOUR_OF_DAY, 0)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }
-
-                val millisUntilMidnight = nextMidnight.timeInMillis - now.timeInMillis
-
-                delay(millisUntilMidnight)
-                archiveOldCompletedTasks()
-            }
-        }
-    }
-
-    private suspend fun archiveOldCompletedTasks() {
-        val tasks = repository.allTasks.firstOrNull() ?: emptyList()
-
-        val today = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
-
-        val tasksToArchive = tasks.filter { task ->
-            task.isCompleted &&
-                    !task.archived &&
-                    task.completedAt?.let { it < today } == true
-        }
-
-        tasksToArchive.forEach { task ->
-            updateTask(task.copy(archived = true))
-        }
-    }
+    /** Deshace un borrado: reinserta las tareas en el orden correcto (madres primero). */
+    fun restoreTasks(list: List<Task>) = viewModelScope.launch { tasks.restore(list) }
 }

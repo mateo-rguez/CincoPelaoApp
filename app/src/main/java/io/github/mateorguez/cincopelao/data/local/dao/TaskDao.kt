@@ -39,6 +39,13 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE parentTaskId = :parentId ORDER BY dueDate ASC")
     fun getSubTasks(parentId: Long): Flow<List<Task>>
 
+    // Consultas puntuales (sin Flow) para operaciones del repositorio
+    @Query("SELECT * FROM tasks")
+    suspend fun getAllTasksOnce(): List<Task>
+
+    @Query("SELECT * FROM tasks WHERE parentTaskId = :parentId")
+    suspend fun getSubTasksOnce(parentId: Long): List<Task>
+
     // Obtener tareas completadas
     @Query("SELECT * FROM tasks WHERE isCompleted = 1 ORDER BY dueDate ASC")
     fun getCompletedTasks(): Flow<List<Task>>
