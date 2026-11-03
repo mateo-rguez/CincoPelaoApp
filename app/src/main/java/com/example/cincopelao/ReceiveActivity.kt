@@ -97,7 +97,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.cincopelao.ui.theme.CincoPelaoTheme
-import com.permissionx.guolindev.PermissionX
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.room.Room

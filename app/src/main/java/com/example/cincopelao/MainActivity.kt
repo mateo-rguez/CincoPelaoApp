@@ -15,7 +15,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
@@ -128,7 +127,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.animation.doOnEnd
 import com.example.cincopelao.DatabaseManager.currentDb
 import com.exyte.animatednavbar.utils.noRippleClickable
-import com.google.android.material.datepicker.MaterialTextInputPicker
 import kotlinx.coroutines.delay
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import android.view.View

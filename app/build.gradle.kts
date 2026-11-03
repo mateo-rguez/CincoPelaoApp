@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
 
-    id("com.google.devtools.ksp")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -52,70 +52,53 @@ ksp {
 }
 
 dependencies {
-    //Compose
-    implementation("androidx.compose.foundation:foundation:1.6.7")
-
-    // Navigation
-    implementation(libs.navigation.compose)
-    implementation(libs.lifecycle.runtime.compose)
-    implementation(libs.material.icons.extended)
-    implementation(libs.places)
-    implementation(libs.androidx.work.runtime.ktx)
-
-    // ROOM
-    val room_version = "2.7.2"
-    implementation("androidx.room:room-runtime:$room_version")
-    ksp("androidx.room:room-compiler:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
-
-    //HILT
-    implementation("com.google.dagger:hilt-android:2.56.2")
-    ksp("com.google.dagger:hilt-android-compiler:2.56.2")
-
-    //HILT en Compose
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
-
-    //DataStore
-    implementation("androidx.datastore:datastore-preferences:1.1.7")
-
-    //Calendario de kizitonwose
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
-    implementation("com.kizitonwose.calendar:compose:2.6.0")
-
-    //Timeline de JetLime
-    implementation("io.github.pushpalroy:jetlime:3.0.1")
-
-    //BottomNavBar de Exyte
-    implementation("com.exyte:animated-navigation-bar:1.0.0")
-
-    //PermissionX
-    implementation("com.guolindev.permissionx:permissionx:1.8.1")
-
-    //Serializacion en Kotlin
-    implementation(libs.serialization.json)
-
-    //Material2
-    implementation(libs.androidx.material)
-
-    //Gestión de SplashScreens
-    implementation(libs.androidx.core.splashscreen)
-
-
-    //-------
+    // AndroidX
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.datastore.preferences)
+
+    // Compose
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
+    // TODO(Fase 1): quitar cuando InstancesActivity deje de usar SwipeToDismiss de Material 2
+    implementation(libs.androidx.compose.material)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    // Kotlin
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.serialization.json)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    // UI de terceros
+    implementation(libs.kizitonwose.calendar.compose) // Calendario
+    implementation(libs.jetlime)                      // Timeline
+    implementation(libs.exyte.animated.navigation.bar) // Barra inferior
+
+    // Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 }
