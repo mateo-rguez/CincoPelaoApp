@@ -59,7 +59,7 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 - `41c819f` Tareas · `f289420` Completadas.
 - `54abb6a` Lista de asignaturas · `318d1b4` Detalle y estadísticas (`GradeCalculator`) ·
   `1e60fa3` Alta y edición.
-- `78e57c0` Calendario · `bbe7a7a` Horario · `77c8465` Notificaciones.
+- `78e57c0` Calendario · `bbe7a7a` Horario · `77c8465` Notificaciones · Instancias.
 
 ### Bugs corregidos más relevantes
 - Crashes: editar una instancia ya borrada; `instanceId!!` en Horario; `subject!!` en el
@@ -79,8 +79,7 @@ Tests: 55 (JUnit + Robolectric con Room y WorkManager de pruebas) — `./gradlew
 ## Pendiente
 
 ### Fase 5 (resto)
-- [ ] **Instancias** con ViewModel propio (ya existe `InstancesViewModel`; falta separar la
-      pantalla de la Activity y revisar la lógica que queda en ella).
+- [x] **Instancias**: pantalla separada de la Activity; ya no se reinicia la app al cambiar de instancia.
 - [ ] Retirar `MainViewModel` (solo lo usa ya Transmitir; se hará junto con la fase 6).
 - [ ] Unificar los ids: `Subject` y `Event` usan `Int`, `Task` usa `Long` (no cambia el esquema).
 - [ ] Textos de la interfaz a `strings.xml`.

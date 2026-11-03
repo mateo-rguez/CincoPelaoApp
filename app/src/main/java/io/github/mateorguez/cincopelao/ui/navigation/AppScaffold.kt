@@ -296,9 +296,9 @@ fun DrawerContent(
         val context = LocalContext.current
         TextButton(
             onClick = {
-                val intent = Intent(context, InstancesActivity::class.java)
-                context.startActivity(intent)
-                },
+                closeDrawer() // al volver, el menú ya no está abierto
+                context.startActivity(Intent(context, InstancesActivity::class.java))
+            },
             modifier = Modifier
                 .padding(start = 8.dp)
         ) {
@@ -311,8 +311,8 @@ fun DrawerContent(
 
         TextButton(
             onClick = {
-                val intent = Intent(context, NotificationsActivity::class.java)
-                context.startActivity(intent)
+                closeDrawer()
+                context.startActivity(Intent(context, NotificationsActivity::class.java))
             },
             modifier = Modifier
                 .padding(start = 8.dp)
