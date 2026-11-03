@@ -22,7 +22,7 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 | 2 | Paquetes por capa y renombrado a `io.github.mateorguez.cincopelao` | ✅ |
 | 3 | Capa de datos: `InstanceRepository`, repositorios, operaciones atómicas | ✅ |
 | 4 | Recordatorios: planificador puro + reconciliación con WorkManager | ✅ |
-| 5 | Interfaz: tema, navegación, un ViewModel por pantalla, rendimiento | 🔄 en curso |
+| 5 | Interfaz: tema, navegación, un ViewModel por pantalla, rendimiento | ✅ |
 | 6 | Compartición BLE / Wi‑Fi Direct | ⏳ |
 | 7 | Mejoras y funcionalidades nuevas | ⏳ |
 
@@ -53,13 +53,13 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
   hora local correcta.
 - `f6bdd1e` Recordatorios de todas las instancias (decisión del autor), no solo de la activa.
 
-### Fase 5 — Interfaz (en curso)
+### Fase 5 — Interfaz
 - `ad4bca0` Tema centralizado (`ThemeRepository`, `LocalDarkTheme`, fuentes y colores con nombre).
 - `70212e4` Navegación sin destinos duplicados; claves en las listas.
 - `41c819f` Tareas · `f289420` Completadas.
 - `54abb6a` Lista de asignaturas · `318d1b4` Detalle y estadísticas (`GradeCalculator`) ·
   `1e60fa3` Alta y edición.
-- `78e57c0` Calendario · `bbe7a7a` Horario · `77c8465` Notificaciones · `3f74327` Instancias · ids unificados a `Long`.
+- `78e57c0` Calendario · `bbe7a7a` Horario · `77c8465` Notificaciones · `3f74327` Instancias · `1f25337` ids unificados a `Long` · `94c89e4` formato de números.
 
 ### Bugs corregidos más relevantes
 - Crashes: editar una instancia ya borrada; `instanceId!!` en Horario; `subject!!` en el
@@ -78,11 +78,10 @@ Tests: 55 (JUnit + Robolectric con Room y WorkManager de pruebas) — `./gradlew
 
 ## Pendiente
 
-### Fase 5 (resto)
+### Fase 5 (resto, se hará con la fase 6)
 - [x] **Instancias**: pantalla separada de la Activity; ya no se reinicia la app al cambiar de instancia.
 - [ ] Retirar `MainViewModel` (solo lo usa ya Transmitir; se hará junto con la fase 6).
 - [x] Ids unificados a `Long` en todas las entidades (el esquema de Room es idéntico).
-- [ ] Textos de la interfaz a `strings.xml`.
 
 ### Fase 6 — Compartición
 - [ ] Reescribir BLE y Wi‑Fi Direct con un ciclo de vida limpio: el escaneo BLE no se detiene
@@ -104,6 +103,8 @@ Tests: 55 (JUnit + Robolectric con Room y WorkManager de pruebas) — `./gradlew
 
 ### Aplazado a propósito
 - Actualizar versiones de librerías (Compose, Kotlin, AGP…): el autor prefirió no hacerlo aún.
+- Textos de la interfaz a `strings.xml` (~340 textos): la app seguirá solo en español por ahora;
+  se hará si se añade otro idioma.
 - Pulir animaciones (p. ej. la entrada de la sección de Completadas que se perdió) junto con otras
   mejoras, después de las fases.
 - Conservar el plegado de los bloques de Tareas al cambiar de pestaña: el autor prefiere el
