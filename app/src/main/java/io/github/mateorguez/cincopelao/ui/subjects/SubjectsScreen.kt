@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.mateorguez.cincopelao.ui.theme.SubjectCardGradientStart
 import io.github.mateorguez.cincopelao.ui.theme.SubjectCardGradientEnd
 import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
@@ -46,7 +47,6 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,64 +66,47 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
-import io.github.mateorguez.cincopelao.ui.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/** Pestaña de asignaturas. Una pulsación abre la asignatura; una pulsación larga muestra editar/eliminar. */
 @Composable
-fun SubjectsScreen(snackbarHostState: SnackbarHostState) {
-    val mainViewModel: MainViewModel = hiltViewModel()
-    val subjects by mainViewModel.allSubjects.collectAsState(initial = emptyList())
-    val currentInstance by mainViewModel.currentInstance.collectAsState()
-
+fun SubjectsScreen(
+    snackbarHostState: SnackbarHostState,
+    viewModel: SubjectsViewModel = hiltViewModel()
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     var expandedCardId by remember { mutableStateOf<Int?>(null) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
+            // Tocar fuera de la tarjeta desplegada la pliega
             .pointerInput(expandedCardId) {
                 if (expandedCardId != null) {
-                    detectTapGestures(onTap = {
-                        expandedCardId = null
-                    })
+                    detectTapGestures(onTap = { expandedCardId = null })
                 }
             }
     ) {
-        val scope = rememberCoroutineScope()
-        val allTasks = mainViewModel.allTasks.collectAsState(initial = emptyList()).value
-        val subjects = mainViewModel.allSubjects.collectAsState(initial = emptyList()).value
-        var expandedCardId by remember { mutableStateOf<Int?>(null) }
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        )  {
-            items(subjects, key = { it.subjectId }) { subject ->
-                val context = LocalContext.current
-
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            items(state.subjects, key = { it.subjectId }) { subject ->
                 SubjectCard(
                     subject = subject,
-                    titulation = currentInstance?.titulation,
+                    titulation = state.titulation,
                     isExpanded = expandedCardId == subject.subjectId,
                     onExpand = { expandedCardId = subject.subjectId },
                     onCollapse = { expandedCardId = null },
                     onDelete = {
                         scope.launch {
-                            // Borra la asignatura con sus eventos y tareas en una sola transacción
-                            val deleted = mainViewModel.deleteSubject(subject)
-
+                            val deleted = viewModel.delete(subject)
                             val result = snackbarHostState.showSnackbar(
                                 message = "${subject.name} ha sido eliminada",
                                 actionLabel = "Deshacer",
                                 duration = SnackbarDuration.Short
                             )
-
-                            if (result == SnackbarResult.ActionPerformed) {
-                                mainViewModel.restoreSubject(deleted)
-                            }
+                            if (result == SnackbarResult.ActionPerformed) viewModel.undoDelete(deleted)
                         }
                     }
                 )
@@ -132,7 +115,6 @@ fun SubjectsScreen(snackbarHostState: SnackbarHostState) {
         }
     }
 }
-
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -280,7 +262,8 @@ fun SubjectCard(
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteDialog = false }) {
-                        Text("Cancelar", color = MaterialTheme.colorScheme.onPrimary)
+                        // onPrimary (blanco) no se veía sobre el diálogo en modo claro
+                        Text("Cancelar", color = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.primary)
                     }
                 }
             )
