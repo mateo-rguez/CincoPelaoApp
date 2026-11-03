@@ -175,7 +175,6 @@ fun ScheduleScreen(instanceId: String) {
                     tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(300.dp).clipToBounds()
                 )
-                //Spacer(Modifier.height(10.dp))
                 Text(
                     "Aún no has importado tu horario",
                     style = MaterialTheme.typography.titleMedium

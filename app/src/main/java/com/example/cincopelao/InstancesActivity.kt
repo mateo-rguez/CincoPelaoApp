@@ -252,13 +252,6 @@ fun InstanceScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-
-//        Text(
-//            "Elige una base de datos para usar como principal. Cuando selecciones una, la app se reiniciará para aplicar los cambios",
-//            style = MaterialTheme.typography.bodyLarge,
-//            modifier = Modifier.padding(bottom = 16.dp)
-//        )
-
         LazyColumn(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)

@@ -37,11 +37,9 @@ fun ShareModeScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        //contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            //verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -51,10 +49,8 @@ fun ShareModeScreen(
                 painter = painterResource(id = R.drawable.sharemode),
                 contentDescription = "Logo de transferencia",
                 tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.size(300.dp).clipToBounds()//.border(1.dp, Color.White)
+                modifier = Modifier.size(300.dp).clipToBounds()
             )
-
-            //Spacer(modifier = Modifier.height(10.dp))
 
             // Texto explicativo
             Text(

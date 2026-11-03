@@ -224,7 +224,6 @@ fun TasksScreen() {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            //.padding(vertical = 16.dp)
     ) {
 
         item {
@@ -290,7 +289,6 @@ fun TasksScreen() {
                         } else {
                             generalTasks.sortedBy { it.dueDate ?: Long.MAX_VALUE }.forEach { task ->
 
-                                //Divider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), thickness = 0.5.dp)
 
                                 val subtasks = generalTasks.filter { it.parentTaskId == task.taskId }
                                 if (subtasks.isNotEmpty()) {
@@ -469,7 +467,6 @@ fun TasksScreen() {
                         } else {
                             subjectTasks.sortedBy { it.dueDate ?: Long.MAX_VALUE }.forEach { task ->
 
-                                //Divider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), thickness = 0.5.dp)
 
                                 val subtasks = subjectTasks.filter { it.parentTaskId == task.taskId }
                                 if (subtasks.isNotEmpty()) {

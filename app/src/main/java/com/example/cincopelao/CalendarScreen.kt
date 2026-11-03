@@ -559,7 +559,6 @@ fun EventsAndTasksTimeline(
             itemSpacing = 12.dp,
             lineThickness = 2.dp,
             lineBrush = JetLimeDefaults.lineSolidBrush(color = Color.LightGray),
-//            lineVerticalAlignment = Alignment.Top
         )
     ) { index, item, position ->
 

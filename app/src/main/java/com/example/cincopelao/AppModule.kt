@@ -43,12 +43,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideBleRepository(@ApplicationContext context: Context): BleRepository {
-        return BleRepositoryImpl(context)
-    }
-
-    @Provides
-    @Singleton
     fun provideBleGattRepository(@ApplicationContext context: Context): BleGattRepository {
         return BleGattRepositoryImpl(context)
     }
