@@ -13,7 +13,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.cincopelao"
+        applicationId = "io.github.mateorguez.cincopelao"
         minSdk = 29
         targetSdk = 35
         versionCode = 2
