@@ -49,5 +49,5 @@ val TimelineEventContainerDark = Color(0xFF1D206B)
 val TimelineEventContainerLight = Color(0xFF6057EA)
 val TimelineTaskContainerDark = Color(0xFF1A3A2B)
 val TimelineTaskContainerLight = Color(0xFF7C981D)
-val TimelineEventPoint = Color(0xFF4CAF50)
-val TimelineTaskPoint = Color(0xFF2196F3)
+val TimelineEventPoint = Color(0xFF2196F3) // azul, como las tarjetas de eventos
+val TimelineTaskPoint = Color(0xFF4CAF50)  // verde, como las tarjetas de tareas
