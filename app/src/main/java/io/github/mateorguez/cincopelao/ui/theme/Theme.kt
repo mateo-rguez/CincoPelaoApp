@@ -1,26 +1,23 @@
 package io.github.mateorguez.cincopelao.ui.theme
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.hilt.navigation.compose.hiltViewModel
 
 private val DarkColorScheme = darkColorScheme(
     primary = AzulFuerte,
     onPrimary = Blanco,
     background = AzulOscuro,
     onBackground = Blanco,
-    surface = Color(0xFF121212),
+    surface = SurfaceDark,
     onSurface = Blanco,
-    primaryContainer = Color(0xFF4F378B), //default
-
+    primaryContainer = PrimaryContainerDark,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -30,30 +27,30 @@ private val LightColorScheme = lightColorScheme(
     onBackground = Negro,
     surface = Blanco,
     onSurface = Negro,
-    primaryContainer = Color(0xFFEADDFF), //default
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primaryContainer = PrimaryContainerLight,
 )
 
+/** Si la app está en modo oscuro. Lo publica [CincoPelaoTheme] para que las pantallas no lo lean de DataStore. */
+val LocalDarkTheme = staticCompositionLocalOf { false }
 
 @Composable
 fun CincoPelaoTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    CompositionLocalProvider(LocalDarkTheme provides darkTheme) {
+        MaterialTheme(
+            colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
+}
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+/** Tema de la app con el modo oscuro que haya elegido el usuario. Lo usa cada Activity. */
+@Composable
+fun CincoPelaoAppTheme(content: @Composable () -> Unit) {
+    val themeViewModel: ThemeViewModel = hiltViewModel()
+    val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
+    CincoPelaoTheme(darkTheme = isDarkTheme ?: false, content = content)
 }

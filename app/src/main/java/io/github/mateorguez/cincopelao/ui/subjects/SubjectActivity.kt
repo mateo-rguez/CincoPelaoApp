@@ -1,5 +1,17 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import io.github.mateorguez.cincopelao.ui.theme.StatusPass
+import io.github.mateorguez.cincopelao.ui.theme.StatusGood
+import io.github.mateorguez.cincopelao.ui.theme.StatusFair
+import io.github.mateorguez.cincopelao.ui.theme.StatusFail
+import io.github.mateorguez.cincopelao.ui.theme.StatusExcellent
+import io.github.mateorguez.cincopelao.ui.theme.StatusDone
+import io.github.mateorguez.cincopelao.ui.theme.StatusBelowMinimum
+import io.github.mateorguez.cincopelao.ui.theme.GlowRegularLight
+import io.github.mateorguez.cincopelao.ui.theme.GlowRegularDark
+import io.github.mateorguez.cincopelao.ui.theme.GlowFailDark
+import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
+import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import android.graphics.Paint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -124,8 +136,7 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.local.entity.Event
-import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
-import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
+import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -143,7 +154,6 @@ class SubjectActivity : ComponentActivity() {
 
         setContent {
             val context = LocalContext.current
-            val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
 
             val subjectViewModel: SubjectViewModel = hiltViewModel()
             subjectViewModel.setSubjectId(subjectId)
@@ -154,7 +164,7 @@ class SubjectActivity : ComponentActivity() {
 
             val navController = rememberNavController()
 
-            CincoPelaoTheme(darkTheme = isDarkTheme) {
+            CincoPelaoAppTheme {
                 NavHost(
                     navController = navController,
                     startDestination = "subject_screen"
@@ -299,7 +309,7 @@ fun SubjectTopBar(
     val selectedSubject by viewModel.subject.collectAsState()
 
     TopAppBar(
-        title = { Text(text = "${selectedSubject?.name ?: ""}", fontFamily = FontFamily(Font(R.font.delight_medium))) },
+        title = { Text(text = "${selectedSubject?.name ?: ""}", fontFamily = DelightMedium) },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -335,14 +345,14 @@ fun HeaderSection(
     }
 
     val context = LocalContext.current
-    val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+    val isDarkTheme = LocalDarkTheme.current
 
     val targetGlowColor = when {
         meanScore == null -> if (isDarkTheme) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
         meanScore == 10f -> if (isDarkTheme) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
         meanScore >= 6f -> if (isDarkTheme) Color.Blue.copy(alpha = 0.3f) else Color.Yellow.copy(alpha = 0.5f)
-        meanScore >= 4f -> if (isDarkTheme) Color(0xFFC57009).copy(alpha = 0.3f).copy(alpha = 0.3f) else Color(0xFFEF6D05).copy(alpha = 0.5f)
-        else -> if (isDarkTheme) Color(0xFFFF0000).copy(alpha = 0.5f) else Color.Red.copy(alpha = 0.5f)
+        meanScore >= 4f -> if (isDarkTheme) GlowRegularDark.copy(alpha = 0.3f) else GlowRegularLight.copy(alpha = 0.5f)
+        else -> if (isDarkTheme) GlowFailDark.copy(alpha = 0.5f) else Color.Red.copy(alpha = 0.5f)
     }
 
     val glowColor by animateColorAsState(
@@ -437,7 +447,7 @@ fun AnimatedNumber(
             }) { char ->
                 Text(char.toString(),
                     style = MaterialTheme.typography.displayLarge.copy(
-                        fontFamily = FontFamily(Font(R.font.delight_medium))
+                        fontFamily = DelightMedium
                     ),
                     textAlign = TextAlign.Center, fontSize = 80.sp)
             }
@@ -489,7 +499,7 @@ fun EventBox(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = event.name,
-                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = FontFamily(Font(R.font.delight_medium))
+                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = DelightMedium
                         ),
                         fontStyle = FontStyle.Italic,
                         modifier = Modifier.clickable{showEditEventDialog = true}
@@ -703,20 +713,20 @@ fun EventStatusTag(
 fun getEventStatus(event: Event): Pair<String, Color> {
     return if (!event.isPuntuable) {
         if (event.noPuntuableDone) {
-            "Hecho" to Color(0xFF4CAF50)
+            "Hecho" to StatusDone
         } else {
             "Por hacer" to Color.Gray
         }
     } else {
         when {
             event.score == null -> "Sin nota" to Color.Gray
-            event.minScore != null && event.score < event.minScore / 10 -> "Nota mínima" to Color(0xFF6E1800)
-            event.score < 5 -> "Suspenso" to Color(0xFFD32F2F)
-            event.score < 6 -> "Suficiente" to Color(0xFF4CAF50)
-            event.score < 7 -> "Aceptable" to Color(0xFFFFA000)
-            event.score < 9 -> "Notable" to Color(0xFF8D7728)
-            event.score >= 9 -> "Sobresaliente" to Color(0xFF1976D2)
-            else -> "Bien" to Color(0xFFFFA000)
+            event.minScore != null && event.score < event.minScore / 10 -> "Nota mínima" to StatusBelowMinimum
+            event.score < 5 -> "Suspenso" to StatusFail
+            event.score < 6 -> "Suficiente" to StatusPass
+            event.score < 7 -> "Aceptable" to StatusFair
+            event.score < 9 -> "Notable" to StatusGood
+            event.score >= 9 -> "Sobresaliente" to StatusExcellent
+            else -> "Bien" to StatusFair
         }
     }
 }
@@ -749,7 +759,7 @@ fun EventStackList(
     Column(modifier = modifier.fillMaxWidth()) {
         if (hasTabs) {
             val context = LocalContext.current
-            val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+            val isDarkTheme = LocalDarkTheme.current
 
             val contentColor = if (isDarkTheme) {
                 MaterialTheme.colorScheme.onBackground
@@ -888,7 +898,7 @@ fun EventStackList(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         val context = LocalContext.current
-                                        val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+                                        val isDarkTheme = LocalDarkTheme.current
                                         val contentColor = if (isDarkTheme) {
                                             MaterialTheme.colorScheme.onBackground
                                         } else {

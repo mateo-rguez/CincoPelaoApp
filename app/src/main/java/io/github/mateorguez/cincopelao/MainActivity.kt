@@ -1,5 +1,7 @@
 package io.github.mateorguez.cincopelao
 
+import io.github.mateorguez.cincopelao.ui.theme.ThemeViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.activity.result.contract.ActivityResultContracts
 import android.os.Build
 import android.Manifest
@@ -10,20 +12,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.fadeOut
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.*
 import dagger.hilt.android.AndroidEntryPoint
-import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
-import io.github.mateorguez.cincopelao.data.prefs.setDarkMode
 import io.github.mateorguez.cincopelao.notifications.NotificationUtils
 import io.github.mateorguez.cincopelao.ui.navigation.AppScaffold
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -59,26 +54,21 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            val themeViewModel: ThemeViewModel = hiltViewModel()
+            val savedDarkTheme by themeViewModel.isDarkTheme.collectAsState()
 
-            val context = LocalContext.current
-            val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
-
-            LaunchedEffect(isDarkTheme) {
-                delay(100)
-                isThemeReady = true
+            // La pantalla de carga se mantiene hasta saber qué tema usar, para no mostrar el equivocado
+            LaunchedEffect(savedDarkTheme) {
+                if (savedDarkTheme != null) isThemeReady = true
             }
+            val isDarkTheme = savedDarkTheme ?: false
 
             CincoPelaoTheme(darkTheme = isDarkTheme) {
                 AppScaffold(
                     darkTheme = isDarkTheme,
-                    onToggleTheme = {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            context.setDarkMode(!isDarkTheme)
-                        }
-                    }
+                    onToggleTheme = { themeViewModel.setDarkTheme(!isDarkTheme) }
                 )
             }
-
         }
     }
 }

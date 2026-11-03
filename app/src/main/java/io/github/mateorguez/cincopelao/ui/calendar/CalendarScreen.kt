@@ -1,5 +1,16 @@
 package io.github.mateorguez.cincopelao.ui.calendar
 
+import io.github.mateorguez.cincopelao.ui.theme.TimelineTaskPoint
+import io.github.mateorguez.cincopelao.ui.theme.TimelineTaskContainerLight
+import io.github.mateorguez.cincopelao.ui.theme.TimelineTaskContainerDark
+import io.github.mateorguez.cincopelao.ui.theme.TimelineEventPoint
+import io.github.mateorguez.cincopelao.ui.theme.TimelineEventContainerLight
+import io.github.mateorguez.cincopelao.ui.theme.TimelineEventContainerDark
+import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
+import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
+import io.github.mateorguez.cincopelao.ui.theme.CalendarSelectedDayDark
+import io.github.mateorguez.cincopelao.ui.theme.CalendarInactiveText
+import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import android.os.Build
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -108,7 +119,6 @@ import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.local.entity.Task
-import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.ui.MainViewModel
 import java.time.DayOfWeek
 import java.time.Instant
@@ -148,7 +158,7 @@ fun CalendarScreen() {
     }
 
     val context = LocalContext.current
-    val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+    val isDarkTheme = LocalDarkTheme.current
 
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(500) }
@@ -310,9 +320,9 @@ fun CalendarScreen() {
                         isSheetVisible = true
                     },
                     todayColor = if (isDarkTheme) MaterialTheme.colorScheme.primary else Color.Blue,
-                    itemBackgroundColor = if (isDarkTheme) Color(0xFF3A3767) else Color.Cyan,
+                    itemBackgroundColor = if (isDarkTheme) CalendarSelectedDayDark else Color.Cyan,
                     selectedItemColor = if (isDarkTheme) Color.Cyan else Color.Black,
-                    inactiveTextColor = Color(0xFF666666),
+                    inactiveTextColor = CalendarInactiveText,
                     normalTextColor = MaterialTheme.colorScheme.onBackground,
                     highlighted = highlightedDates.contains(day.date),
                 )
@@ -414,7 +424,7 @@ fun CalendarHeader(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontFamily = FontFamily(Font(R.font.delight_medium))
+                    fontFamily = DelightMedium
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.SemiBold,
@@ -460,7 +470,7 @@ fun MonthHeader(
                 color = MaterialTheme.colorScheme.onBackground,
                 text = dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, Locale.getDefault()).uppercase(),
                 style = MaterialTheme.typography.labelMedium.copy(
-                    fontFamily = FontFamily(Font(R.font.delight_regular)),
+                    fontFamily = DelightRegular,
                     fontWeight = FontWeight.Medium
                 ),
                 maxLines = 1
@@ -569,10 +579,10 @@ fun EventsAndTasksTimeline(
     ) { index, item, position ->
 
         val context = LocalContext.current
-        val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+        val isDarkTheme = LocalDarkTheme.current
 
-        val eventContainerColor = if (isDarkTheme) Color(0xFF1D206B) else Color(0xFF6057EA)
-        val taskContainerColor = if (isDarkTheme) Color(0xFF1A3A2B) else Color(0xFF7C981D)
+        val eventContainerColor = if (isDarkTheme) TimelineEventContainerDark else TimelineEventContainerLight
+        val taskContainerColor = if (isDarkTheme) TimelineTaskContainerDark else TimelineTaskContainerLight
 
         when (item) {
             is TimelineEntry.HeaderItem -> {
@@ -719,7 +729,7 @@ fun greenEventStyle(position: EventPosition): JetLimeEventStyle {
     return JetLimeEventDefaults.eventStyle(
         position = position,
         pointType = default.pointType,
-        pointColor = Color(0xFF4CAF50),
+        pointColor = TimelineEventPoint,
         pointFillColor = default.pointFillColor,
         pointRadius = default.pointRadius,
         pointAnimation = default.pointAnimation,
@@ -734,7 +744,7 @@ fun blueTaskStyle(position: EventPosition): JetLimeEventStyle {
     return JetLimeEventDefaults.eventStyle(
         position = position,
         pointType = default.pointType,
-        pointColor = Color(0xFF2196F3), // Azul
+        pointColor = TimelineTaskPoint,
         pointFillColor = default.pointFillColor,
         pointRadius = default.pointRadius,
         pointAnimation = default.pointAnimation,

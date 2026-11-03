@@ -1,5 +1,8 @@
 package io.github.mateorguez.cincopelao.ui.instances
 
+import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
+import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
+import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import io.github.mateorguez.cincopelao.data.instances.DatabaseInstance
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -64,8 +67,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.MainActivity
 import io.github.mateorguez.cincopelao.R
-import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
-import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
+import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -81,19 +83,18 @@ class InstancesActivity : ComponentActivity() {
         setContent {
 
             val context = LocalContext.current
-            val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
             val viewModel: InstancesViewModel = hiltViewModel()
             val instances by viewModel.instances.collectAsState()
             val currentInstanceId by viewModel.currentInstanceId.collectAsState()
 
-            CincoPelaoTheme(darkTheme = isDarkTheme) {
+            CincoPelaoAppTheme {
                 Scaffold(
                     topBar = {
                         TopAppBar(
                             title = {
                                 Text(
                                     text = "Instancias",
-                                    fontFamily = FontFamily(Font(R.font.delight_medium))
+                                    fontFamily = DelightMedium
                                 )
                             },
                             colors = TopAppBarDefaults.topAppBarColors(
@@ -150,7 +151,7 @@ fun InstanceScreen(
 ) {
 
     val context = LocalContext.current
-    val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+    val isDarkTheme = LocalDarkTheme.current
 
     var showNewDialog by remember { mutableStateOf(false) }
     var setName by remember { mutableStateOf("") }
@@ -306,7 +307,7 @@ fun InstanceScreen(
                             Text(
                                 instance.name,
                                 style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontFamily = FontFamily(Font(R.font.delight_regular)),
+                                    fontFamily = DelightRegular,
                                     color = if (isSelected && !isDarkTheme)
                                         MaterialTheme.colorScheme.primary
                                     else

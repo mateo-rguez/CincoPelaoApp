@@ -1,5 +1,8 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
+import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
+import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import android.os.Bundle
 import android.widget.Space
 import androidx.activity.ComponentActivity
@@ -41,9 +44,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.R
-import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.ui.MainViewModel
-import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
+import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -57,7 +59,6 @@ class AddEditSubjectActivity : ComponentActivity() {
         setContent {
 
             val context = LocalContext.current
-            val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
 
             val subjectId = intent.getIntExtra("subjectId", -1)
             val isEditMode = subjectId != -1
@@ -73,7 +74,7 @@ class AddEditSubjectActivity : ComponentActivity() {
                 }
             }
 
-            CincoPelaoTheme(darkTheme = isDarkTheme) {
+            CincoPelaoAppTheme {
                 AddSubjectScreen(onClose = { finish() })
             }
         }
@@ -88,9 +89,9 @@ fun AddSubjectTopBar(onMenuClick: () -> Unit) {
             val addSubjectViewModel: AddEditSubjectViewModel = hiltViewModel()
             val editMode = addSubjectViewModel.isEditMode.collectAsState().value
             if (editMode) {
-                Text(text = "Editar Asignatura", fontFamily = FontFamily(Font(R.font.delight_medium)))
+                Text(text = "Editar Asignatura", fontFamily = DelightMedium)
             } else {
-                Text(text = "Añadir Asignatura", fontFamily = FontFamily(Font(R.font.delight_medium)))
+                Text(text = "Añadir Asignatura", fontFamily = DelightMedium)
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -293,7 +294,7 @@ fun EventDialog(
     onEventUpdated: (Event) -> Unit,
 ) {
     val context = LocalContext.current
-    val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+    val isDarkTheme = LocalDarkTheme.current
 
     val initialName = event?.name ?: ""
     val initialType = event?.type ?: ""
@@ -627,7 +628,7 @@ fun EventListCardStack(
 ) {
 
     val context = LocalContext.current
-    val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+    val isDarkTheme = LocalDarkTheme.current
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -667,7 +668,7 @@ fun EventListCardStack(
                     ) {
                         Text(
                             text = buildAnnotatedString {
-                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp, fontFamily = FontFamily(Font(R.font.delight_regular)))){
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp, fontFamily = DelightRegular)){
                                     append(event.name)
                                 }
                                 event.weight?.let {

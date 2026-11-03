@@ -1,5 +1,7 @@
 package io.github.mateorguez.cincopelao.ui.notifications
 
+import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
+import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
@@ -78,9 +80,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.prefs.NotiPrefsManager
-import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.ui.MainViewModel
-import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
+import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -95,20 +96,19 @@ class NotificationsActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val context = LocalContext.current
-            val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
 
             val scope = rememberCoroutineScope()
 
             val prefs = remember { NotiPrefsManager(context) }
 
-            CincoPelaoTheme(darkTheme = isDarkTheme) {
+            CincoPelaoAppTheme {
                 Scaffold(
                     topBar = {
                         TopAppBar(
                             title = {
                                 Text(
                                     text = "Notificaciones",
-                                    fontFamily = FontFamily(Font(R.font.delight_medium))
+                                    fontFamily = DelightMedium
                                 )
                             },
                             colors = TopAppBarDefaults.topAppBarColors(
@@ -186,7 +186,7 @@ fun NotificationsScreen(
     Column(modifier = modifier.fillMaxSize()) {
         val tabs = listOf("Eventos", "Tareas")
         val context = LocalContext.current
-        val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+        val isDarkTheme = LocalDarkTheme.current
         val contentColor = if (isDarkTheme) {
             MaterialTheme.colorScheme.onBackground
         } else {

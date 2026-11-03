@@ -1,5 +1,8 @@
 package io.github.mateorguez.cincopelao.ui.tasks
 
+import io.github.mateorguez.cincopelao.ui.theme.TaskCardTintLight
+import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
+import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
@@ -76,7 +79,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.local.entity.Task
-import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.ui.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -127,7 +129,7 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
     }
 
     val context = LocalContext.current
-    val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+    val isDarkTheme = LocalDarkTheme.current
     val brushColors = if (isDarkTheme) {
         listOf(
             Color.White.copy(alpha = 0.3f),
@@ -135,8 +137,8 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
         )
     } else {
         listOf(
-            Color(0xFF001794).copy(alpha = 0.3f),
-            Color(0xFF001794).copy(alpha = 0.05f)
+            TaskCardTintLight.copy(alpha = 0.3f),
+            TaskCardTintLight.copy(alpha = 0.05f)
         )
     }
 
@@ -232,7 +234,7 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
                 ) {
                     Text(
                         text = "Tareas Completadas",
-                        fontFamily = FontFamily(Font(R.font.delight_regular)),
+                        fontFamily = DelightRegular,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -465,7 +467,7 @@ fun ArchivedParentTaskBlock(
     }
 
     val context = LocalContext.current
-    val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+    val isDarkTheme = LocalDarkTheme.current
     val brushColors = if (isDarkTheme) {
         listOf(
             Color.White.copy(alpha = 0.3f),
@@ -473,8 +475,8 @@ fun ArchivedParentTaskBlock(
         )
     } else {
         listOf(
-            Color(0xFF001794).copy(alpha = 0.3f),
-            Color(0xFF001794).copy(alpha = 0.05f)
+            TaskCardTintLight.copy(alpha = 0.3f),
+            TaskCardTintLight.copy(alpha = 0.05f)
         )
     }
 
@@ -551,7 +553,7 @@ fun ArchivedParentTaskBlock(
                 }
 
                 val context = LocalContext.current
-                val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+                val isDarkTheme = LocalDarkTheme.current
                 IconButton(onClick = { onRestore() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Undo,
@@ -649,7 +651,7 @@ fun ArchivedTaskRow(
         }
 
         val context = LocalContext.current
-        val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+        val isDarkTheme = LocalDarkTheme.current
         if (task.parentTaskId == null) {
             Row {
                 IconButton(onClick = { onRestore() }) {

@@ -1,5 +1,7 @@
 package io.github.mateorguez.cincopelao.ui.sharing
 
+import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
+import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -99,13 +101,12 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.R
-import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.data.prefs.getScheduleState
 import io.github.mateorguez.cincopelao.sharing.protocol.DataToSend
 import io.github.mateorguez.cincopelao.ui.MainViewModel
 import io.github.mateorguez.cincopelao.ui.schedule.loadImageAsBitmap
 import io.github.mateorguez.cincopelao.ui.schedule.loadPdfAsBitmap
-import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
+import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.util.UUID
@@ -149,7 +150,6 @@ class TransmitActivity : ComponentActivity() {
         setContent {
 
             val context = LocalContext.current
-            val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
 
             val transmitViewModel: TransmitViewModel = hiltViewModel()
             val connected by transmitViewModel.socketConnected.collectAsState()
@@ -208,11 +208,11 @@ class TransmitActivity : ComponentActivity() {
                 }
             }
 
-            CincoPelaoTheme(darkTheme = isDarkTheme) {
+            CincoPelaoAppTheme {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text(text = "Transmitir Set", fontFamily = FontFamily(Font(R.font.delight_medium))) },
+                            title = { Text(text = "Transmitir Set", fontFamily = DelightMedium) },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 titleContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -356,7 +356,7 @@ fun TransmitScreen(
             modifier = Modifier.padding(bottom = 24.dp),
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
-            fontFamily = FontFamily(Font(R.font.delight_regular))
+            fontFamily = DelightRegular
         )
 
         if (devices.isEmpty()) {
@@ -364,7 +364,7 @@ fun TransmitScreen(
                 text = "No se han encontrado dispositivos aún...",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground,
-                fontFamily = FontFamily(Font(R.font.delight_regular))
+                fontFamily = DelightRegular
             )
         } else {
             if (!connected) {
@@ -384,9 +384,7 @@ fun TransmitScreen(
                                     .fillMaxWidth()
                                     .padding(16.dp)
                             ) {
-                                Text("${device.deviceId}", style = MaterialTheme.typography.titleLarge.copy(fontFamily =
-                                    FontFamily(Font(R.font.delight_medium)
-                                    )))
+                                Text("${device.deviceId}", style = MaterialTheme.typography.titleLarge.copy(fontFamily = DelightMedium))
                                 Spacer(modifier = Modifier.height(5.dp))
                                 Text("Device: ${device.deviceName}", style = MaterialTheme.typography.bodyMedium)
                                 Spacer(modifier = Modifier.height(2.dp))

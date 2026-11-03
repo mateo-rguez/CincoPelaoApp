@@ -1,5 +1,9 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import io.github.mateorguez.cincopelao.ui.theme.SubjectCardGradientStart
+import io.github.mateorguez.cincopelao.ui.theme.SubjectCardGradientEnd
+import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
+import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -62,7 +66,6 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
-import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.ui.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -143,7 +146,7 @@ fun SubjectCard(
 ) {
     val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
-    val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+    val isDarkTheme = LocalDarkTheme.current
 
     val cardGradient = if (isDarkTheme) {
         Brush.horizontalGradient(
@@ -155,8 +158,8 @@ fun SubjectCard(
     } else {
         Brush.horizontalGradient(
             listOf(
-                Color(0xFFE4D4FF),
-                Color(0xFF76EAEE)
+                SubjectCardGradientStart,
+                SubjectCardGradientEnd
             )
         )
     }
@@ -198,7 +201,7 @@ fun SubjectCard(
                     Text(
                         text = subject.name,
                         style = MaterialTheme.typography.titleMedium,
-                        fontFamily = FontFamily(Font(R.font.delight_regular))
+                        fontFamily = DelightRegular
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -208,7 +211,7 @@ fun SubjectCard(
                             subject.course
                         },
                         style = MaterialTheme.typography.bodySmall,
-                        fontFamily = FontFamily(Font(R.font.delight_regular))
+                        fontFamily = DelightRegular
                     )
                 }
             }

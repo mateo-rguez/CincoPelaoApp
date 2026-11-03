@@ -1,5 +1,7 @@
 package io.github.mateorguez.cincopelao.ui.sharing
 
+import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
+import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -103,10 +105,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.MainActivity
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.local.entity.Event
-import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.data.prefs.saveScheduleState
 import io.github.mateorguez.cincopelao.sharing.protocol.DataToSend
-import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
+import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
@@ -153,7 +154,6 @@ class ReceiveActivity : ComponentActivity() {
         setContent {
 
             val context = LocalContext.current
-            val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
 
             val receiveViewModel: ReceiveViewModel = hiltViewModel()
             val connected by receiveViewModel.socketConnected.collectAsState()
@@ -197,14 +197,14 @@ class ReceiveActivity : ComponentActivity() {
                 }
             }
 
-            CincoPelaoTheme(darkTheme = isDarkTheme) {
+            CincoPelaoAppTheme {
                 Scaffold(
                     topBar = {
                         TopAppBar(
                             title = {
                                 Text(
                                     text = "Recibir Set",
-                                    fontFamily = FontFamily(Font(R.font.delight_medium))
+                                    fontFamily = DelightMedium
                                 )
                             },
                             colors = TopAppBarDefaults.topAppBarColors(
@@ -428,7 +428,7 @@ fun ReceiveScreen(
             modifier = Modifier.padding(bottom = 24.dp),
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
-            fontFamily = FontFamily(Font(R.font.delight_regular))
+            fontFamily = DelightRegular
         )
 
         if (messages.isNotEmpty()) {

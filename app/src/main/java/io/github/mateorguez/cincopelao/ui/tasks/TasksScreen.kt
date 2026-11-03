@@ -1,5 +1,8 @@
 package io.github.mateorguez.cincopelao.ui.tasks
 
+import io.github.mateorguez.cincopelao.ui.theme.TaskCardTintLight
+import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
+import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.animation.AnimatedContent
@@ -121,7 +124,6 @@ import androidx.room.util.TableInfo
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.local.entity.Task
-import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.ui.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -181,7 +183,7 @@ fun TasksScreen() {
     }
 
     val context = LocalContext.current
-    val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+    val isDarkTheme = LocalDarkTheme.current
     val brushColors = if (isDarkTheme) {
         listOf(
             Color.White.copy(alpha = 0.3f),
@@ -189,8 +191,8 @@ fun TasksScreen() {
         )
     } else {
         listOf(
-            Color(0xFF001794).copy(alpha = 0.3f),
-            Color(0xFF001794).copy(alpha = 0.05f)
+            TaskCardTintLight.copy(alpha = 0.3f),
+            TaskCardTintLight.copy(alpha = 0.05f)
         )
     }
 
@@ -256,7 +258,7 @@ fun TasksScreen() {
                     Text(
                         text = "Tareas Generales",
                         style = MaterialTheme.typography.titleLarge.copy(
-                            fontFamily = FontFamily(Font(R.font.delight_regular))
+                            fontFamily = DelightRegular
                         ),
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
@@ -417,7 +419,7 @@ fun TasksScreen() {
                     Text(
                         text = subject.name,
                         style = MaterialTheme.typography.titleLarge.copy(
-                            fontFamily = FontFamily(Font(R.font.delight_regular))
+                            fontFamily = DelightRegular
                         ),
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
@@ -685,7 +687,7 @@ fun ParentTaskBlock(
     }
 
     val context = LocalContext.current
-    val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+    val isDarkTheme = LocalDarkTheme.current
     val brushColors = if (isDarkTheme) {
         listOf(
             Color.White.copy(alpha = 0.3f),
@@ -693,8 +695,8 @@ fun ParentTaskBlock(
         )
     } else {
         listOf(
-            Color(0xFF001794).copy(alpha = 0.3f),
-            Color(0xFF001794).copy(alpha = 0.05f)
+            TaskCardTintLight.copy(alpha = 0.3f),
+            TaskCardTintLight.copy(alpha = 0.05f)
         )
     }
 
@@ -768,7 +770,7 @@ fun ParentTaskBlock(
                 }
 
                 val context = LocalContext.current
-                val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+                val isDarkTheme = LocalDarkTheme.current
                 AnimatedVisibility(
                     visible = parentTask.isCompleted,
                     enter = fadeIn() + scaleIn(),
@@ -939,7 +941,7 @@ fun TaskRow(
         }
 
         val context = LocalContext.current
-        val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+        val isDarkTheme = LocalDarkTheme.current
         AnimatedVisibility(
             visible = task.isCompleted && task.parentTaskId == null,
             enter = fadeIn() + scaleIn(),

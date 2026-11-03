@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.navigation
 
+import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import io.github.mateorguez.cincopelao.ui.MainViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import android.app.Activity
@@ -440,7 +441,7 @@ fun AppTopBar(
     onToggleTasksClick: () -> Unit) {
     var isShowingCompleted by remember { mutableStateOf(false) }
     TopAppBar(
-        title = { Text(text = "Cinco Pelao", fontFamily = FontFamily(Font(R.font.delight_medium))) },
+        title = { Text(text = "Cinco Pelao", fontFamily = DelightMedium) },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -555,7 +556,7 @@ fun AppBottomBar(
                             text = item.label,
                             color = animatedColor,
                             fontSize = 10.sp,
-                            fontFamily = FontFamily(Font(R.font.delight_medium)),
+                            fontFamily = DelightMedium,
                             maxLines = 1
                         )
                     }
