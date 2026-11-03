@@ -1,12 +1,12 @@
 package com.example.cincopelao
 
-import android.bluetooth.le.ScanResult
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,9 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import kotlinx.serialization.Serializable
-
 
 @HiltViewModel
 class TransmitViewModel @Inject constructor(
@@ -170,11 +167,4 @@ data class DeviceInfo(
     val deviceId: String,
     val macBle: String,
     val lastSeen: Long,
-)
-
-@Serializable
-data class DataToSend(
-    val subjects: List<Subject> = emptyList(),
-    val events: List<Event> = emptyList(),
-    val tasks: List<Task> = emptyList()
 )

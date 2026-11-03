@@ -4,35 +4,30 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
+import android.graphics.PorterDuff
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.Build
-import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import android.graphics.Color
-import android.graphics.PorterDuff
-import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -41,46 +36,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.floatPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.io.File
-
-object ScheduleSettingsKeys {
-    fun fileUriKey(instanceId: String) = stringPreferencesKey("file_uri_$instanceId")
-    fun zoomKey(instanceId: String) = floatPreferencesKey("zoom_$instanceId")
-    fun offsetXKey(instanceId: String) = floatPreferencesKey("offset_x_$instanceId")
-    fun offsetYKey(instanceId: String) = floatPreferencesKey("offset_y_$instanceId")
-}
-
-suspend fun saveScheduleState(
-    context: Context,
-    instanceId: String,
-    fileUriString: String?,
-    zoom: Float,
-    offset: Offset
-) {
-    context.dataStore.edit { prefs ->
-        fileUriString?.let { prefs[ScheduleSettingsKeys.fileUriKey(instanceId)] = it }
-        prefs[ScheduleSettingsKeys.zoomKey(instanceId)] = zoom
-        prefs[ScheduleSettingsKeys.offsetXKey(instanceId)] = offset.x
-        prefs[ScheduleSettingsKeys.offsetYKey(instanceId)] = offset.y
-    }
-}
-
-fun getScheduleState(context: Context, instanceId: String): Flow<Triple<String?, Float, Offset>> {
-    return context.dataStore.data.map { prefs ->
-        val uriString = prefs[ScheduleSettingsKeys.fileUriKey(instanceId)]
-        val zoom = prefs[ScheduleSettingsKeys.zoomKey(instanceId)] ?: 1f
-        val offsetX = prefs[ScheduleSettingsKeys.offsetXKey(instanceId)] ?: 0f
-        val offsetY = prefs[ScheduleSettingsKeys.offsetYKey(instanceId)] ?: 0f
-        Triple(uriString, zoom, Offset(offsetX, offsetY))
-    }
-}
 
 @Composable
 fun ScheduleScreen(instanceId: String) {
@@ -285,8 +242,6 @@ fun loadPdfAsBitmap(context: Context, uri: Uri, spacingPx: Int = 20): Bitmap? {
     }
 }
 
-
-
 @Composable
 fun ZoomableImage(
     bitmap: Bitmap,
@@ -358,6 +313,3 @@ fun ZoomableImage(
         )
     }
 }
-
-
-
