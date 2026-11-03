@@ -86,10 +86,10 @@ class TaskRepository @Inject constructor(
         }
     }
 
-    /** Archiva varias tareas a la vez (p. ej. una tarea madre y sus subtareas). */
-    suspend fun archive(tasks: List<Task>) {
+    /** Archiva o desarchiva varias tareas a la vez (p. ej. una tarea madre y sus subtareas). */
+    suspend fun setArchived(tasks: List<Task>, archived: Boolean) {
         val db = db
-        db.withTransaction { tasks.forEach { db.taskDao().updateTask(it.copy(archived = true)) } }
+        db.withTransaction { tasks.forEach { db.taskDao().updateTask(it.copy(archived = archived)) } }
     }
 
     suspend fun deleteAll(tasks: List<Task>) {

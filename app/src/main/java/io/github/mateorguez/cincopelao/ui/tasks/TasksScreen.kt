@@ -202,7 +202,7 @@ private fun TaskGroupSection(
 
 /** Confirmación de borrado; si la tarea tiene subtareas, permite conservarlas. */
 @Composable
-private fun DeleteTaskDialog(
+fun DeleteTaskDialog(
     hasSubtasks: Boolean,
     onDeleteOnlyThis: () -> Unit,
     onDeleteAll: () -> Unit,

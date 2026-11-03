@@ -59,7 +59,7 @@ class TasksViewModel @Inject constructor(
 
     /** Archiva la tarea junto con sus subtareas. */
     fun archive(task: Task, subtasks: List<Task> = emptyList()) = viewModelScope.launch {
-        tasks.archive(listOf(task) + subtasks)
+        tasks.setArchived(listOf(task) + subtasks, archived = true)
     }
 
     /** Crea una tarea nueva o guarda los cambios de [existing]. */
