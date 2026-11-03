@@ -155,7 +155,7 @@ private fun DayDetailsSheet(date: LocalDate, state: CalendarUiState, onDismiss: 
                 Spacer(Modifier.height(8.dp))
                 events.forEach { event ->
                     Text(
-                        text = "${state.subject(event.subjectId.toLong())?.name ?: "Asignatura"}: ${event.name}",
+                        text = "${state.subject(event.subjectId)?.name ?: "Asignatura"}: ${event.name}",
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )

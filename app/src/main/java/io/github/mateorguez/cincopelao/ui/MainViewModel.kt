@@ -55,16 +55,16 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    suspend fun getSubjectById(id: Int): Subject? = subjects.subject(id).first()
+    suspend fun getSubjectById(id: Long): Subject? = subjects.subject(id).first()
 
     // EVENTOS --------------------------------
 
     val allEvents: Flow<List<Event>> = events.events
 
-    suspend fun getEventsForSubject(subjectId: Int): List<Event> =
+    suspend fun getEventsForSubject(subjectId: Long): List<Event> =
         events.eventsForSubject(subjectId).first()
 
-    fun getEventsForSubjectFlow(subjectId: Int): Flow<List<Event>> = events.eventsForSubject(subjectId)
+    fun getEventsForSubjectFlow(subjectId: Long): Flow<List<Event>> = events.eventsForSubject(subjectId)
 
     fun insertEvent(event: Event) = viewModelScope.launch { events.insert(event) }
 

@@ -47,16 +47,16 @@ class AddEditSubjectViewModel @Inject constructor(
 ) : ViewModel() {
 
     /** Id de la asignatura a editar, o -1 para crear una nueva (llega en los extras del intent). */
-    private val subjectId: Int = savedStateHandle[AddEditSubjectActivity.EXTRA_SUBJECT_ID] ?: -1
+    private val subjectId: Long = savedStateHandle[AddEditSubjectActivity.EXTRA_SUBJECT_ID] ?: -1L
 
     private var nextKey = 0L
 
-    private val _uiState = MutableStateFlow(AddEditSubjectUiState(isEditMode = subjectId != -1))
+    private val _uiState = MutableStateFlow(AddEditSubjectUiState(isEditMode = subjectId != -1L))
     val uiState: StateFlow<AddEditSubjectUiState> = _uiState.asStateFlow()
 
     init {
         // Se carga una sola vez: al girar la pantalla el ViewModel sobrevive y no se pisan los cambios
-        if (subjectId != -1) {
+        if (subjectId != -1L) {
             viewModelScope.launch {
                 val subject = subjects.subject(subjectId).first() ?: return@launch
                 val events = eventsRepository.eventsForSubject(subjectId).first()

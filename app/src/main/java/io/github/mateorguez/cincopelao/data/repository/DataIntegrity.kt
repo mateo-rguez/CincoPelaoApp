@@ -44,7 +44,7 @@ internal fun DataToSend.withoutDanglingReferences(): DataToSend {
         events = events.filter { it.subjectId in subjectIds },
         tasks = tasks.map { task ->
             task.copy(
-                subjectId = task.subjectId?.takeIf { it.toInt() in subjectIds },
+                subjectId = task.subjectId?.takeIf { it in subjectIds },
                 parentTaskId = task.parentTaskId?.takeIf { it in taskIds }
             )
         }

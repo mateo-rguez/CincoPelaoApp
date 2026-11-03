@@ -21,7 +21,7 @@ interface SubjectDao {
     fun getAllSubjects(): Flow<List<Subject>>
 
     @Query("SELECT * FROM subjects WHERE subjectId = :id")
-    fun getSubjectById(id: Int): Flow<Subject?> // null si se ha borrado
+    fun getSubjectById(id: Long): Flow<Subject?> // null si se ha borrado
 
     @Transaction
     suspend fun insertSubjectWithEvents(isEditing: Boolean, subject: Subject, events: List<Event>) {
@@ -34,7 +34,7 @@ interface SubjectDao {
         } else {
             val subjectId = insert(subject)
             events.forEach { event ->
-                insertEvent(event.copy(subjectId = subjectId.toInt()))
+                insertEvent(event.copy(subjectId = subjectId))
             }
         }
     }
@@ -43,6 +43,6 @@ interface SubjectDao {
     suspend fun insertEvent(event: Event)
 
     @Query("DELETE FROM events WHERE subjectId = :subjectId")
-    suspend fun deleteEventsForSubject(subjectId: Int)
+    suspend fun deleteEventsForSubject(subjectId: Long)
 
 }

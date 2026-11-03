@@ -49,9 +49,9 @@ fun buildTimeline(
     today: LocalDate,
     zone: ZoneId = ZoneId.systemDefault()
 ): List<TimelineEntry> {
-    val subjectById = subjects.associateBy { it.subjectId.toLong() }
+    val subjectById = subjects.associateBy { it.subjectId }
     val dated: List<Pair<LocalDate, TimelineEntry>> =
-        events.map { it.date.toLocalDate(zone) to TimelineEntry.EventItem(it, subjectById[it.subjectId.toLong()]) } +
+        events.map { it.date.toLocalDate(zone) to TimelineEntry.EventItem(it, subjectById[it.subjectId]) } +
             tasks.mapNotNull { task ->
                 task.dueDate?.let { it.toLocalDate(zone) to TimelineEntry.TaskItem(task, task.subjectId?.let(subjectById::get)) }
             }
@@ -71,7 +71,7 @@ data class CalendarUiState(
     val highlightedDates: Set<LocalDate> = emptySet(),
     val timeline: List<TimelineEntry> = emptyList()
 ) {
-    fun subject(id: Long?): Subject? = id?.let { subjects.find { s -> s.subjectId.toLong() == it } }
+    fun subject(id: Long?): Subject? = id?.let { subjects.find { s -> s.subjectId == it } }
     fun eventsOn(date: LocalDate): List<Event> = events.filter { it.date.toLocalDate() == date }
     fun tasksOn(date: LocalDate): List<Task> = tasks.filter { it.dueDate?.toLocalDate() == date }
 }

@@ -61,13 +61,13 @@ class SubjectActivity : ComponentActivity() {
     }
 
     companion object {
-        /** Extra con el id (Int) de la asignatura a mostrar. */
+        /** Extra con el id (Long) de la asignatura a mostrar. */
         const val EXTRA_SUBJECT_ID = "subjectId"
 
         private const val ROUTE_DETAIL = "subject_screen"
         private const val ROUTE_STATS = "stats_screen"
 
-        fun intent(context: Context, subjectId: Int): Intent =
+        fun intent(context: Context, subjectId: Long): Intent =
             Intent(context, SubjectActivity::class.java).putExtra(EXTRA_SUBJECT_ID, subjectId)
     }
 }

@@ -55,7 +55,7 @@ private const val NO_MODALITY = "Ninguna"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDialog(
-    subjectId: Int,
+    subjectId: Long,
     event: Event?,
     onDismiss: () -> Unit,
     onEventCreated: (Event) -> Unit,

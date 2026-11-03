@@ -20,7 +20,7 @@ data class TaskGroup(
     /** Tareas sin archivar, ordenadas por fecha límite (sin fecha al final). */
     val tasks: List<Task>
 ) {
-    val key: Long get() = subject?.subjectId?.toLong() ?: GENERAL_KEY
+    val key: Long get() = subject?.subjectId ?: GENERAL_KEY
 
     companion object {
         const val GENERAL_KEY = -1L
@@ -48,7 +48,7 @@ class TasksViewModel @Inject constructor(
         val bySubject = active.groupBy { it.subjectId }
         TasksUiState(
             groups = listOf(TaskGroup(null, bySubject[null].orEmpty())) +
-                subjectList.map { TaskGroup(it, bySubject[it.subjectId.toLong()].orEmpty()) },
+                subjectList.map { TaskGroup(it, bySubject[it.subjectId].orEmpty()) },
             allTasks = taskList
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TasksUiState())
@@ -73,7 +73,7 @@ class TasksViewModel @Inject constructor(
                         title = title,
                         description = description,
                         dueDate = dueDate,
-                        subjectId = subject?.subjectId?.toLong(),
+                        subjectId = subject?.subjectId,
                         parentTaskId = parentTaskId
                     )
                 )

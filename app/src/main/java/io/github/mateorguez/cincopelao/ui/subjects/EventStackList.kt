@@ -46,7 +46,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun EventStackList(
     events: List<Event>,
-    subjectId: Int,
+    subjectId: Long,
     onEventChanged: (Event) -> Unit,
     modifier: Modifier = Modifier
 ) {

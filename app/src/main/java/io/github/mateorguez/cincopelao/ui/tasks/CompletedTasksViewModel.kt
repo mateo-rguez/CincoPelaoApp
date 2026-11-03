@@ -38,7 +38,7 @@ class CompletedTasksViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState: StateFlow<CompletedTasksUiState> = combine(subjects.subjects, tasks.tasks) { subjectList, taskList ->
-        val abbrevById = subjectList.associate { it.subjectId.toLong() to it.abbrev }
+        val abbrevById = subjectList.associate { it.subjectId to it.abbrev }
         val archived = taskList.filter { it.archived }
         val items = archived
             .sortedByDescending { it.completedAt ?: Long.MAX_VALUE }

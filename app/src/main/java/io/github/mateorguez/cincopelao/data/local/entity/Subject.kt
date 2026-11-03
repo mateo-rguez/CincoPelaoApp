@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Entity(tableName = "subjects")
 data class Subject(
-    @PrimaryKey(autoGenerate = true) val subjectId: Int = 0,
+    @PrimaryKey(autoGenerate = true) val subjectId: Long = 0,
     val name: String = "",
     val course: String = "",
     val abbrev: String = ""

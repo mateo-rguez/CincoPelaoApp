@@ -67,7 +67,7 @@ object ReminderPlanner {
         taskSettings: ReminderSettings,
         now: Long
     ): List<PlannedReminder> {
-        val abbrevById = subjects.associate { it.subjectId.toLong() to it.abbrev }
+        val abbrevById = subjects.associate { it.subjectId to it.abbrev }
 
         val eventReminders = events.filter { it.date > now }.flatMap { event ->
             eventSettings.daysBefore.distinct().map { offset ->
@@ -75,7 +75,7 @@ object ReminderPlanner {
                 val title = pick(eventTemplates, key)
                     .replace("evento", event.name)
                     .replace("tipo", event.type.lowercase())
-                    .replace("abbrev", abbrevById[event.subjectId.toLong()] ?: MISSING_SUBJECT)
+                    .replace("abbrev", abbrevById[event.subjectId] ?: MISSING_SUBJECT)
                 PlannedReminder(key, event.date, offset, eventSettings.startHour, eventSettings.endHour, title, reminderMessageFor(offset))
             }
         }

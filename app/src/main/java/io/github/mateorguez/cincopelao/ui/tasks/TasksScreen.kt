@@ -65,7 +65,7 @@ fun TasksScreen(viewModel: TasksViewModel = hiltViewModel()) {
             showEdit = true,
             onDismiss = { infoTaskId = null },
             onEdit = {
-                val subject = state.groups.firstOrNull { it.subject?.subjectId?.toLong() == task.subjectId }?.subject
+                val subject = state.groups.firstOrNull { it.subject?.subjectId == task.subjectId }?.subject
                 formTarget = TaskFormTarget(task, subject)
             },
             onDelete = { taskToDelete = task },
@@ -97,7 +97,7 @@ fun TasksScreen(viewModel: TasksViewModel = hiltViewModel()) {
         TaskFormSheet(
             task = target.task,
             subject = target.subject,
-            parentCandidates = state.allTasks.filter { it.subjectId == target.subject?.subjectId?.toLong() },
+            parentCandidates = state.allTasks.filter { it.subjectId == target.subject?.subjectId },
             onSave = { title, description, dueDate, parentTaskId ->
                 viewModel.save(target.task, target.subject, title, description, dueDate, parentTaskId)
                 formTarget = null

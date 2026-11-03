@@ -19,7 +19,7 @@ class EventRepository @Inject constructor(
     val events: Flow<List<Event>> =
         instances.currentDatabase.flatMapLatest { it.eventDao().getAllEvents() }
 
-    fun eventsForSubject(subjectId: Int): Flow<List<Event>> =
+    fun eventsForSubject(subjectId: Long): Flow<List<Event>> =
         instances.currentDatabase.flatMapLatest { it.eventDao().getEventsForSubject(subjectId) }
 
     suspend fun insert(event: Event) = db.eventDao().insertEvent(event)

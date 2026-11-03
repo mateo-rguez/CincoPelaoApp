@@ -29,7 +29,7 @@ class SubjectRepository @Inject constructor(
     val subjects: Flow<List<Subject>> =
         instances.currentDatabase.flatMapLatest { it.subjectDao().getAllSubjects() }
 
-    fun subject(id: Int): Flow<Subject?> =
+    fun subject(id: Long): Flow<Subject?> =
         instances.currentDatabase.flatMapLatest { it.subjectDao().getSubjectById(id) }
 
     /** Crea o edita una asignatura junto con sus eventos (en una transacción). */
@@ -46,7 +46,7 @@ class SubjectRepository @Inject constructor(
         return db.withTransaction {
             val events = db.eventDao().getEventsForSubjectOnce(subject.subjectId)
             val allTasks = db.taskDao().getAllTasksOnce()
-            val ownIds = allTasks.filter { it.subjectId == subject.subjectId.toLong() }.mapTo(HashSet()) { it.taskId }
+            val ownIds = allTasks.filter { it.subjectId == subject.subjectId }.mapTo(HashSet()) { it.taskId }
             val tasks = allTasks.withDescendantsOf(ownIds)
             db.subjectDao().delete(subject)
             DeletedSubject(subject, events, tasks)

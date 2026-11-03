@@ -100,7 +100,7 @@ fun SubjectDetailScreen(
 
             EventStackList(
                 events = state.events,
-                subjectId = state.subject?.subjectId ?: -1,
+                subjectId = state.subject?.subjectId ?: -1L,
                 onEventChanged = onEventChanged
             )
         }

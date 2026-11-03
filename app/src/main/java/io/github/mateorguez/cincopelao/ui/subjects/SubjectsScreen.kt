@@ -78,7 +78,7 @@ fun SubjectsScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    var expandedCardId by remember { mutableStateOf<Int?>(null) }
+    var expandedCardId by remember { mutableStateOf<Long?>(null) }
 
     Box(
         modifier = Modifier

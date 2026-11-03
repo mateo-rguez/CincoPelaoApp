@@ -22,13 +22,13 @@ interface EventDao {
     suspend fun updateEvent(event: Event)
 
     @Query("SELECT * FROM events WHERE subjectId = :subjectId ORDER BY date ASC")
-    fun getEventsForSubject(subjectId: Int): Flow<List<Event>>
+    fun getEventsForSubject(subjectId: Long): Flow<List<Event>>
 
     @Query("SELECT * FROM events ORDER BY date ASC")
     fun getAllEvents(): Flow<List<Event>>
 
     @Query("SELECT * FROM events WHERE subjectId = :subjectId")
-    suspend fun getEventsForSubjectOnce(subjectId: Int): List<Event>
+    suspend fun getEventsForSubjectOnce(subjectId: Long): List<Event>
 
     @Delete
     suspend fun deleteEvent(event: Event)

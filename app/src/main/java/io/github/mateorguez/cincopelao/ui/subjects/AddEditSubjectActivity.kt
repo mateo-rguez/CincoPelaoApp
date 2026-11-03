@@ -90,10 +90,10 @@ class AddEditSubjectActivity : ComponentActivity() {
     }
 
     companion object {
-        /** Extra con el id (Int) de la asignatura a editar; sin él, se crea una nueva. */
+        /** Extra con el id (Long) de la asignatura a editar; sin él, se crea una nueva. */
         const val EXTRA_SUBJECT_ID = "subjectId"
 
-        fun editIntent(context: Context, subjectId: Int): Intent =
+        fun editIntent(context: Context, subjectId: Long): Intent =
             Intent(context, AddEditSubjectActivity::class.java).putExtra(EXTRA_SUBJECT_ID, subjectId)
     }
 }

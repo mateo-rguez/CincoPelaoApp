@@ -62,7 +62,7 @@ import java.util.Locale
 @Composable
 fun EventBox(
     event: Event,
-    subjectId: Int,
+    subjectId: Long,
     onScoreChange: (Float?) -> Unit,
     onDoneChange: (Boolean) -> Unit,
     onEventUpdate: (Event) -> Unit,

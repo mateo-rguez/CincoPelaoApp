@@ -44,7 +44,7 @@ class SubjectViewModel @Inject constructor(
 ) : ViewModel() {
 
     /** Llega en los extras del intent que abre SubjectActivity. */
-    private val subjectId: Int = savedStateHandle[SubjectActivity.EXTRA_SUBJECT_ID] ?: -1
+    private val subjectId: Long = savedStateHandle[SubjectActivity.EXTRA_SUBJECT_ID] ?: -1L
 
     val uiState: StateFlow<SubjectDetailUiState> =
         combine(subjects.subject(subjectId), events.eventsForSubject(subjectId)) { subject, eventList ->

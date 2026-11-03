@@ -21,9 +21,9 @@ import kotlinx.serialization.Serializable
     indices = [Index(value = ["subjectId"])]
 )
 data class Event(
-    @PrimaryKey(autoGenerate = true) val eventId: Int = 0,
+    @PrimaryKey(autoGenerate = true) val eventId: Long = 0,
 
-    val subjectId: Int,
+    val subjectId: Long,
 
     val name: String,
 
