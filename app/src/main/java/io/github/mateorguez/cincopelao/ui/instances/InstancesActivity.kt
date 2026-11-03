@@ -1,5 +1,8 @@
 package io.github.mateorguez.cincopelao.ui.instances
 
+import io.github.mateorguez.cincopelao.data.instances.DatabaseInstance
+import androidx.hilt.navigation.compose.hiltViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -61,9 +64,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.MainActivity
 import io.github.mateorguez.cincopelao.R
-import io.github.mateorguez.cincopelao.data.local.AppDatabase
-import io.github.mateorguez.cincopelao.data.local.DatabaseManager
-import io.github.mateorguez.cincopelao.data.local.DatabaseManager.currentDb
 import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
 import java.io.File
@@ -72,6 +72,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
+@AndroidEntryPoint
 class InstancesActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,6 +82,9 @@ class InstancesActivity : ComponentActivity() {
 
             val context = LocalContext.current
             val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
+            val viewModel: InstancesViewModel = hiltViewModel()
+            val instances by viewModel.instances.collectAsState()
+            val currentInstanceId by viewModel.currentInstanceId.collectAsState()
 
             CincoPelaoTheme(darkTheme = isDarkTheme) {
                 Scaffold(
@@ -111,10 +115,13 @@ class InstancesActivity : ComponentActivity() {
 
                         Box(modifier = Modifier.padding(paddingValues)) {
                             InstanceScreen(
-                                instances = DatabaseManager.instances,
-                                currentDb = currentDb,
+                                instances = instances,
+                                currentInstanceId = currentInstanceId,
+                                onCreate = viewModel::create,
+                                onUpdate = viewModel::update,
+                                onDelete = viewModel::delete,
                                 onInstanceSelected = { instance ->
-                                    DatabaseManager.setCurrentDb(context, instance)
+                                    viewModel.select(instance)
                                     val intent = Intent(context, MainActivity::class.java)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                                     startActivity(intent)
@@ -133,9 +140,12 @@ class InstancesActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InstanceScreen(
-    instances: List<DatabaseManager.DatabaseInstance>,
-    currentDb: AppDatabase?,
-    onInstanceSelected: (DatabaseManager.DatabaseInstance) -> Unit,
+    instances: List<DatabaseInstance>,
+    currentInstanceId: String,
+    onCreate: (name: String) -> Unit,
+    onUpdate: (instance: DatabaseInstance, name: String, titulation: String?) -> Unit,
+    onDelete: (DatabaseInstance) -> Unit,
+    onInstanceSelected: (DatabaseInstance) -> Unit,
     onCancel: () -> Unit
 ) {
 
@@ -168,8 +178,7 @@ fun InstanceScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        val dbManager = DatabaseManager
-                        dbManager.createInstance(context, setName, false)
+                        onCreate(setName)
                         setName = ""
                         showNewDialog = false
                     }
@@ -189,7 +198,7 @@ fun InstanceScreen(
     }
 
     var showEditDialog by remember { mutableStateOf(false) }
-    var instanceToEdit by remember { mutableStateOf<DatabaseManager.DatabaseInstance?>(null) }
+    var instanceToEdit by remember { mutableStateOf<DatabaseInstance?>(null) }
     var instanceName by remember { mutableStateOf(instanceToEdit?.name ?: "") }
     var instanceTitulation by remember { mutableStateOf(instanceToEdit?.titulation ?: "") }
     LaunchedEffect(instanceToEdit) {
@@ -229,9 +238,8 @@ fun InstanceScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        val dbManager = DatabaseManager
                         if (instanceName.isNotBlank()) {
-                            dbManager.renameInstance(context, instanceToEdit!!, instanceName, instanceTitulation)
+                            onUpdate(instanceToEdit!!, instanceName, instanceTitulation)
                         }
                         showEditDialog = false
                     }
@@ -264,7 +272,7 @@ fun InstanceScreen(
                 val coroutineScope = rememberCoroutineScope()
                 var showDeleteDialogForThisInstance by remember { mutableStateOf(false) }
 
-                val isSelected = instance.db == currentDb
+                val isSelected = instance.id == currentInstanceId
 
                 SwipeToDismissBox(
                     state = dismissState,
@@ -275,7 +283,7 @@ fun InstanceScreen(
                     }
                 ) {
 
-                    val isSelected = instance.db == currentDb
+                    val isSelected = instance.id == currentInstanceId
 
                     Card(
                         modifier = Modifier
@@ -336,7 +344,7 @@ fun InstanceScreen(
                             confirmButton = {
                                 Button(onClick = {
                                     showDeleteDialogForThisInstance = false
-                                    deleteInstance(context, instance.id)
+                                    onDelete(instance)
                                 }) { Text("Eliminar") }
                             },
                             dismissButton = {
@@ -386,24 +394,4 @@ fun InstanceScreen(
         }
     }
 
-}
-
-fun deleteInstance(context: Context, instanceId: String) {
-    try {
-        val instance = DatabaseManager.instances.find { it.id == instanceId }
-        instance!!.db.close()
-
-        context.deleteDatabase(instanceId)
-
-        val scheduleDir = File(context.filesDir, "SCHEDULE_${instance.id}")
-        if (scheduleDir.exists()) {
-            scheduleDir.deleteRecursively()
-        }
-
-        DatabaseManager.deleteInstanceFromList(instance.id)
-
-        DatabaseManager.saveInstances(context)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
 }

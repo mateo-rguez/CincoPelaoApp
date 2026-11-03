@@ -102,7 +102,6 @@ import androidx.room.withTransaction
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.MainActivity
 import io.github.mateorguez.cincopelao.R
-import io.github.mateorguez.cincopelao.data.local.DatabaseManager
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.data.prefs.saveScheduleState
@@ -234,6 +233,7 @@ class ReceiveActivity : ComponentActivity() {
                                     receiveViewModel.startAdvertising(deviceName = (deviceName), passphrase = (passphrase ?: "No definida"), deviceId = deviceId.value)
                                 },
                                 onSend = { msg -> receiveViewModel.send(msg) },
+                                onImport = receiveViewModel::importAsNewInstance,
                                 onLastSteps = {
                                     val intent = Intent(context, MainActivity::class.java)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -259,6 +259,7 @@ fun ReceiveScreen(
     images: List<ByteArray>,
     onStartAdvertising: (name: String) -> Unit,
     onSend: (bytes: ByteArray) -> Unit,
+    onImport: suspend (name: String, data: DataToSend) -> String,
     onLastSteps: () -> Unit,
     onFinish: () -> Unit
 ) {
@@ -343,16 +344,11 @@ fun ReceiveScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        val dbManager = DatabaseManager
-
                         val data = Json.decodeFromString<DataToSend>(messages[0])
-                        val subjects = data.subjects
-                        val events = data.events
-                        val tasks = data.tasks
 
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
-                                val newInstanceId = dbManager.importAsNewDatabase(context, setName, subjects, events, tasks)
+                                val newInstanceId = onImport(setName, data)
 
                                 if (bitmap != null) {
                                     val directory = File(context.filesDir, "SCHEDULE_$newInstanceId")
@@ -376,9 +372,8 @@ fun ReceiveScreen(
                                     onLastSteps()
                                 }
                             } catch (e: Exception) {
-                                withContext(Dispatchers.Main) {
-
-                                }
+                                // TODO(Fase 6): avisar al usuario de que la importación ha fallado.
+                                Log.e("ReceiveScreen", "No se pudo importar el set recibido", e)
                             }
                         }
                     }

@@ -1,5 +1,7 @@
 package io.github.mateorguez.cincopelao.ui.navigation
 
+import io.github.mateorguez.cincopelao.ui.MainViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.compose.BackHandler
@@ -62,8 +64,6 @@ import com.exyte.animatednavbar.animation.balltrajectory.Teleport
 import com.exyte.animatednavbar.animation.indendshape.shapeCornerRadius
 import com.exyte.animatednavbar.utils.noRippleClickable
 import io.github.mateorguez.cincopelao.R
-import io.github.mateorguez.cincopelao.data.local.DatabaseManager
-import io.github.mateorguez.cincopelao.data.local.DatabaseManager.currentDb
 import io.github.mateorguez.cincopelao.ui.calendar.CalendarScreen
 import io.github.mateorguez.cincopelao.ui.instances.InstancesActivity
 import io.github.mateorguez.cincopelao.ui.notifications.NotificationsActivity
@@ -79,6 +79,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
+    val mainViewModel: MainViewModel = hiltViewModel()
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -247,9 +248,8 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
                         activity?.finish()
                     }
 
-                    val dbManager = DatabaseManager
-                    val instanceId = dbManager.instances.find { it.db == currentDb }?.id
-                    ScheduleScreen(instanceId!!)
+                    val instanceId by mainViewModel.currentInstanceId.collectAsState()
+                    ScheduleScreen(instanceId)
                 }
 
                 composable(BottomNavItem.Calendario.route,

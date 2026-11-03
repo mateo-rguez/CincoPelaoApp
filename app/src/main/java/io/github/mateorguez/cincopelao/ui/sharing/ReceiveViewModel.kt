@@ -1,5 +1,7 @@
 package io.github.mateorguez.cincopelao.ui.sharing
 
+import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
+import io.github.mateorguez.cincopelao.sharing.protocol.DataToSend
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.LiveData
@@ -19,8 +21,13 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ReceiveViewModel @Inject constructor(
     private val bleRepository: BleGattRepository,
-    private val wifiDirectRepository: WifiDirectRepository
+    private val wifiDirectRepository: WifiDirectRepository,
+    private val instanceRepository: InstanceRepository
 ) : ViewModel() {
+
+    /** Guarda los datos recibidos como una instancia nueva y la activa. Devuelve su id. */
+    suspend fun importAsNewInstance(name: String, data: DataToSend): String =
+        instanceRepository.importAsNewInstance(name, data)
 
     init {
         wifiDirectRepository.getDeviceName { name ->

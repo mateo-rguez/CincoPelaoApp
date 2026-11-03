@@ -78,7 +78,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.R
-import io.github.mateorguez.cincopelao.data.local.DatabaseManager.currentDb
 import io.github.mateorguez.cincopelao.data.prefs.NotiPrefsManager
 import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.notifications.ReminderScheduler

@@ -62,7 +62,6 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.WorkManager
 import io.github.mateorguez.cincopelao.R
-import io.github.mateorguez.cincopelao.data.local.DatabaseManager
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.notifications.ReminderScheduler
@@ -75,6 +74,7 @@ import kotlinx.coroutines.launch
 fun SubjectsScreen(snackbarHostState: SnackbarHostState) {
     val mainViewModel: MainViewModel = hiltViewModel()
     val subjects by mainViewModel.allSubjects.collectAsState(initial = emptyList())
+    val currentInstance by mainViewModel.currentInstance.collectAsState()
 
     val scope = rememberCoroutineScope()
     var expandedCardId by remember { mutableStateOf<Int?>(null) }
@@ -106,6 +106,7 @@ fun SubjectsScreen(snackbarHostState: SnackbarHostState) {
 
                 SubjectCard(
                     subject = subject,
+                    titulation = currentInstance?.titulation,
                     isExpanded = expandedCardId == subject.subjectId,
                     onExpand = { expandedCardId = subject.subjectId },
                     onCollapse = { expandedCardId = null },
@@ -152,6 +153,7 @@ fun SubjectCard(
     onExpand: () -> Unit,
     onCollapse: () -> Unit,
     onDelete: () -> Unit,
+    titulation: String?,
 ) {
     val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -200,7 +202,6 @@ fun SubjectCard(
                 ),
             shape = RoundedCornerShape(12.dp)
         ) {
-            val titulation = DatabaseManager.instances.find { it.db == DatabaseManager.currentDb }?.titulation
             Box(
                 modifier = Modifier
                     .fillMaxSize()

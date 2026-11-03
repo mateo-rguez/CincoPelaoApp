@@ -11,6 +11,10 @@ import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.local.entity.Task
 
+/**
+ * Base de datos de una instancia. Cada instancia tiene su propio archivo,
+ * cuyo nombre es el id de la instancia (ver InstanceRepository).
+ */
 @Database(entities = [Subject::class, Event::class, Task::class], version = 8)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -19,18 +23,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 
     companion object {
-        @Volatile private var INSTANCE: AppDatabase? = null
-
-        fun getDatabase(context: Context): AppDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "cinco_pelao_db"
-                ).build()
-                INSTANCE = instance
-                instance
-            }
-        }
+        /** Construye la base de datos. Room no abre el archivo hasta la primera consulta. */
+        fun build(context: Context, fileName: String): AppDatabase =
+            Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, fileName).build()
     }
 }

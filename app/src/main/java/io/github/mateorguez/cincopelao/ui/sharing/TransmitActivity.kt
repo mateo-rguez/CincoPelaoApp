@@ -99,7 +99,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.R
-import io.github.mateorguez.cincopelao.data.local.DatabaseManager
 import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.data.prefs.getScheduleState
 import io.github.mateorguez.cincopelao.sharing.protocol.DataToSend
@@ -161,7 +160,7 @@ class TransmitActivity : ComponentActivity() {
             val lifecycleOwner = LocalLifecycleOwner.current
             val state by transmitViewModel.state.collectAsState()
 
-            val instanceId = DatabaseManager.instances.find { it.db == DatabaseManager.currentDb }?.id
+            val instanceId by mainViewModel.currentInstanceId.collectAsState()
 
             val allSubjects = mainViewModel.allSubjects.collectAsState(initial = emptyList())
             val allEventsRaw = mainViewModel.allEvents.collectAsState(initial = emptyList())
@@ -177,7 +176,7 @@ class TransmitActivity : ComponentActivity() {
             val allTasks = mainViewModel.allTasks.collectAsState(initial = emptyList())
             var bitmap by remember { mutableStateOf<Bitmap?>(null) }
             LaunchedEffect(instanceId) {
-                getScheduleState(context, instanceId!!).firstOrNull()?.let { (uriString, _, _) ->
+                getScheduleState(context, instanceId).firstOrNull()?.let { (uriString, _, _) ->
                     uriString?.let {
                         val uri = Uri.parse(uriString)
                         val mimeType = context.contentResolver.getType(uri) ?: ""

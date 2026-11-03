@@ -7,6 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.local.entity.Task
+import io.github.mateorguez.cincopelao.data.instances.DatabaseInstance
+import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
 import io.github.mateorguez.cincopelao.data.repository.RepositoryDB
 import java.util.Calendar
 import javax.inject.Inject
@@ -24,8 +26,19 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: RepositoryDB
+    private val repository: RepositoryDB,
+    instanceRepository: InstanceRepository
 ) : ViewModel() {
+
+    // INSTANCIA ACTIVA --------------------------------
+
+    val currentInstanceId: StateFlow<String> = instanceRepository.currentInstanceId
+
+    val currentInstance: StateFlow<DatabaseInstance?> = instanceRepository.currentInstance.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        instanceRepository.instances.value.find { it.id == instanceRepository.currentInstanceId.value }
+    )
 
     init {
         manageTasks()

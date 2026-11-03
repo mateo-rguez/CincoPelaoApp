@@ -1,86 +1,87 @@
 package io.github.mateorguez.cincopelao.data.repository
 
-import io.github.mateorguez.cincopelao.data.local.AppDatabase
-import io.github.mateorguez.cincopelao.data.local.DatabaseManager
-import io.github.mateorguez.cincopelao.data.local.dao.EventDao
-import io.github.mateorguez.cincopelao.data.local.dao.SubjectDao
-import io.github.mateorguez.cincopelao.data.local.dao.TaskDao
+import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.local.entity.Task
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class RepositoryDB(
-    private val subjectDao: SubjectDao,
-    private val eventDao: EventDao,
-    private val taskDao: TaskDao
+/**
+ * Acceso a los datos de la instancia activa. Los Flow se re-suscriben solos
+ * a la nueva base de datos cuando cambia la instancia.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+@Singleton
+class RepositoryDB @Inject constructor(
+    private val instances: InstanceRepository
 ) {
-
-    private val currentDb: AppDatabase?
-        get() = DatabaseManager.currentDb
+    private val db get() = instances.currentDb()
 
     // ASIGNATURAS --------------------------------
 
-    val allSubjects: Flow<List<Subject>>
-        get() = currentDb?.subjectDao()?.getAllSubjects() ?: emptyFlow()
+    val allSubjects: Flow<List<Subject>> =
+        instances.currentDatabase.flatMapLatest { it.subjectDao().getAllSubjects() }
 
     suspend fun insertSubject(subject: Subject) {
-        currentDb?.subjectDao()?.insert(subject)
+        db.subjectDao().insert(subject)
     }
 
     suspend fun deleteSubject(subject: Subject) {
-        currentDb?.subjectDao()?.delete(subject)
+        db.subjectDao().delete(subject)
     }
 
-    fun getSubjectById(id: Int): Flow<Subject> = currentDb?.subjectDao()?.getSubjectById(id) ?: emptyFlow()
+    fun getSubjectById(id: Int): Flow<Subject> =
+        instances.currentDatabase.flatMapLatest { it.subjectDao().getSubjectById(id) }
 
     suspend fun insertSubjectWithEvents(isEditing: Boolean, subject: Subject, events: List<Event>) {
-        currentDb?.subjectDao()?.insertSubjectWithEvents(isEditing, subject, events)
+        db.subjectDao().insertSubjectWithEvents(isEditing, subject, events)
     }
 
     // EVENTOS --------------------------------
 
-    val allEvents: Flow<List<Event>>
-        get() = currentDb?.eventDao()?.getAllEvents() ?: emptyFlow()
+    val allEvents: Flow<List<Event>> =
+        instances.currentDatabase.flatMapLatest { it.eventDao().getAllEvents() }
 
     fun getEventsForSubject(subjectId: Int): Flow<List<Event>> =
-        currentDb?.eventDao()?.getEventsForSubject(subjectId) ?: emptyFlow()
+        instances.currentDatabase.flatMapLatest { it.eventDao().getEventsForSubject(subjectId) }
 
-    suspend fun insertEvent(event: Event) = currentDb?.eventDao()?.insertEvent(event)
+    suspend fun insertEvent(event: Event) = db.eventDao().insertEvent(event)
 
-    suspend fun insertEvents(events: List<Event>) = currentDb?.eventDao()?.insertEvents(events)
+    suspend fun insertEvents(events: List<Event>) = db.eventDao().insertEvents(events)
 
-    suspend fun deleteEvent(event: Event) = currentDb?.eventDao()?.deleteEvent(event)
+    suspend fun deleteEvent(event: Event) = db.eventDao().deleteEvent(event)
 
     suspend fun updateEvent(event: Event) {
-        currentDb?.eventDao()?.updateEvent(event)
+        db.eventDao().updateEvent(event)
     }
 
     // TAREAS --------------------------------
 
-    val allTasks: Flow<List<Task>>
-        get() = currentDb?.taskDao()?.getAllTasks() ?: emptyFlow()
+    val allTasks: Flow<List<Task>> =
+        instances.currentDatabase.flatMapLatest { it.taskDao().getAllTasks() }
 
     fun getTasksBySubject(subjectId: Long): Flow<List<Task>> =
-        currentDb?.taskDao()?.getTasksBySubject(subjectId) ?: emptyFlow()
+        instances.currentDatabase.flatMapLatest { it.taskDao().getTasksBySubject(subjectId) }
 
     fun getGeneralTasks(): Flow<List<Task>> =
-        currentDb?.taskDao()?.getGeneralTasks() ?: emptyFlow()
+        instances.currentDatabase.flatMapLatest { it.taskDao().getGeneralTasks() }
 
     fun getSubTasks(parentId: Long): Flow<List<Task>> =
-        currentDb?.taskDao()?.getSubTasks(parentId) ?: emptyFlow()
+        instances.currentDatabase.flatMapLatest { it.taskDao().getSubTasks(parentId) }
 
     suspend fun insertTask(task: Task) {
-        currentDb?.taskDao()?.insertTask(task)
+        db.taskDao().insertTask(task)
     }
 
     suspend fun updateTask(task: Task) {
-        currentDb?.taskDao()?.updateTask(task)
+        db.taskDao().updateTask(task)
     }
 
     suspend fun deleteTask(task: Task) {
-        currentDb?.taskDao()?.deleteTask(task)
+        db.taskDao().deleteTask(task)
     }
-
 }
