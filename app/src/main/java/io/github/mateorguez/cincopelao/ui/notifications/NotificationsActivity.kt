@@ -75,13 +75,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.prefs.NotiPrefsManager
 import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
-import io.github.mateorguez.cincopelao.notifications.ReminderScheduler
-import io.github.mateorguez.cincopelao.notifications.scheduleReminders
 import io.github.mateorguez.cincopelao.ui.MainViewModel
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
 import java.util.concurrent.TimeUnit
@@ -103,12 +100,6 @@ class NotificationsActivity : ComponentActivity() {
             val scope = rememberCoroutineScope()
 
             val prefs = remember { NotiPrefsManager(context) }
-
-            // Notis --------------------------------
-
-            SetNotifications(context)
-
-            // --------------------------------------
 
             CincoPelaoTheme(darkTheme = isDarkTheme) {
                 Scaffold(
@@ -141,16 +132,12 @@ class NotificationsActivity : ComponentActivity() {
                             NotificationsScreen(
                                 onSaveEvents = { days, startHour, endHour ->
                                     scope.launch {
-                                        WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                        ReminderScheduler.clearAllScheduledReminders(context)
                                         prefs.saveEventConfig(days, startHour, endHour)
                                         Toast.makeText(context, "Configuración de eventos guardada", Toast.LENGTH_SHORT).show()
                                     }
                                 },
                                 onSaveTasks = { days, startHour, endHour ->
                                     scope.launch {
-                                        WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                        ReminderScheduler.clearAllScheduledReminders(context)
                                         prefs.saveTaskConfig(days, startHour, endHour)
                                         Toast.makeText(context, "Configuración de tareas guardada", Toast.LENGTH_SHORT).show()
                                     }
@@ -516,32 +503,4 @@ class NotificationConfigState(
     var daysBefore by mutableStateOf(initialDays.sortedDescending())
     var startHour by mutableStateOf(initialStartHour)
     var endHour by mutableStateOf(initialEndHour)
-}
-
-@Composable
-fun SetNotifications(context: Context) {
-    val mainViewModel: MainViewModel = hiltViewModel()
-
-    val allSubjects by mainViewModel.allSubjects.collectAsState(initial = emptyList())
-    val allEvents by mainViewModel.allEvents.collectAsState(initial = emptyList())
-    val allTasks by mainViewModel.allTasks.collectAsState(initial = emptyList())
-    val notiPrefs = remember { NotiPrefsManager(context) }
-
-    val eventDays by notiPrefs.eventDaysFlow.collectAsState(initial = emptyList())
-    val eventStartHour by notiPrefs.eventStartHourFlow.collectAsState(initial = 8)
-    val eventEndHour by notiPrefs.eventEndHourFlow.collectAsState(initial = 22)
-
-    val taskDays by notiPrefs.taskDaysFlow.collectAsState(initial = emptyList())
-    val taskStartHour by notiPrefs.taskStartHourFlow.collectAsState(initial = 8)
-    val taskEndHour by notiPrefs.taskEndHourFlow.collectAsState(initial = 22)
-
-    LaunchedEffect(allSubjects, allEvents, allTasks, eventDays, eventStartHour, eventEndHour, taskDays, taskStartHour, taskEndHour) {
-        val now = System.currentTimeMillis()
-        val upcomingEvents = allEvents.filter { it.date > now }
-        val upcomingTasks = allTasks.filter { task ->
-            (task.dueDate?.let { it > now } ?: false) && !task.archived && !task.isCompleted
-        }
-
-        scheduleReminders(context, notiPrefs, upcomingEvents, upcomingTasks, allSubjects)
-    }
 }

@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.data.repository
 
+import android.app.Application
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
@@ -18,11 +19,14 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Tests de los repositorios contra una base de datos Room real (en un Android simulado
  * por Robolectric), para comprobar transacciones, cascadas y claves foráneas.
  */
+// Application simple: la app real arranca servicios (recordatorios, mantenimiento) que aquí no queremos
+@Config(application = Application::class)
 @RunWith(RobolectricTestRunner::class)
 class RepositoriesTest {
 

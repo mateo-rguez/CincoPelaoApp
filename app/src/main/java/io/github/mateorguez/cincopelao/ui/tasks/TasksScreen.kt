@@ -118,12 +118,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.room.util.TableInfo
-import androidx.work.WorkManager
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.local.entity.Task
 import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
-import io.github.mateorguez.cincopelao.notifications.ReminderScheduler
 import io.github.mateorguez.cincopelao.ui.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -214,16 +212,12 @@ fun TasksScreen() {
                 showDeleteDialog = true
             },
             onCheckbox = { checked ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                    ReminderScheduler.clearAllScheduledReminders(context)
-                    mainViewModel.updateTask(
-                        taskToShowState!!.copy(
-                            isCompleted = checked,
-                            completedAt = if (checked) System.currentTimeMillis() else null
-                        )
+                mainViewModel.updateTask(
+                    taskToShowState!!.copy(
+                        isCompleted = checked,
+                        completedAt = if (checked) System.currentTimeMillis() else null
                     )
-                }
+                )
             }
         )
     }
@@ -303,26 +297,18 @@ fun TasksScreen() {
                                         parentTask = task,
                                         subtasks = subtasks,
                                         onCheckedChange = { subtask, checked ->
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                                ReminderScheduler.clearAllScheduledReminders(context)
-                                                mainViewModel.updateTask(
-                                                    subtask.copy(
-                                                        isCompleted = checked,
-                                                        completedAt = if (checked) System.currentTimeMillis() else null
-                                                    )
+                                            mainViewModel.updateTask(
+                                                subtask.copy(
+                                                    isCompleted = checked,
+                                                    completedAt = if (checked) System.currentTimeMillis() else null
                                                 )
-                                            }
+                                            )
                                         },
                                         showInfoSheet = { task ->
                                             taskToShow = task
                                             showTaskInfo = true
                                         },
                                         onArchive = {
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                                ReminderScheduler.clearAllScheduledReminders(context)
-                                            }
                                             mainViewModel.updateTask(
                                                 task.copy(
                                                     archived = true
@@ -372,28 +358,18 @@ fun TasksScreen() {
                                                 task = task,
                                                 modifier = Modifier.padding(horizontal = 8.dp),
                                                 onCheckedChange = { checked ->
-                                                    CoroutineScope(Dispatchers.IO).launch {
-                                                        WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                                        ReminderScheduler.clearAllScheduledReminders(
-                                                            context
+                                                    mainViewModel.updateTask(
+                                                        task.copy(
+                                                            isCompleted = checked,
+                                                            completedAt = if (checked) System.currentTimeMillis() else null
                                                         )
-                                                        mainViewModel.updateTask(
-                                                            task.copy(
-                                                                isCompleted = checked,
-                                                                completedAt = if (checked) System.currentTimeMillis() else null
-                                                            )
-                                                        )
-                                                    }
+                                                    )
                                                 },
                                                 onClick = {
                                                     taskToShow = task
                                                     showTaskInfo = true
                                                 },
                                                 onArchive = {
-                                                    CoroutineScope(Dispatchers.IO).launch {
-                                                        WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                                        ReminderScheduler.clearAllScheduledReminders(context)
-                                                    }
                                                     mainViewModel.updateTask(
                                                         task.copy(
                                                             archived = true
@@ -481,26 +457,18 @@ fun TasksScreen() {
                                         parentTask = task,
                                         subtasks = subtasks,
                                         onCheckedChange = { subtask, checked ->
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                                ReminderScheduler.clearAllScheduledReminders(context)
-                                                mainViewModel.updateTask(
-                                                    subtask.copy(
-                                                        isCompleted = checked,
-                                                        completedAt = if (checked) System.currentTimeMillis() else null
-                                                    )
+                                            mainViewModel.updateTask(
+                                                subtask.copy(
+                                                    isCompleted = checked,
+                                                    completedAt = if (checked) System.currentTimeMillis() else null
                                                 )
-                                            }
+                                            )
                                         },
                                         showInfoSheet = { task ->
                                             taskToShow = task
                                             showTaskInfo = true
                                         },
                                         onArchive = {
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                                ReminderScheduler.clearAllScheduledReminders(context)
-                                            }
                                             mainViewModel.updateTask(task.copy(
                                                 archived = true
                                             ))
@@ -546,28 +514,18 @@ fun TasksScreen() {
                                                 task = task,
                                                 modifier = Modifier.padding(horizontal = 8.dp),
                                                 onCheckedChange = { checked ->
-                                                    CoroutineScope(Dispatchers.IO).launch {
-                                                        WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                                        ReminderScheduler.clearAllScheduledReminders(
-                                                            context
+                                                    mainViewModel.updateTask(
+                                                        task.copy(
+                                                            isCompleted = checked,
+                                                            completedAt = if (checked) System.currentTimeMillis() else null
                                                         )
-                                                        mainViewModel.updateTask(
-                                                            task.copy(
-                                                                isCompleted = checked,
-                                                                completedAt = if (checked) System.currentTimeMillis() else null
-                                                            )
-                                                        )
-                                                    }
+                                                    )
                                                 },
                                                 onClick = {
                                                     taskToShow = task
                                                     showTaskInfo = true
                                                 },
                                                 onArchive = {
-                                                    CoroutineScope(Dispatchers.IO).launch {
-                                                        WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                                        ReminderScheduler.clearAllScheduledReminders(context)
-                                                    }
                                                     mainViewModel.updateTask(task.copy(
                                                         archived = true
                                                     ))
@@ -597,10 +555,6 @@ fun TasksScreen() {
             task = taskBeingEdited,
             subject = selectedSubject,
             onSave = { title, description, dueDateMillis, parentTaskId ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                    ReminderScheduler.clearAllScheduledReminders(context)
-                }
                 val updatedTask = taskBeingEdited?.copy(
                     title = title,
                     description = description,
@@ -657,10 +611,6 @@ fun TasksScreen() {
                 ) {
                     if (hasSubtasks) {
                         TextButton(onClick = {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                ReminderScheduler.clearAllScheduledReminders(context)
-                            }
                             mainViewModel.deleteTaskKeepingSubtasks(taskToDelete!!)
                             showDeleteDialog = false
                             taskToDelete = null
@@ -669,10 +619,6 @@ fun TasksScreen() {
                         }
 
                         TextButton(onClick = {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                ReminderScheduler.clearAllScheduledReminders(context)
-                            }
                             mainViewModel.deleteTask(taskToDelete!!)
                             showDeleteDialog = false
                             taskToDelete = null
@@ -681,10 +627,6 @@ fun TasksScreen() {
                         }
                     } else {
                         TextButton(onClick = {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                ReminderScheduler.clearAllScheduledReminders(context)
-                            }
                             mainViewModel.deleteTask(taskToDelete!!)
                             showDeleteDialog = false
                             taskToDelete = null

@@ -74,11 +74,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.work.WorkManager
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.local.entity.Task
 import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
-import io.github.mateorguez.cincopelao.notifications.ReminderScheduler
 import io.github.mateorguez.cincopelao.ui.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -273,10 +271,6 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
                                             showTaskInfo = true
                                         },
                                         onRestore = {
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                                ReminderScheduler.clearAllScheduledReminders(context)
-                                            }
                                             mainViewModel.updateTask(task.copy(archived = false))
                                             subtasks.forEach {
                                                 mainViewModel.updateTask(it.copy(archived = false))
@@ -338,10 +332,6 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
                                                     showTaskInfo = true
                                                 },
                                                 onRestore = {
-                                                    CoroutineScope(Dispatchers.IO).launch {
-                                                        WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                                        ReminderScheduler.clearAllScheduledReminders(context)
-                                                    }
                                                     mainViewModel.updateTask(task.copy(archived = false))
                                                 },
                                                 onDelete = {

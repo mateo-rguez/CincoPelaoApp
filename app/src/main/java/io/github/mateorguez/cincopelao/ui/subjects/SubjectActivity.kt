@@ -121,13 +121,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
-import io.github.mateorguez.cincopelao.notifications.ReminderScheduler
-import io.github.mateorguez.cincopelao.ui.notifications.SetNotifications
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -150,12 +147,6 @@ class SubjectActivity : ComponentActivity() {
 
             val subjectViewModel: SubjectViewModel = hiltViewModel()
             subjectViewModel.setSubjectId(subjectId)
-
-            // Notis --------------------------------
-
-            SetNotifications(context)
-
-            // --------------------------------------
 
             val events by subjectViewModel.events.collectAsState()
             val weightedScore = remember(events) { subjectViewModel.calculateWeightedGrade(events) }
@@ -477,10 +468,6 @@ fun EventBox(
             onDismiss = { showEditEventDialog = false },
             onEventCreated = { },
             onEventUpdated = { newEvent ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                    ReminderScheduler.clearAllScheduledReminders(context)
-                }
                 onEventUpdate(newEvent)
             },
             event = event

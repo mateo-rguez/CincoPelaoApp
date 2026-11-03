@@ -1,5 +1,8 @@
 package io.github.mateorguez.cincopelao
 
+import androidx.activity.result.contract.ActivityResultContracts
+import android.os.Build
+import android.Manifest
 import android.animation.ObjectAnimator
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,15 +13,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.*
 import dagger.hilt.android.AndroidEntryPoint
-import io.github.mateorguez.cincopelao.data.prefs.NotiPrefsManager
 import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
 import io.github.mateorguez.cincopelao.data.prefs.setDarkMode
 import io.github.mateorguez.cincopelao.notifications.NotificationUtils
 import io.github.mateorguez.cincopelao.ui.navigation.AppScaffold
-import io.github.mateorguez.cincopelao.ui.notifications.SetNotifications
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +29,10 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private var isThemeReady = false
-    private val notiPrefs by lazy { NotiPrefsManager(this) }
+
+    // Desde Android 13 hay que pedir permiso para mostrar notificaciones
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -43,28 +46,22 @@ class MainActivity : ComponentActivity() {
             fadeOut.doOnEnd { splashView.remove() }
         }
 
-        NotificationUtils.createNotificationChannel(this)
-
         super.onCreate(savedInstanceState)
 
         splashScreen.setKeepOnScreenCondition {
             !isThemeReady
         }
 
-        lifecycleScope.launch {
-            notiPrefs.initializeDefaultsIfNeeded()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !NotificationUtils.hasNotificationPermission(this)
+        ) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
 
         setContent {
 
             val context = LocalContext.current
             val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
-
-            // Notis --------------------------------
-
-            SetNotifications(context)
-
-            // --------------------------------------
 
             LaunchedEffect(isDarkTheme) {
                 delay(100)

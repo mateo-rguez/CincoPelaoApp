@@ -60,11 +60,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.work.WorkManager
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.prefs.getDarkModeFlow
-import io.github.mateorguez.cincopelao.notifications.ReminderScheduler
 import io.github.mateorguez.cincopelao.ui.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -113,10 +111,6 @@ fun SubjectsScreen(snackbarHostState: SnackbarHostState) {
                         scope.launch {
                             // Borra la asignatura con sus eventos y tareas en una sola transacción
                             val deleted = mainViewModel.deleteSubject(subject)
-                            CoroutineScope(Dispatchers.IO).launch {
-                                WorkManager.getInstance(context).cancelAllWorkByTag("NOTIFICATION_WORK")
-                                ReminderScheduler.clearAllScheduledReminders(context)
-                            }
 
                             val result = snackbarHostState.showSnackbar(
                                 message = "${subject.name} ha sido eliminada",

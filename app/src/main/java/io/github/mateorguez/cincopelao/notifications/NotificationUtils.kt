@@ -1,5 +1,8 @@
 package io.github.mateorguez.cincopelao.notifications
 
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -46,8 +49,16 @@ object NotificationUtils {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
+        // Desde Android 13 hace falta el permiso POST_NOTIFICATIONS; sin él no se muestra nada
+        if (!hasNotificationPermission(context)) return
+
         with(NotificationManagerCompat.from(context)) {
             notify(id, builder.build())
         }
     }
+
+    fun hasNotificationPermission(context: Context): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
 }
