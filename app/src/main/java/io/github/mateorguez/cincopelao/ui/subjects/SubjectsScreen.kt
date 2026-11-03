@@ -224,9 +224,7 @@ fun SubjectCard(
             ) {
                 TextButton(onClick = {
                     onCollapse()
-                    val intent = Intent(context, AddEditSubjectActivity::class.java)
-                    intent.putExtra("subjectId", subject.subjectId)
-                    context.startActivity(intent)
+                    context.startActivity(AddEditSubjectActivity.editIntent(context, subject.subjectId))
                 }) {
                     Icon(Icons.Default.Edit, contentDescription = "Editar", modifier = Modifier.size(18.dp), tint = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(4.dp))

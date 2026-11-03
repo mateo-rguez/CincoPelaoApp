@@ -1,92 +1,97 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
-import javax.inject.Inject
+import io.github.mateorguez.cincopelao.data.repository.EventRepository
+import io.github.mateorguez.cincopelao.data.repository.SubjectRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+/**
+ * Un evento dentro del formulario. [key] lo identifica mientras se edita: los eventos nuevos
+ * aún no tienen eventId (todos valen 0), así que no sirve para distinguirlos.
+ */
+data class EditableEvent(val key: Long, val event: Event)
+
+data class AddEditSubjectUiState(
+    val isEditMode: Boolean = false,
+    val subject: Subject = Subject(),
+    /** Eventos ordenados por fecha. */
+    val events: List<EditableEvent> = emptyList()
+)
+
+enum class SubjectFormValidation { Valid, Incomplete, WeightsNotHundred }
+
+/** Una asignatura necesita nombre, curso, abreviatura y al menos un evento; los pesos deben sumar ~100%. */
+fun validateSubjectForm(subject: Subject, events: List<Event>): SubjectFormValidation = when {
+    subject.name.isBlank() || subject.course.isBlank() || subject.abbrev.isBlank() || events.isEmpty() ->
+        SubjectFormValidation.Incomplete
+    events.mapNotNull { it.weight }.sum() !in 99.0..100.0 -> SubjectFormValidation.WeightsNotHundred
+    else -> SubjectFormValidation.Valid
+}
 
 @HiltViewModel
-class AddEditSubjectViewModel @Inject constructor() : ViewModel() {
+class AddEditSubjectViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val subjects: SubjectRepository,
+    private val eventsRepository: EventRepository
+) : ViewModel() {
 
-    val _isEditMode = MutableStateFlow(false)
-    val isEditMode: StateFlow<Boolean> = _isEditMode.asStateFlow()
+    /** Id de la asignatura a editar, o -1 para crear una nueva (llega en los extras del intent). */
+    private val subjectId: Int = savedStateHandle[AddEditSubjectActivity.EXTRA_SUBJECT_ID] ?: -1
 
-    fun setEditMode(editMode: Boolean) {
-        _isEditMode.value = editMode
-    }
+    private var nextKey = 0L
 
-    fun resetForm() {
-        _subject.value = Subject()
-        _events.value = emptyList<Event>()
-    }
+    private val _uiState = MutableStateFlow(AddEditSubjectUiState(isEditMode = subjectId != -1))
+    val uiState: StateFlow<AddEditSubjectUiState> = _uiState.asStateFlow()
 
-    fun isFormValid(): Int {
-        val currentSubject = subject.value
-        val currentEvents = events.value
-
-        // Chequeamos datos obligatorios
-        if (currentSubject.name.isNullOrBlank() || currentSubject.course.isNullOrBlank() || currentSubject.abbrev.isNullOrBlank() || currentEvents.isEmpty()) {
-            return 1
+    init {
+        // Se carga una sola vez: al girar la pantalla el ViewModel sobrevive y no se pisan los cambios
+        if (subjectId != -1) {
+            viewModelScope.launch {
+                val subject = subjects.subject(subjectId).first() ?: return@launch
+                val events = eventsRepository.eventsForSubject(subjectId).first()
+                _uiState.update { it.copy(subject = subject, events = events.map(::editable).sortedByDate()) }
+            }
         }
-
-        // Sumamos los weights de los eventos (ignoramos los null)
-        val totalWeight = currentEvents.mapNotNull { it.weight }.sum()
-
-        if (totalWeight !in 99.0..100.0) {
-            return 2
-        }
-
-        return 0
     }
 
-    // ASIGNATURAS --------------------------------
+    private fun editable(event: Event) = EditableEvent(nextKey++, event)
+    private fun List<EditableEvent>.sortedByDate() = sortedBy { it.event.date }
 
-    val _subject = MutableStateFlow(Subject())
-    val subject: StateFlow<Subject> = _subject.asStateFlow()
+    fun updateName(name: String) = _uiState.update { it.copy(subject = it.subject.copy(name = name)) }
+    fun updateCourse(course: String) = _uiState.update { it.copy(subject = it.subject.copy(course = course)) }
+    fun updateAbbrev(abbrev: String) = _uiState.update { it.copy(subject = it.subject.copy(abbrev = abbrev)) }
 
-    fun updateName(name: String) {
-        _subject.update { it.copy(name = name) }
+    fun addEvent(event: Event) = _uiState.update { it.copy(events = (it.events + editable(event)).sortedByDate()) }
+
+    fun updateEvent(key: Long, event: Event) = _uiState.update { state ->
+        state.copy(events = state.events.map { if (it.key == key) it.copy(event = event) else it }.sortedByDate())
     }
 
-    fun updateCurso(curso: String) {
-        _subject.update { it.copy(course = curso) }
+    /** Quita el evento del formulario y lo devuelve para poder deshacerlo con [restoreEvent]. */
+    fun removeEvent(key: Long): EditableEvent? {
+        val removed = _uiState.value.events.find { it.key == key } ?: return null
+        _uiState.update { state -> state.copy(events = state.events.filterNot { it.key == key }) }
+        return removed
     }
 
-    fun updateAbbrev(abbrev: String) {
-        _subject.update { it.copy(abbrev = abbrev) }
-    }
+    fun restoreEvent(removed: EditableEvent) = _uiState.update { it.copy(events = (it.events + removed).sortedByDate()) }
 
-    fun setSubject(subject: Subject) {
-        _subject.update { subject }
-    }
+    fun validate(): SubjectFormValidation = with(_uiState.value) { validateSubjectForm(subject, events.map { it.event }) }
 
-    // EVENTOS --------------------------------
-
-    val _events = MutableStateFlow<List<Event>>(emptyList())
-    val events: StateFlow<List<Event>> = _events.asStateFlow()
-
-    fun addEvent(event: Event) {
-        _events.update { (it + event).sortedBy { e -> e.date ?: Long.MIN_VALUE } }
-    }
-
-    fun removeEvent(event: Event) {
-        _events.update { (it - event).sortedBy { e -> e.date ?: Long.MIN_VALUE } }
-    }
-
-    fun setEvents(events: List<Event>) {
-        _events.update { events }
-    }
-
-    fun updateEvent(index: Int, updatedEvent: Event) {
-        _events.update { currentList ->
-            currentList.toMutableList().apply {
-                if (index in indices) this[index] = updatedEvent
-            }.sortedBy { it.date ?: Long.MIN_VALUE }
-        }
+    /** Guarda la asignatura con sus eventos. Es suspend para que la pantalla espere antes de cerrarse. */
+    suspend fun save() {
+        val state = _uiState.value
+        subjects.saveWithEvents(state.isEditMode, state.subject, state.events.map { it.event })
     }
 }
