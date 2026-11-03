@@ -1,17 +1,13 @@
 package io.github.mateorguez.cincopelao.ui.notifications
 
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import android.app.TimePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,14 +23,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -56,146 +51,96 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequestBuilder
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import io.github.mateorguez.cincopelao.R
-import io.github.mateorguez.cincopelao.data.prefs.NotiPrefsManager
-import io.github.mateorguez.cincopelao.ui.MainViewModel
+import io.github.mateorguez.cincopelao.notifications.ReminderSettings
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
-import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
+import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
+import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import kotlinx.coroutines.launch
 
+/** Ajustes de los recordatorios: con cuántos días de antelación y en qué franja horaria. */
 @AndroidEntryPoint
 class NotificationsActivity : ComponentActivity() {
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val context = LocalContext.current
-
-            val scope = rememberCoroutineScope()
-
-            val prefs = remember { NotiPrefsManager(context) }
-
             CincoPelaoAppTheme {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = {
-                                Text(
-                                    text = "Notificaciones",
-                                    fontFamily = DelightMedium
-                                )
-                            },
+                            title = { Text(text = "Notificaciones", fontFamily = DelightMedium) },
                             colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 1f),
+                                containerColor = MaterialTheme.colorScheme.primary,
                                 titleContentColor = MaterialTheme.colorScheme.onPrimary,
                                 navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
                                 actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                             ),
                             navigationIcon = {
                                 IconButton(onClick = { finish() }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Menú")
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                                 }
                             },
                         )
-                    },
-                    content = { paddingValues ->
-
-                        val context = LocalContext.current
-
-                        Box(modifier = Modifier.padding(paddingValues)) {
-                            NotificationsScreen(
-                                onSaveEvents = { days, startHour, endHour ->
-                                    scope.launch {
-                                        prefs.saveEventConfig(days, startHour, endHour)
-                                        Toast.makeText(context, "Configuración de eventos guardada", Toast.LENGTH_SHORT).show()
-                                    }
-                                },
-                                onSaveTasks = { days, startHour, endHour ->
-                                    scope.launch {
-                                        prefs.saveTaskConfig(days, startHour, endHour)
-                                        Toast.makeText(context, "Configuración de tareas guardada", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            )
-                        }
                     }
-                )
+                ) { paddingValues ->
+                    Box(modifier = Modifier.padding(paddingValues)) {
+                        NotificationsScreen()
+                    }
+                }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationsScreen(
-    modifier: Modifier = Modifier,
-    onSaveEvents: (daysBefore: List<Int>, startHour: Int, endHour: Int) -> Unit,
-    onSaveTasks: (daysBefore: List<Int>, startHour: Int, endHour: Int) -> Unit
-) {
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = {2})
-    val coroutineScope = rememberCoroutineScope()
+fun NotificationsScreen(modifier: Modifier = Modifier, viewModel: NotificationsViewModel = hiltViewModel()) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val prefs = remember { NotiPrefsManager(context) }
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+    val coroutineScope = rememberCoroutineScope()
 
-    // --- Estados externalizados para que persistan entre páginas ---
-    var eventDays by rememberSaveable { mutableStateOf(emptyList<Int>()) }
-    var eventStartHour by rememberSaveable { mutableStateOf(8) }
-    var eventEndHour by rememberSaveable { mutableStateOf(22) }
-
-    var taskDays by rememberSaveable { mutableStateOf(emptyList<Int>()) }
-    var taskStartHour by rememberSaveable { mutableStateOf(8) }
-    var taskEndHour by rememberSaveable { mutableStateOf(22) }
-
-    // Inicializar con DataStore una sola vez
     LaunchedEffect(Unit) {
-        eventDays = prefs.eventDaysFlow.first()
-        eventStartHour = prefs.eventStartHourFlow.first()
-        eventEndHour = prefs.eventEndHourFlow.first()
+        viewModel.messages.collect { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+    }
 
-        taskDays = prefs.taskDaysFlow.first()
-        taskStartHour = prefs.taskStartHourFlow.first()
-        taskEndHour = prefs.taskEndHourFlow.first()
+    // Se vuelve a comprobar al volver de los ajustes del sistema
+    var notificationsEnabled by remember { mutableStateOf(true) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        notificationsEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled()
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-        val tabs = listOf("Eventos", "Tareas")
-        val context = LocalContext.current
-        val isDarkTheme = LocalDarkTheme.current
-        val contentColor = if (isDarkTheme) {
-            MaterialTheme.colorScheme.onBackground
-        } else {
-            MaterialTheme.colorScheme.primary
+        if (!notificationsEnabled) {
+            NotificationsDisabledBanner(onOpenSettings = {
+                context.startActivity(
+                    Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                )
+            })
         }
-        val containerColor = MaterialTheme.colorScheme.background
+
+        val contentColor = if (LocalDarkTheme.current) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.primary
         TabRow(
             selectedTabIndex = pagerState.currentPage,
-            containerColor = containerColor,
+            containerColor = MaterialTheme.colorScheme.background,
             contentColor = contentColor,
             indicator = { tabPositions ->
                 SecondaryIndicator(
@@ -205,15 +150,10 @@ fun NotificationsScreen(
                     color = contentColor
                 )
             },
-            divider = {
-                HorizontalDivider(
-                    color = contentColor.copy(alpha = 0.3f),
-                    thickness = 1.dp
-                )
-            },
+            divider = { HorizontalDivider(color = contentColor.copy(alpha = 0.3f), thickness = 1.dp) },
             modifier = Modifier.shadow(0.dp)
-        )  {
-            tabs.forEachIndexed { index, title ->
+        ) {
+            listOf("Eventos", "Tareas").forEachIndexed { index, title ->
                 Tab(
                     selected = pagerState.currentPage == index,
                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
@@ -222,120 +162,79 @@ fun NotificationsScreen(
             }
         }
 
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-        ) { page ->
-            when (page) {
-                0 -> NotificationConfigPage(
-                    title = "Recordatorios para eventos",
-                    daysBeforeState = eventDays,
-                    startHourState = eventStartHour,
-                    endHourState = eventEndHour,
-                    onDaysBeforeChange = { eventDays = it },
-                    onStartHourChange = { eventStartHour = it },
-                    onEndHourChange = { eventEndHour = it },
-                    isTaskConfig = false,
-                    onSave = onSaveEvents
-                )
-                1 -> NotificationConfigPage(
-                    title = "Recordatorios para tareas",
-                    daysBeforeState = taskDays,
-                    startHourState = taskStartHour,
-                    endHourState = taskEndHour,
-                    onDaysBeforeChange = { taskDays = it },
-                    onStartHourChange = { taskStartHour = it },
-                    onEndHourChange = { taskEndHour = it },
-                    isTaskConfig = true,
-                    onSave = onSaveTasks
+        HorizontalPager(state = pagerState, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) { page ->
+            val kind = if (page == 0) ReminderKind.Events else ReminderKind.Tasks
+            // Hasta que se leen los ajustes guardados no se muestra nada (ni se puede guardar)
+            state.form(kind)?.let { form ->
+                NotificationConfigPage(
+                    title = if (kind == ReminderKind.Events) "Recordatorios para eventos" else "Recordatorios para tareas",
+                    settings = form.edited,
+                    hasUnsavedChanges = form.hasUnsavedChanges,
+                    onAddDay = { viewModel.addDay(kind, it) },
+                    onRemoveDay = { viewModel.removeDay(kind, it) },
+                    onStartHourChange = { viewModel.setStartHour(kind, it) },
+                    onEndHourChange = { viewModel.setEndHour(kind, it) },
+                    onSave = { viewModel.save(kind) }
                 )
             }
         }
     }
 }
 
+/** Aviso cuando el sistema tiene las notificaciones de la app desactivadas. */
 @Composable
-fun NotificationConfigPage(
-    title: String,
-    daysBeforeState: List<Int>,
-    startHourState: Int,
-    endHourState: Int,
-    onDaysBeforeChange: (List<Int>) -> Unit,
-    onStartHourChange: (Int) -> Unit,
-    onEndHourChange: (Int) -> Unit,
-    onSave: (List<Int>, Int, Int) -> Unit,
-    isTaskConfig: Boolean // ← Para saber si estamos configurando eventos o tareas
-) {
-    val context = LocalContext.current
-    val prefs = remember { NotiPrefsManager(context) }
-
-    var showAddDayDialog by remember { mutableStateOf(false) }
-
-    // Recuperamos los valores guardados en DataStore
-    val storedDays by if (isTaskConfig) {
-        prefs.taskDaysFlow.collectAsState(initial = emptyList())
-    } else {
-        prefs.eventDaysFlow.collectAsState(initial = emptyList())
-    }
-
-    val storedStartHour by if (isTaskConfig) {
-        prefs.taskStartHourFlow.collectAsState(initial = 8)
-    } else {
-        prefs.eventStartHourFlow.collectAsState(initial = 8)
-    }
-
-    val storedEndHour by if (isTaskConfig) {
-        prefs.taskEndHourFlow.collectAsState(initial = 22)
-    } else {
-        prefs.eventEndHourFlow.collectAsState(initial = 22)
-    }
-
-    // Variable reactiva que detecta cambios sin guardar
-    val hasUnsavedChanges by remember(
-        daysBeforeState,
-        startHourState,
-        endHourState,
-        storedDays,
-        storedStartHour,
-        storedEndHour
+private fun NotificationsDisabledBanner(onOpenSettings: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
     ) {
-        derivedStateOf {
-            daysBeforeState.sortedDescending() != storedDays.sortedDescending() ||
-                    startHourState != storedStartHour ||
-                    endHourState != storedEndHour
+        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.NotificationsOff, contentDescription = null, tint = MaterialTheme.colorScheme.onErrorContainer)
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = "Las notificaciones están desactivadas, así que no recibirás recordatorios.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(onClick = onOpenSettings) { Text("Activar") }
         }
     }
+}
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
+@Composable
+private fun NotificationConfigPage(
+    title: String,
+    settings: ReminderSettings,
+    hasUnsavedChanges: Boolean,
+    onAddDay: (Int) -> Unit,
+    onRemoveDay: (Int) -> Unit,
+    onStartHourChange: (Int) -> Unit,
+    onEndHourChange: (Int) -> Unit,
+    onSave: () -> Unit
+) {
+    var showAddDayDialog by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
         Text(title, style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 250.dp)
-        ) {
-            items(daysBeforeState) { day ->
+        LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 250.dp)) {
+            items(settings.daysBefore, key = { it }) { day ->
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     shape = RoundedCornerShape(12.dp),
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Row(
-                        modifier = Modifier
-                            .padding(12.dp)
-                            .fillMaxWidth(),
+                        modifier = Modifier.padding(12.dp).fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(text = if (day == 1) "$day día antes" else "$day días antes")
-                        IconButton(onClick = { onDaysBeforeChange(daysBeforeState - day) }) {
+                        IconButton(onClick = { onRemoveDay(day) }) {
                             Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                         }
                     }
@@ -345,68 +244,27 @@ fun NotificationConfigPage(
 
         Spacer(Modifier.height(8.dp))
 
-        Button(
-            onClick = { showAddDayDialog = true },
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Button(onClick = { showAddDayDialog = true }, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Default.Add, contentDescription = null)
             Spacer(Modifier.width(8.dp))
             Text("Añadir día")
         }
 
         Spacer(Modifier.height(16.dp))
-
         Text("Rango horario para las notificaciones", style = MaterialTheme.typography.titleMedium)
-
         Spacer(Modifier.height(16.dp))
 
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            TimePickerButton(
-                label = "Desde",
-                hour = startHourState,
-                onHourSelected = { selectedStart ->
-                    if (selectedStart >= endHourState) {
-                        Toast.makeText(
-                            context,
-                            "La hora de inicio no puede ser igual o posterior a la de fin",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        onStartHourChange(selectedStart)
-                    }
-                }
-            )
-
-            TimePickerButton(
-                label = "Hasta",
-                hour = endHourState,
-                onHourSelected = { selectedEnd ->
-                    if (selectedEnd <= startHourState) {
-                        Toast.makeText(
-                            context,
-                            "La hora de fin no puede ser anterior o igual a la de inicio",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        onEndHourChange(selectedEnd)
-                    }
-                }
-            )
+        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+            TimePickerButton(label = "Desde", hour = settings.startHour, onHourSelected = onStartHourChange)
+            TimePickerButton(label = "Hasta", hour = settings.endHour, onHourSelected = onEndHourChange)
         }
 
         Spacer(Modifier.height(32.dp))
 
-        Button(
-            onClick = { onSave(daysBeforeState, startHourState, endHourState) },
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Button(onClick = onSave, modifier = Modifier.fillMaxWidth()) {
             Text("Guardar configuración")
         }
 
-        // Si hay cambios sin guardar, mostramos aviso
         if (hasUnsavedChanges) {
             Spacer(Modifier.height(16.dp))
             Text(
@@ -421,48 +279,27 @@ fun NotificationConfigPage(
     if (showAddDayDialog) {
         AddDayDialog(
             onDismiss = { showAddDayDialog = false },
-            onConfirm = { newDay ->
-                if (newDay > 0 && newDay !in daysBeforeState) {
-                    onDaysBeforeChange((daysBeforeState + newDay).sortedDescending())
-                }
+            onConfirm = { day ->
+                onAddDay(day)
                 showAddDayDialog = false
             }
         )
     }
 }
 
-
 @Composable
-fun TimePickerButton(
-    label: String,
-    hour: Int,
-    onHourSelected: (Int) -> Unit
-) {
+private fun TimePickerButton(label: String, hour: Int, onHourSelected: (Int) -> Unit) {
     val context = LocalContext.current
-    val hourFormatted = String.format("%02d:00", hour)
-
     Button(
-        onClick = {
-            TimePickerDialog(
-                context,
-                { _, selectedHour, _ -> onHourSelected(selectedHour) },
-                hour,
-                0,
-                true
-            ).show()
-        },
+        onClick = { TimePickerDialog(context, { _, selectedHour, _ -> onHourSelected(selectedHour) }, hour, 0, true).show() },
         shape = RoundedCornerShape(12.dp)
     ) {
-        Text("$label: $hourFormatted")
+        Text("$label: ${"%02d:00".format(hour)}")
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddDayDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (Int) -> Unit
-) {
+private fun AddDayDialog(onDismiss: () -> Unit, onConfirm: (Int) -> Unit) {
     var inputValue by remember { mutableStateOf("") }
 
     AlertDialog(
@@ -478,29 +315,15 @@ fun AddDayDialog(
             )
         },
         confirmButton = {
-            TextButton(
-                onClick = {
-                    val value = inputValue.toIntOrNull()
-                    if (value != null && value > 0) onConfirm(value) else onDismiss()
-                }
-            ) {
+            TextButton(onClick = {
+                val value = inputValue.toIntOrNull()
+                if (value != null && value > 0) onConfirm(value) else onDismiss()
+            }) {
                 Text("Añadir")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar")
-            }
+            TextButton(onClick = onDismiss) { Text("Cancelar") }
         }
     )
-}
-
-class NotificationConfigState(
-    initialDays: List<Int>,
-    initialStartHour: Int,
-    initialEndHour: Int
-) {
-    var daysBefore by mutableStateOf(initialDays.sortedDescending())
-    var startHour by mutableStateOf(initialStartHour)
-    var endHour by mutableStateOf(initialEndHour)
 }
