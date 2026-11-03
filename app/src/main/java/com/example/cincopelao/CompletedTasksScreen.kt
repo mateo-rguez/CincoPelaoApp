@@ -34,10 +34,10 @@ import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Undo
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -202,7 +202,7 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
     ) {
         // Línea divisoria
         item {
-            Divider(
+            HorizontalDivider(
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                 thickness = 0.5.dp
             )
@@ -256,7 +256,7 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
                                 val subtasks = visibleArchivedTasks.filter { it.parentTaskId == task.taskId }
                                 val subjectAbbrev = subjects.find { it.subjectId.toLong() == task.subjectId }?.abbrev
 
-                                val modifier = Modifier.animateItemPlacement()
+                                val modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
 
                                 if (subtasks.isNotEmpty()) {
                                     ArchivedParentTaskBlock(
@@ -331,7 +331,7 @@ fun CompletedTasksScreen(snackbarHostState: SnackbarHostState) {
                                                 subjectAbbrev = subjectAbbrev,
                                                 modifier = Modifier
                                                     .padding(horizontal = 8.dp)
-                                                    .animateItemPlacement(),
+                                                    .animateItem(fadeInSpec = null, fadeOutSpec = null),
                                                 onClick = {
                                                     taskToShow = task
                                                     showTaskInfo = true
@@ -566,7 +566,7 @@ fun ArchivedParentTaskBlock(
                 val isDarkTheme by context.getDarkModeFlow().collectAsState(initial = false)
                 IconButton(onClick = { onRestore() }) {
                     Icon(
-                        imageVector = Icons.Default.Undo,
+                        imageVector = Icons.AutoMirrored.Filled.Undo,
                         contentDescription = "Archivar tarea",
                         tint = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.primary
                     )
@@ -580,7 +580,7 @@ fun ArchivedParentTaskBlock(
                 }
             }
 
-            Divider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), thickness = 0.5.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), thickness = 0.5.dp)
 
             // Lista de subtareas (TaskRow)
             Column {
@@ -599,7 +599,7 @@ fun ArchivedParentTaskBlock(
                     )
 
                     if (index < sortedSubtasks.lastIndex) {
-                        Divider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), thickness = 0.5.dp)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), thickness = 0.5.dp)
                     }
                 }
             }
@@ -666,7 +666,7 @@ fun ArchivedTaskRow(
             Row {
                 IconButton(onClick = { onRestore() }) {
                     Icon(
-                        imageVector = Icons.Default.Undo,
+                        imageVector = Icons.AutoMirrored.Filled.Undo,
                         contentDescription = "Archivar tarea",
                         tint = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.primary
                     )

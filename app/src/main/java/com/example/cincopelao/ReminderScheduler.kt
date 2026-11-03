@@ -54,7 +54,7 @@ object ReminderScheduler {
                     val key = "${event.eventId}-$offset"
 
                     val template = eventMessages.random()
-                    val title = template.replace("evento", event.name).replace("tipo", event.type.toLowerCase()).replace("abbrev", subjects.find { it.subjectId == event.subjectId }?.abbrev ?: "asignatura eliminada? ta mal hecho esto entonces")
+                    val title = template.replace("evento", event.name).replace("tipo", event.type.lowercase()).replace("abbrev", subjects.find { it.subjectId == event.subjectId }?.abbrev ?: "asignatura eliminada? ta mal hecho esto entonces")
                     val message = reminderMessageFor(offset)
 
                     if (!isScheduledEvent(context, key)) {
@@ -80,7 +80,7 @@ object ReminderScheduler {
                         val key = "${task.taskId}-$offset"
 
                         val template = taskMessages.random()
-                        val title = template.replace("tarea", task.title.toLowerCase()).replace("abbrev", subjects.find { it.subjectId.toLong() == task.subjectId }?.abbrev ?: "asignatura eliminada? ta mal hecho esto entonces")
+                        val title = template.replace("tarea", task.title.lowercase()).replace("abbrev", subjects.find { it.subjectId.toLong() == task.subjectId }?.abbrev ?: "asignatura eliminada? ta mal hecho esto entonces")
                         val message = reminderMessageFor(offset)
 
                         if (!isScheduledTask(context, key)) {

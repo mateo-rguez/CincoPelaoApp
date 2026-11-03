@@ -30,7 +30,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -65,7 +65,7 @@ import com.example.cincopelao.DatabaseManager.currentDb
 import com.example.cincopelao.ui.theme.CincoPelaoTheme
 import androidx.compose.material3.TabRow
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -123,7 +123,7 @@ class NotificationsActivity : ComponentActivity() {
                             ),
                             navigationIcon = {
                                 IconButton(onClick = { finish() }) {
-                                    Icon(Icons.Default.ArrowBack, contentDescription = "Menú")
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Menú")
                                 }
                             },
                         )
@@ -214,7 +214,7 @@ fun NotificationsScreen(
                 )
             },
             divider = {
-                Divider(
+                HorizontalDivider(
                     color = contentColor.copy(alpha = 0.3f),
                     thickness = 1.dp
                 )

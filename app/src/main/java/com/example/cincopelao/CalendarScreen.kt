@@ -11,7 +11,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,8 +38,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.materialIcon
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -383,7 +383,7 @@ fun CalendarHeader(
             onPreviousClick()
         }) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Previous month",
                 tint = MaterialTheme.colorScheme.onBackground
             )
@@ -397,10 +397,10 @@ fun CalendarHeader(
             transitionSpec = {
                 val animSpec = tween<IntOffset>(300)
                 if (direction > 0) {
-                    slideInHorizontally(animSpec) { it } + fadeIn() with
+                    slideInHorizontally(animSpec) { it } + fadeIn() togetherWith
                             slideOutHorizontally(animSpec) { -it } + fadeOut()
                 } else {
-                    slideInHorizontally(animSpec) { -it } + fadeIn() with
+                    slideInHorizontally(animSpec) { -it } + fadeIn() togetherWith
                             slideOutHorizontally(animSpec) { it } + fadeOut()
                 }.using(SizeTransform(clip = false))
             }
@@ -424,7 +424,7 @@ fun CalendarHeader(
             onNextClick()
         }) {
             Icon(
-                imageVector = Icons.Default.ArrowForward,
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = "Next month",
                 tint = MaterialTheme.colorScheme.onBackground
             )

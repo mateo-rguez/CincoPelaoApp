@@ -70,8 +70,6 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
-    // TODO(Fase 1): quitar cuando InstancesActivity deje de usar SwipeToDismiss de Material 2
-    implementation(libs.androidx.compose.material)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 

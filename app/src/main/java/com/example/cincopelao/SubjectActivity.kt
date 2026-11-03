@@ -19,7 +19,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -51,7 +51,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
@@ -62,7 +62,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -313,7 +313,7 @@ fun SubjectTopBar(
         ),
         navigationIcon = {
             IconButton(onClick = onMenuClick) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
             }
         },
         actions = {
@@ -433,10 +433,10 @@ fun AnimatedNumber(
 
             AnimatedContent(targetState = newChar, transitionSpec = {
                 if (targetState > initialState) {
-                    slideInVertically { -it } + fadeIn() with
+                    slideInVertically { -it } + fadeIn() togetherWith
                             slideOutVertically { it } + fadeOut()
                 } else {
-                    slideInVertically { it } + fadeIn() with
+                    slideInVertically { it } + fadeIn() togetherWith
                             slideOutVertically { -it } + fadeOut()
                 }
             }) { char ->
@@ -687,7 +687,7 @@ fun EventStatusTag(
     AnimatedContent(
         targetState = text,
         transitionSpec = {
-            fadeIn(tween(200)) with fadeOut(tween(200))
+            fadeIn(tween(200)) togetherWith fadeOut(tween(200))
         },
         label = "StatusTextTransition"
     ) { animatedText ->
@@ -781,7 +781,7 @@ fun EventStackList(
                     )
                 },
                 divider = {
-                    Divider(
+                    HorizontalDivider(
                         color = contentColor.copy(alpha = 0.3f),
                         thickness = 1.dp
                     )

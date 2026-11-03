@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,11 +61,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import androidx.compose.material.SwipeToDismiss
-import androidx.compose.material.DismissDirection
-import androidx.compose.material.DismissValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.rememberDismissState
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import java.io.File
@@ -98,7 +96,7 @@ class InstancesActivity : ComponentActivity() {
                             ),
                             navigationIcon = {
                                 IconButton(onClick = { finish() }) {
-                                    Icon(Icons.Default.ArrowBack, contentDescription = "Menú")
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Menú")
                                 }
                             },
                         )
@@ -128,7 +126,7 @@ class InstancesActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InstanceScreen(
     instances: List<DatabaseManager.DatabaseInstance>,
@@ -258,16 +256,17 @@ fun InstanceScreen(
         ) {
             items(instances) { instance ->
 
-                val dismissState = rememberDismissState()
+                val dismissState = rememberSwipeToDismissBoxState()
                 val coroutineScope = rememberCoroutineScope()
                 var showDeleteDialogForThisInstance by remember { mutableStateOf(false) }
 
                 val isSelected = instance.db == currentDb
 
-                SwipeToDismiss(
+                SwipeToDismissBox(
                     state = dismissState,
-                    directions = if (!isSelected) setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart) else emptySet(),
-                    background = {
+                    enableDismissFromStartToEnd = !isSelected,
+                    enableDismissFromEndToStart = !isSelected,
+                    backgroundContent = {
                         Box(modifier = Modifier.background(Color.Red))
                     }
                 ) {
@@ -318,14 +317,14 @@ fun InstanceScreen(
                         }
                     }
 
-                    if (dismissState.isDismissed(DismissDirection.StartToEnd) || dismissState.isDismissed(DismissDirection.EndToStart)) {
+                    if (dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
                         showDeleteDialogForThisInstance = true
                     }
 
                     if (showDeleteDialogForThisInstance) {
                         AlertDialog(
                             onDismissRequest = {
-                                coroutineScope.launch { dismissState.snapTo(DismissValue.Default) }
+                                coroutineScope.launch { dismissState.snapTo(SwipeToDismissBoxValue.Settled) }
                                 showDeleteDialogForThisInstance = false
                             },
                             title = { Text("Eliminar instancia") },
@@ -338,7 +337,7 @@ fun InstanceScreen(
                             },
                             dismissButton = {
                                 Button(onClick = {
-                                    coroutineScope.launch { dismissState.snapTo(DismissValue.Default) }
+                                    coroutineScope.launch { dismissState.snapTo(SwipeToDismissBoxValue.Settled) }
                                     showDeleteDialogForThisInstance = false
                                 }) { Text("Cancelar") }
                             }

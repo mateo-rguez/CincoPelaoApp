@@ -28,13 +28,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -93,7 +93,7 @@ fun SubjectStatsScreen(
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 }
             )
@@ -113,7 +113,7 @@ fun SubjectStatsScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.ShowChart,
+                    imageVector = Icons.AutoMirrored.Filled.ShowChart,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
@@ -551,22 +551,22 @@ fun StatsTable(events: List<Event>) {
         }
 
         TableRow(label = "Número de eventos puntuables", value = stats.eventCount.toString())
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Número de eventos completados", value = stats.eventCountDone.toString())
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Número de eventos pendientes", value = stats.eventCountLeft.toString())
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Nº de eventos bajo nota mínima", value = stats.eventCountTrunc.toString())
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "No puntuables hechos", value = "${stats.noPuntDoneCount} de ${stats.noPuntCount}")
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Nota ponderada actual", value = String.format("%.2f", stats.currentWeighted))
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         val averageValue = if (stats.average.isNaN()) {
             "N/A"
@@ -575,28 +575,28 @@ fun StatsTable(events: List<Event>) {
         }
 
         TableRow(label = "Promedio", value = averageValue)
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Nota mínima", value = String.format("%.2f", stats.minScore))
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Nota máxima", value = String.format("%.2f", stats.maxScore))
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Proyección con 5 en restantes", value = String.format("%.2f", stats.finalScoring5))
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Nota final máxima potencial", value = String.format("%.2f", stats.maxPotential))
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Tendencia (RLS)", value = "${String.format("%+.2f", stats.trend)} ($trendLabel)")
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Porcentaje de eventos completados", value = String.format("%.1f", stats.eventCompletedPerc) + "%")
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Porcentaje barrido de nota final", value = String.format("%.1f", stats.scoreCompletedPerc) + "%")
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         val stdValue = if (stats.stdDeviation.isNaN()) {
             "N/A"
@@ -605,25 +605,25 @@ fun StatsTable(events: List<Event>) {
         }
 
         TableRow(label = "Desviación típica", value = "$stdValue")
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Mediana", value = String.format("%.2f", stats.median))
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Rango", value = String.format("%.2f", stats.range))
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Suspensos", value = stats.eventCountSusp.toString())
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Suficientes", value = stats.eventCountSufi.toString())
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Aceptables", value = stats.eventCountAcep.toString())
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Notables", value = stats.eventCountNotable.toString())
-        Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
 
         TableRow(label = "Sobresalientes", value = stats.eventCountSobre.toString())
     }
@@ -743,7 +743,7 @@ fun GradeTargetCalculator(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                Divider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f), thickness = 1.dp)
+                HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f), thickness = 1.dp)
             }
 
             itemsIndexed(labels) { i, label ->
@@ -788,7 +788,7 @@ fun GradeTargetCalculator(
                     )
                 }
 
-                Divider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f), thickness = 0.5.dp)
+                HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f), thickness = 0.5.dp)
             }
         }
 

@@ -46,8 +46,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -493,7 +493,7 @@ fun DrawerContent(
 
         Spacer(Modifier.height(24.dp))
 
-        Divider(
+        HorizontalDivider(
             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f),
             thickness = 1.dp,
             modifier = Modifier.padding(8.dp)
@@ -607,16 +607,16 @@ fun AppTopBar(
 
 enum class BottomNavItem(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
     Horarios("horarios", "Horarios", Icons.Default.Schedule),
-    Tareas("tareas", "Tareas", Icons.Default.List),
-    Asignaturas("asignaturas", "Materias", Icons.Default.MenuBook),
+    Tareas("tareas", "Tareas", Icons.AutoMirrored.Filled.List),
+    Asignaturas("asignaturas", "Materias", Icons.AutoMirrored.Filled.MenuBook),
     Calendario("calendario", "Calendario", Icons.Default.CalendarToday),
     ShareMode("sharemode", "ShareMode", Icons.Default.Share)
 }
 
 enum class NavigationBarItems(val icon: ImageVector, val label: String) {
     horarios(icon = Icons.Default.Schedule, "Horarios"),
-    tareas(icon = Icons.Default.List, "Tareas"),
-    asignaturas(icon = Icons.Default.MenuBook, "Materias"),
+    tareas(icon = Icons.AutoMirrored.Filled.List, "Tareas"),
+    asignaturas(icon = Icons.AutoMirrored.Filled.MenuBook, "Materias"),
     calendario(icon = Icons.Default.CalendarToday, "Calendario"),
     sharemode(icon = Icons.Default.Share, "ShareMode")
 }

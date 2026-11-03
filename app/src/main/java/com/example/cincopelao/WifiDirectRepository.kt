@@ -31,6 +31,7 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import java.nio.ByteBuffer
 import javax.inject.Inject
+import kotlin.coroutines.resume
 import javax.inject.Singleton
 
 interface WifiDirectRepository {
@@ -242,7 +243,7 @@ class WifiDirectRepositoryImpl @Inject constructor(
                             val hostAddress = info.groupOwnerAddress?.hostAddress
                             if (!hostAddress.isNullOrBlank()) {
                                 Log.d("WifiDirectRepo", "Grupo P2P formado. Host: $hostAddress")
-                                cont.resume(hostAddress) {}
+                                cont.resume(hostAddress)
                             } else {
                                 Log.d("WifiDirectRepo", "Grupo formado, pero hostAddress aún null")
                             }

@@ -15,7 +15,6 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.NetworkInfo
 import android.net.Uri
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Build
@@ -46,9 +45,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bluetooth
-import androidx.compose.material.icons.filled.BluetoothSearching
+import androidx.compose.material.icons.automirrored.filled.BluetoothSearching
 import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Wifi
@@ -210,7 +209,7 @@ class ReceiveActivity : ComponentActivity() {
                             ),
                             navigationIcon = {
                                 IconButton(onClick = { finish() }) {
-                                    Icon(Icons.Default.ArrowBack, contentDescription = "Menú")
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Menú")
                                 }
                             },
                         )
@@ -348,7 +347,7 @@ fun ReceiveScreen(
                             try {
                                 val newInstanceId = dbManager.importAsNewDatabase(context, setName, subjects, events, tasks)
 
-                                if (bitmap != null && newInstanceId != null) {
+                                if (bitmap != null) {
                                     val directory = File(context.filesDir, "SCHEDULE_$newInstanceId")
                                     if (!directory.exists()) directory.mkdirs()
                                     val file = File(directory, "$newInstanceId.png")
@@ -404,7 +403,7 @@ fun ReceiveScreen(
             imageVector = when {
                 showCheck -> Icons.Default.CheckCircleOutline
                 connected -> Icons.Default.Wifi
-                advertisingStarted -> Icons.Default.BluetoothSearching
+                advertisingStarted -> Icons.AutoMirrored.Filled.BluetoothSearching
                 else -> Icons.Default.Bluetooth
             },
             contentDescription = if (connected) "Conectado" else "Esperando",
