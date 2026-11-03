@@ -11,8 +11,6 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
 import io.github.mateorguez.cincopelao.data.local.entity.Task
 import io.github.mateorguez.cincopelao.data.prefs.NotiPrefsManager
-import io.github.mateorguez.cincopelao.data.repository.EventRepository
-import io.github.mateorguez.cincopelao.data.repository.SubjectRepository
 import io.github.mateorguez.cincopelao.data.repository.TaskRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,9 +51,7 @@ class ReminderManagerTest {
         instances = InstanceRepository(context)
         tasks = TaskRepository(instances)
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        ReminderManager(
-            context, instances, SubjectRepository(instances), EventRepository(instances), tasks, NotiPrefsManager(context)
-        ).start(scope)
+        ReminderManager(context, instances, NotiPrefsManager(context)).start(scope)
     }
 
     @After
@@ -105,5 +101,19 @@ class ReminderManagerTest {
         assertEquals(3, awaitPending(3).size)
         tasks.delete(task("Entrega"))
         assertEquals(0, awaitPending(0).size)
+    }
+
+    @Test
+    fun `hay recordatorios de todas las instancias y se cancelan al borrar la instancia`() = runBlocking {
+        val inTenDays = System.currentTimeMillis() + 10L * 24 * 60 * 60 * 1000
+        val other = instances.create("Otra")
+
+        // La otra instancia no está activa, pero sus tareas también avisan
+        instances.database(other.id).taskDao().insertTask(Task(title = "De la otra", dueDate = inTenDays))
+        tasks.insert(Task(title = "De la activa", dueDate = inTenDays))
+        assertEquals(6, awaitPending(6).size)
+
+        instances.delete(other.id)
+        assertEquals(3, awaitPending(3).size)
     }
 }

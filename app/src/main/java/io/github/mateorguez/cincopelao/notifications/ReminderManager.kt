@@ -1,5 +1,12 @@
 package io.github.mateorguez.cincopelao.notifications
 
+import kotlinx.coroutines.flow.retryWhen
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.delay
+import io.github.mateorguez.cincopelao.data.local.entity.Task
+import io.github.mateorguez.cincopelao.data.local.entity.Subject
+import io.github.mateorguez.cincopelao.data.local.entity.Event
 import android.content.Context
 import android.util.Log
 import androidx.datastore.preferences.core.edit
@@ -13,9 +20,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
 import io.github.mateorguez.cincopelao.data.prefs.NotiPrefsManager
 import io.github.mateorguez.cincopelao.data.prefs.dataStore
-import io.github.mateorguez.cincopelao.data.repository.EventRepository
-import io.github.mateorguez.cincopelao.data.repository.SubjectRepository
-import io.github.mateorguez.cincopelao.data.repository.TaskRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -37,7 +41,7 @@ import kotlin.random.Random
 /**
  * Mantiene los recordatorios programados en WorkManager sincronizados con los datos.
  *
- * Observa las asignaturas, eventos, tareas y ajustes de la instancia activa y, en cada cambio,
+ * Observa las asignaturas, eventos, tareas y ajustes de todas las instancias y, en cada cambio,
  * reconcilia: programa los recordatorios que faltan, cancela los que sobran (tareas completadas,
  * elementos borrados, fechas cambiadas...) y no toca los que siguen igual, para que su hora
  * aleatoria no se vuelva a sortear. La interfaz ya no tiene que cancelar ni reprogramar nada.
@@ -47,9 +51,6 @@ import kotlin.random.Random
 class ReminderManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val instances: InstanceRepository,
-    private val subjects: SubjectRepository,
-    private val events: EventRepository,
-    private val tasks: TaskRepository,
     private val prefs: NotiPrefsManager
 ) {
     private val workManager get() = WorkManager.getInstance(context)
@@ -76,11 +77,33 @@ class ReminderManager @Inject constructor(
         ReminderSettings(eDays, eStart, eEnd) to ReminderSettings(tDays, tStart, tEnd)
     }
 
-    private fun plannedReminders(): Flow<List<PlannedReminder>> =
-        instances.currentInstanceId.flatMapLatest { instanceId ->
-            combine(subjects.subjects, events.events, tasks.tasks, settings()) { subjects, events, tasks, (eventSettings, taskSettings) ->
-                ReminderPlanner.plan(instanceId, subjects, events, tasks, eventSettings, taskSettings, System.currentTimeMillis())
+    /** Datos de una instancia necesarios para planificar sus recordatorios. */
+    private data class InstanceData(val id: String, val subjects: List<Subject>, val events: List<Event>, val tasks: List<Task>)
+
+    /** Datos de todas las instancias; se re-suscribe al crear o borrar instancias. */
+    private fun allInstancesData(): Flow<List<InstanceData>> =
+        instances.instances
+            .map { list -> list.map { it.id } }
+            .distinctUntilChanged()
+            .flatMapLatest { ids ->
+                if (ids.isEmpty()) return@flatMapLatest flowOf(emptyList())
+                combine(ids.map { id ->
+                    val db = instances.database(id)
+                    combine(db.subjectDao().getAllSubjects(), db.eventDao().getAllEvents(), db.taskDao().getAllTasks()) { s, e, t ->
+                        InstanceData(id, s, e, t)
+                    }
+                }) { it.toList() }
             }
+
+    private fun plannedReminders(): Flow<List<PlannedReminder>> =
+        combine(allInstancesData(), settings()) { data, (eventSettings, taskSettings) ->
+            val now = System.currentTimeMillis()
+            data.flatMap { ReminderPlanner.plan(it.id, it.subjects, it.events, it.tasks, eventSettings, taskSettings, now) }
+        }.retryWhen { cause, _ ->
+            // P. ej. si se borra una instancia mientras se leía su base de datos
+            Log.w(TAG, "Reintentando la observación de recordatorios", cause)
+            delay(RETRY_DELAY_MS)
+            true
         }
 
     private suspend fun reconcile(planned: List<PlannedReminder>) {
@@ -148,6 +171,7 @@ class ReminderManager @Inject constructor(
         const val KEY_PREFIX = "reminder-key:"
         const val SPEC_PREFIX = "reminder-spec:"
         const val DEBOUNCE_MS = 500L
+        const val RETRY_DELAY_MS = 1_000L
         const val LEGACY_TAG = "NOTIFICATION_WORK"
         val LEGACY_KEYS = listOf("scheduled_events_ids", "scheduled_tasks_ids")
         val DATE_FORMAT = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())

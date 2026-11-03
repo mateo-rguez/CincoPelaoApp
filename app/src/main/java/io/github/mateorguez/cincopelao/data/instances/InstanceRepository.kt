@@ -77,7 +77,8 @@ class InstanceRepository @Inject constructor(
     /** Base de datos de la instancia activa en este momento. */
     fun currentDb(): AppDatabase = database(_currentInstanceId.value)
 
-    private fun database(id: String): AppDatabase =
+    /** Base de datos de una instancia concreta (activa o no). */
+    fun database(id: String): AppDatabase =
         databases.getOrPut(id) { AppDatabase.build(context, id) }
 
     fun select(instanceId: String) {
@@ -105,13 +106,14 @@ class InstanceRepository @Inject constructor(
     /** Borra una instancia con todos sus datos. La instancia activa no se puede borrar. */
     suspend fun delete(instanceId: String) {
         if (instanceId == _currentInstanceId.value) return
+        // Primero se quita de la lista, para que quien la esté observando deje de hacerlo
+        _instances.update { list -> list.filterNot { it.id == instanceId } }
+        saveInstances()
         withContext(Dispatchers.IO) {
             databases.remove(instanceId)?.close()
             context.deleteDatabase(instanceId)
             File(context.filesDir, "SCHEDULE_$instanceId").deleteRecursively()
         }
-        _instances.update { list -> list.filterNot { it.id == instanceId } }
-        saveInstances()
     }
 
     /**
