@@ -267,7 +267,7 @@ fun InstanceScreen(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(instances) { instance ->
+            items(instances, key = { it.id }) { instance ->
 
                 val dismissState = rememberSwipeToDismissBoxState()
                 val coroutineScope = rememberCoroutineScope()

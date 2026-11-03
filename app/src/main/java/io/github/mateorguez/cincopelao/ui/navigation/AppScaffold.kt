@@ -1,5 +1,12 @@
 package io.github.mateorguez.cincopelao.ui.navigation
 
+import io.github.mateorguez.cincopelao.ui.theme.NavBarUnselected
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavBackStackEntry
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.AnimatedContentTransitionScope
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import io.github.mateorguez.cincopelao.ui.MainViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -78,6 +85,45 @@ import io.github.mateorguez.cincopelao.ui.tasks.CompletedTasksScreen
 import io.github.mateorguez.cincopelao.ui.tasks.TasksScreen
 import kotlinx.coroutines.launch
 
+/** Navega a una pestaña sin apilar pantallas repetidas y conservando el estado de cada pestaña. */
+private fun NavHostController.navigateToTab(item: BottomNavItem) {
+    navigate(item.route) {
+        popUpTo(graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+}
+
+// Transiciones entre pestañas: la nueva entra desde arriba y la anterior sale hacia abajo
+private val tabEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+    slideInVertically(initialOffsetY = { -it }, animationSpec = tween(300)) + fadeIn(tween(300))
+}
+private val tabExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+    slideOutVertically(targetOffsetY = { it }, animationSpec = tween(300)) + fadeOut(tween(300))
+}
+private val tabPopEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+    slideInVertically(initialOffsetY = { it }, animationSpec = tween(300)) + fadeIn(tween(300))
+}
+private val tabPopExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+    slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(300)) + fadeOut(tween(300))
+}
+
+/** Pestaña con las transiciones comunes; el botón atrás cierra la app desde cualquier pestaña. */
+private fun NavGraphBuilder.tab(
+    item: BottomNavItem,
+    enter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = tabEnter,
+    exit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = tabExit,
+    popEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = tabPopEnter,
+    popExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = tabPopExit,
+    content: @Composable () -> Unit
+) {
+    composable(item.route, enterTransition = enter, exitTransition = exit, popEnterTransition = popEnter, popExitTransition = popExit) {
+        val activity = LocalContext.current as? Activity
+        BackHandler { activity?.finish() }
+        content()
+    }
+}
+
 @Composable
 fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
     val mainViewModel: MainViewModel = hiltViewModel()
@@ -85,15 +131,12 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
-    val currentRoute = navController
-        .currentBackStackEntryAsState().value?.destination?.route
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val selectedItem = BottomNavItem.entries.find { it.route == currentRoute } ?: START_TAB
 
-    val showFab = currentRoute == BottomNavItem.Asignaturas.route
-
-    var completedTasksToggle by remember { mutableStateOf(false) }
-
-    var selectedBottomNavIndex by remember { mutableStateOf(2) }
+    var showCompletedTasks by remember { mutableStateOf(false) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -101,10 +144,7 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
             DrawerContent(
                 onToggleTheme = onToggleTheme,
                 darkTheme = darkTheme,
-                onItemSelected = { index ->
-                    selectedBottomNavIndex = index
-                    navController.navigate(BottomNavItem.entries[index].route)
-                },
+                onItemSelected = navController::navigateToTab,
                 closeDrawer = { scope.launch { drawerState.close() } }
             )
         }
@@ -112,29 +152,22 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
         Scaffold(
             topBar = {
                 AppTopBar(
-                    onMenuClick = {
-                        scope.launch { drawerState.open() }
-                    },
-                    currentRoute = currentRoute,
-                    onToggleTasksClick = { completedTasksToggle = !completedTasksToggle })
+                    onMenuClick = { scope.launch { drawerState.open() } },
+                    showTasksToggle = selectedItem == BottomNavItem.Tareas,
+                    showCompletedTasks = showCompletedTasks,
+                    onToggleTasksClick = { showCompletedTasks = !showCompletedTasks }
+                )
             },
             bottomBar = {
                 AppBottomBar(
-                    navController,
-                    selectedBottomNavIndex,
-                    onItemSelected = { index ->
-                        selectedBottomNavIndex = index
-                        navController.navigate(BottomNavItem.entries[index].route)
-                    }
+                    selectedItem = selectedItem,
+                    onItemSelected = navController::navigateToTab
                 )
             },
             floatingActionButton = {
-                val context = LocalContext.current
-                if (showFab) {
+                if (selectedItem == BottomNavItem.Asignaturas) {
                     FloatingActionButton(
-                        onClick = {
-                            context.startActivity(Intent(context, AddEditSubjectActivity::class.java))
-                        },
+                        onClick = { context.startActivity(Intent(context, AddEditSubjectActivity::class.java)) },
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     ) {
@@ -146,169 +179,33 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = BottomNavItem.Asignaturas.route,
+                startDestination = START_TAB.route,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                composable(
-                    BottomNavItem.Asignaturas.route,
-                    enterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { fullHeight -> -fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeIn(animationSpec = tween(300))
-                    },
-                    exitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeOut(animationSpec = tween(300))
-                    },
-                    popEnterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeIn(animationSpec = tween(300))
-                    },
-                    popExitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { fullHeight -> -fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeOut(animationSpec = tween(300))
-                    }
-                ) {
-                    val activity = LocalContext.current as? Activity
-                    BackHandler {
-                        activity?.finish()
-                    }
-                    SubjectsScreen(snackbarHostState)
-                }
+                tab(BottomNavItem.Asignaturas) { SubjectsScreen(snackbarHostState) }
 
-                composable(
-                    BottomNavItem.Tareas.route,
-                    enterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { fullHeight -> -fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeIn(animationSpec = tween(300))
-                    },
-                    exitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeOut(animationSpec = tween(300))
-                    },
-                    popEnterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeIn(animationSpec = tween(300))
-                    },
-                    popExitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { fullHeight -> -fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeOut(animationSpec = tween(300))
-                    }
-                ) {
-                    val activity = LocalContext.current as? Activity
-                    BackHandler {
-                        activity?.finish()
-                    }
-                    TaskScreenManager(completedTasksToggle, snackbarHostState)
-                }
+                tab(BottomNavItem.Tareas) { TaskScreenManager(showCompletedTasks, snackbarHostState) }
 
-                composable(
-                    BottomNavItem.Horarios.route,
-                    enterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { fullHeight -> -fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeIn(animationSpec = tween(300))
-                    },
-                    exitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeOut(animationSpec = tween(300))
-                    },
-                    popEnterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeIn(animationSpec = tween(300))
-                    },
-                    popExitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { fullHeight -> -fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeOut(animationSpec = tween(300))
-                    }
-                ) {
-                    val activity = LocalContext.current as? Activity
-                    BackHandler {
-                        activity?.finish()
-                    }
-
+                tab(BottomNavItem.Horarios) {
                     val instanceId by mainViewModel.currentInstanceId.collectAsState()
                     ScheduleScreen(instanceId)
                 }
 
-                composable(BottomNavItem.Calendario.route,
-                    enterTransition = { fadeIn(animationSpec = tween(600)) },
-                    exitTransition = { fadeOut(animationSpec = tween(600)) }
-                ) {
-                    val activity = LocalContext.current as? Activity
-                    BackHandler {
-                        activity?.finish()
-                    }
-                    CalendarScreen()
-                }
+                tab(
+                    BottomNavItem.Calendario,
+                    enter = { fadeIn(tween(600)) },
+                    exit = { fadeOut(tween(600)) },
+                    popEnter = { fadeIn(tween(600)) },
+                    popExit = { fadeOut(tween(600)) }
+                ) { CalendarScreen() }
 
-                composable(
-                    BottomNavItem.ShareMode.route,
-                    enterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { fullHeight -> -fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeIn(animationSpec = tween(300))
-                    },
-                    exitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeOut(animationSpec = tween(300))
-                    },
-                    popEnterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeIn(animationSpec = tween(300))
-                    },
-                    popExitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { fullHeight -> -fullHeight },
-                            animationSpec = tween(300)
-                        ) + fadeOut(animationSpec = tween(300))
-                    }
-                ) {
-                    val activity = LocalContext.current as? Activity
-                    BackHandler {
-                        activity?.finish()
-                    }
-                    val context = LocalContext.current
+                tab(BottomNavItem.ShareMode) {
                     ShareModeScreen(
-                        onTransmitClick = {
-                            val intent = Intent(context, TransmitActivity::class.java)
-                            context.startActivity(intent)
-                        },
-                        onReceiveClick = {
-                            val intent = Intent(context, ReceiveActivity::class.java)
-                            context.startActivity(intent)
-                        }
+                        onTransmitClick = { context.startActivity(Intent(context, TransmitActivity::class.java)) },
+                        onReceiveClick = { context.startActivity(Intent(context, ReceiveActivity::class.java)) }
                     )
                 }
             }
-
         }
     }
 }
@@ -317,7 +214,7 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
 fun DrawerContent(
     onToggleTheme: () -> Unit,
     darkTheme: Boolean,
-    onItemSelected: (Int) -> Unit,
+    onItemSelected: (BottomNavItem) -> Unit,
     closeDrawer: () -> Unit
 ) {
     Column(
@@ -352,7 +249,7 @@ fun DrawerContent(
 
         BottomNavItem.entries.forEach { item ->
             TextButton(onClick = {
-                onItemSelected(item.ordinal)
+                onItemSelected(item)
                 closeDrawer()
             }, modifier = Modifier.padding(start = 8.dp)) {
                 Icon(item.icon, contentDescription = item.label, tint = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -437,9 +334,10 @@ fun DrawerContent(
 @Composable
 fun AppTopBar(
     onMenuClick: () -> Unit,
-    currentRoute: String?,
-    onToggleTasksClick: () -> Unit) {
-    var isShowingCompleted by remember { mutableStateOf(false) }
+    showTasksToggle: Boolean,
+    showCompletedTasks: Boolean,
+    onToggleTasksClick: () -> Unit
+) {
     TopAppBar(
         title = { Text(text = "Cinco Pelao", fontFamily = DelightMedium) },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -455,18 +353,15 @@ fun AppTopBar(
         },
         actions = {
             AnimatedVisibility(
-                visible = currentRoute == "tareas",
+                visible = showTasksToggle,
                 enter = fadeIn() + scaleIn(),
                 exit = fadeOut() + scaleOut()
             ) {
-                IconButton(onClick = {
-                    isShowingCompleted = !isShowingCompleted
-                    onToggleTasksClick()
-                }) {
-                    Crossfade(targetState = isShowingCompleted, label = "ToggleIcon", animationSpec = tween(500)) { isShowingCompleted ->
+                IconButton(onClick = onToggleTasksClick) {
+                    Crossfade(targetState = showCompletedTasks, label = "ToggleIcon", animationSpec = tween(500)) { showingCompleted ->
                         Icon(
-                            imageVector = if (isShowingCompleted) Icons.Default.Done else Icons.Default.DoneAll,
-                            contentDescription = if (isShowingCompleted) "Ver tareas actuales" else "Ver tareas completadas"
+                            imageVector = if (showingCompleted) Icons.Default.Done else Icons.Default.DoneAll,
+                            contentDescription = if (showingCompleted) "Ver tareas actuales" else "Ver tareas completadas"
                         )
                     }
                 }
@@ -475,7 +370,8 @@ fun AppTopBar(
     )
 }
 
-enum class BottomNavItem(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
+/** Pestañas de la navegación principal, en el orden en que aparecen en la barra inferior. */
+enum class BottomNavItem(val route: String, val label: String, val icon: ImageVector) {
     Horarios("horarios", "Horarios", Icons.Default.Schedule),
     Tareas("tareas", "Tareas", Icons.AutoMirrored.Filled.List),
     Asignaturas("asignaturas", "Materias", Icons.AutoMirrored.Filled.MenuBook),
@@ -483,21 +379,13 @@ enum class BottomNavItem(val route: String, val label: String, val icon: android
     ShareMode("sharemode", "ShareMode", Icons.Default.Share)
 }
 
-enum class NavigationBarItems(val icon: ImageVector, val label: String) {
-    horarios(icon = Icons.Default.Schedule, "Horarios"),
-    tareas(icon = Icons.AutoMirrored.Filled.List, "Tareas"),
-    asignaturas(icon = Icons.AutoMirrored.Filled.MenuBook, "Materias"),
-    calendario(icon = Icons.Default.CalendarToday, "Calendario"),
-    sharemode(icon = Icons.Default.Share, "ShareMode")
-}
+private val START_TAB = BottomNavItem.Asignaturas
 
 @Composable
 fun AppBottomBar(
-    navController: NavHostController,
-    selectedIndex: Int,
-    onItemSelected: (Int) -> Unit
+    selectedItem: BottomNavItem,
+    onItemSelected: (BottomNavItem) -> Unit
 ) {
-    val navigationBarItems = remember { NavigationBarItems.values() }
     val duration = 500
 
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -518,7 +406,7 @@ fun AppBottomBar(
             modifier = Modifier
                 .navigationBarsPadding()
                 .height(100.dp),
-            selectedIndex = selectedIndex,
+            selectedIndex = selectedItem.ordinal,
             cornerRadius = shapeCornerRadius(
                 topLeft = 10.dp,
                 topRight = 10.dp,
@@ -529,19 +417,14 @@ fun AppBottomBar(
             ballColor = MaterialTheme.colorScheme.primary,
             ballAnimation = Teleport(tween(duration, easing = LinearOutSlowInEasing)),
         ) {
-            navigationBarItems.forEach { item ->
+            BottomNavItem.entries.forEach { item ->
                 val animatedColor by animateColorAsState(
-                    targetValue = if (selectedIndex == item.ordinal) Color.White else Color(
-                        0xFFBEC0FF
-                    ),
+                    targetValue = if (selectedItem == item) Color.White else NavBarUnselected,
                     animationSpec = tween(durationMillis = 300)
                 )
                 Box(
                     modifier = Modifier.fillMaxSize().noRippleClickable {
-                        if (selectedIndex != item.ordinal) {
-                            onItemSelected(item.ordinal)
-                            navController.navigate(item.name)
-                        }
+                        if (selectedItem != item) onItemSelected(item)
                     },
                     contentAlignment = Alignment.Center
                 ) {
@@ -549,7 +432,7 @@ fun AppBottomBar(
                         Icon(
                             modifier = Modifier.size(26.dp),
                             imageVector = item.icon,
-                            contentDescription = "BottomNavBar",
+                            contentDescription = null, // el texto de debajo ya lo describe
                             tint = animatedColor
                         )
                         Text(
@@ -567,8 +450,8 @@ fun AppBottomBar(
 }
 
 @Composable
-fun TaskScreenManager(completedTaskToggle: Boolean, snackbarHostState: SnackbarHostState) {
-    Crossfade(targetState = completedTaskToggle, label = "TasksCrossfade", animationSpec = tween(500)) { showCompleted ->
+fun TaskScreenManager(showCompleted: Boolean, snackbarHostState: SnackbarHostState) {
+    Crossfade(targetState = showCompleted, label = "TasksCrossfade", animationSpec = tween(500)) { showCompleted ->
         if (showCompleted) CompletedTasksScreen(snackbarHostState) else TasksScreen()
     }
 }

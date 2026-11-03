@@ -394,7 +394,7 @@ fun TasksScreen() {
         }
 
         // Tareas por asignatura
-        items(subjects.size) { index ->
+        items(subjects.size, key = { subjects[it].subjectId }) { index ->
             val subject = subjects[index]
             val subjectTasks = tasksBySubject[subject.subjectId]?.value ?: emptyList()
             val isExpanded = expandedStates[subject.subjectId] ?: subjectTasks.isNotEmpty()

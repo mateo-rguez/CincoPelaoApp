@@ -12,6 +12,10 @@ val SurfaceDark = Color(0xFF121212)
 val PrimaryContainerDark = Color(0xFF4F378B)
 val PrimaryContainerLight = Color(0xFFEADDFF)
 
+// Barra de navegación inferior -------------------------------------------------------------------
+
+val NavBarUnselected = Color(0xFFBEC0FF)
+
 // Tareas: degradado de fondo de las tarjetas en modo claro ---------------------------------------
 
 val TaskCardTintLight = Color(0xFF001794)

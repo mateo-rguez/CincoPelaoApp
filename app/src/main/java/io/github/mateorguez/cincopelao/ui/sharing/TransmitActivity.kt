@@ -369,7 +369,7 @@ fun TransmitScreen(
         } else {
             if (!connected) {
                 LazyColumn {
-                    items(devices) { device ->
+                    items(devices, key = { it.deviceId }) { device ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()

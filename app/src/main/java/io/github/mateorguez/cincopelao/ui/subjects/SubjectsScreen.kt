@@ -101,7 +101,7 @@ fun SubjectsScreen(snackbarHostState: SnackbarHostState) {
                 .fillMaxSize()
                 .padding(16.dp)
         )  {
-            items(subjects) { subject ->
+            items(subjects, key = { it.subjectId }) { subject ->
                 val context = LocalContext.current
 
                 SubjectCard(
