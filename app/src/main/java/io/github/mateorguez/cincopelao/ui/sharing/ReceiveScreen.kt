@@ -17,7 +17,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -108,12 +107,12 @@ fun ReceiveScreen(
                 Button(onClick = viewModel::start, enabled = state.canStart) { Text("Hacerme visible") }
             }
             SharePhase.Advertising, SharePhase.Handshaking, SharePhase.AwaitingApproval ->
-                OutlinedButton(onClick = viewModel::restart) { Text("Cancelar") }
+                SecondaryButton("Cancelar", viewModel::restart)
             SharePhase.Choosing -> {
                 state.peer?.let { VerificationCode(it.verificationCode) }
                 SelectionCard(state.selection, viewModel::setSelection)
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedButton(onClick = viewModel::restart) { Text("Cancelar") }
+                    SecondaryButton("Cancelar", viewModel::restart)
                     Button(onClick = viewModel::requestSelection, enabled = !state.selection.isEmpty) { Text("Pedir") }
                 }
             }
@@ -130,13 +129,13 @@ fun ReceiveScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedButton(onClick = onFinish) { Text("Descartar") }
+                    SecondaryButton("Descartar", onFinish)
                     Button(onClick = viewModel::import, enabled = state.instanceName.isNotBlank()) { Text("Guardar") }
                 }
             }
             SharePhase.Done -> Button(onClick = onFinish) { Text("Ir a la app") }
             is SharePhase.Failed -> Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onFinish) { Text("Salir") }
+                SecondaryButton("Salir", onFinish)
                 Button(onClick = viewModel::restart) { Text("Reintentar") }
             }
             else -> Unit

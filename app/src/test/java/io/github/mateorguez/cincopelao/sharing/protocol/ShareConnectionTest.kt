@@ -3,7 +3,9 @@ package io.github.mateorguez.cincopelao.sharing.protocol
 import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -48,6 +50,26 @@ class ShareConnectionTest {
 
         assertTrue(b.isClosed)
         a.close()
+    }
+
+    @Test
+    fun `cancelar un accept propaga la cancelacion y no un error de red`() = runBlocking {
+        // Bug encontrado en el móvil: "Cancelar" en Recibir mostraba "Se ha perdido la conexión"
+        val server = ServerSocket(0, 1, InetAddress.getLoopbackAddress())
+        var caught: Throwable? = null
+        val job = launch {
+            try {
+                cancellableBlocking(onCancel = server::close) { server.accept() }
+            } catch (e: Throwable) {
+                caught = e
+                throw e
+            }
+        }
+        delay(200)
+        job.cancelAndJoin()
+
+        assertTrue("Se esperaba cancelación y llegó $caught", caught is CancellationException)
+        assertTrue(server.isClosed)
     }
 
     @Test

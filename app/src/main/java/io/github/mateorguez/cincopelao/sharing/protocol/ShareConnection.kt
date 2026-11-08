@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -72,6 +73,11 @@ suspend fun <T> cancellableBlocking(
     }
     try {
         withContext(io) { block() }
+    } catch (e: Throwable) {
+        // Si se ha cancelado, el error de E/S es la consecuencia de cerrar el socket, no un fallo:
+        // se propaga la cancelación para que nadie lo muestre como "conexión perdida"
+        ensureActive()
+        throw e
     } finally {
         finished.set(true)
         watchdog.cancel()

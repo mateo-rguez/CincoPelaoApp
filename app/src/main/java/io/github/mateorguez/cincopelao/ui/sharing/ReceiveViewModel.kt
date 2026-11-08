@@ -33,6 +33,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -167,7 +169,7 @@ class ReceiveViewModel @Inject constructor(
             tech(TechSection.WIFI, "SSID", group.networkName)
             group.frequencyMhz?.let { tech(TechSection.WIFI, "Frecuencia", describeFrequency(it)) }
             group.interfaceName?.let { tech(TechSection.WIFI, "Interfaz", it) }
-            group.ownerMac?.let { tech(TechSection.WIFI, "MAC Wi‑Fi Direct", it) }
+            tech(TechSection.WIFI, "MAC Wi‑Fi Direct", describeMac(group.ownerMac))
             tech(TechSection.WIFI, "IP (dueño del grupo)", group.ownerIp ?: group.localIp ?: "?")
             log("P2P", "Grupo listo · dueño ${group.ownerIp ?: "?"}${group.frequencyMhz?.let { " · $it MHz" } ?: ""}")
 
@@ -184,7 +186,7 @@ class ReceiveViewModel @Inject constructor(
                     ble.advertise(displayName, beacon).collect { event ->
                         when (event) {
                             is AdvertiseEvent.Started -> {
-                                tech(TechSection.BLE, "Anuncio", "${event.mode} · potencia ${event.txPower}")
+                                tech(TechSection.BLE, "Anuncio", "${event.mode} (cada ~100 ms) · potencia ${event.txPower}")
                                 log("BLE", "Anunciándose como «$displayName» (${event.mode}, TX ${event.txPower})")
                             }
                             is AdvertiseEvent.ClientConnected -> log("GATT", "${event.address} conectado")
@@ -244,6 +246,8 @@ class ReceiveViewModel @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            // Si la sesión ya se ha cancelado (Cancelar, salir), el error es consecuencia de cortarla
+            currentCoroutineContext().ensureActive()
             fail(e)
         } finally {
             selectionRequest = null

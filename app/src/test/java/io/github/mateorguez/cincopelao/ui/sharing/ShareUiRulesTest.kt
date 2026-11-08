@@ -108,4 +108,11 @@ class ShareUiRulesTest {
     fun `hash abreviado`() {
         assertEquals("01234567 89abcdef…", shortHash("0123456789abcdef0123"))
     }
+
+    @Test
+    fun `la MAC que Android oculta no se muestra como si fuera real`() {
+        assertEquals("oculta por Android", describeMac("02:00:00:00:00:00"))
+        assertEquals("—", describeMac(null))
+        assertEquals("CE:59:5A:DB:DD:C4", describeMac("CE:59:5A:DB:DD:C4"))
+    }
 }

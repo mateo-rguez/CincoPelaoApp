@@ -22,11 +22,11 @@ import androidx.compose.material.icons.filled.SignalCellularAlt
 import androidx.compose.material.icons.filled.SignalCellularAlt1Bar
 import androidx.compose.material.icons.filled.SignalCellularAlt2Bar
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -124,10 +124,10 @@ private fun TransmitContent(
             )
             SharePhase.Scanning -> ReceiverList(state.receivers, onConnect)
             SharePhase.ReadingBeacon, SharePhase.ConnectingWifi, SharePhase.Handshaking ->
-                OutlinedButton(onClick = onRestart) { Text("Cancelar") }
+                SecondaryButton("Cancelar", onRestart)
             SharePhase.Choosing -> {
                 state.peer?.let { VerificationCode(it.verificationCode) }
-                OutlinedButton(onClick = onRestart) { Text("Cancelar") }
+                SecondaryButton("Cancelar", onRestart)
             }
             SharePhase.AwaitingApproval -> {
                 state.peer?.let { VerificationCode(it.verificationCode) }
@@ -135,7 +135,7 @@ private fun TransmitContent(
                 val offer = state.offer
                 if (request != null && offer != null) RequestCard(request, offer)
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedButton(onClick = onDecline) { Text("Rechazar") }
+                    SecondaryButton("Rechazar", onDecline)
                     Button(onClick = onApprove) {
                         Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
@@ -154,12 +154,12 @@ private fun TransmitContent(
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedButton(onClick = onRestart) { Text("Enviar a otro") }
+                    SecondaryButton("Enviar a otro", onRestart)
                     Button(onClick = onFinish) { Text("Terminar") }
                 }
             }
             is SharePhase.Failed -> Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onFinish) { Text("Salir") }
+                SecondaryButton("Salir", onFinish)
                 Button(onClick = onRestart) { Text("Volver a buscar") }
             }
             else -> Unit
@@ -192,7 +192,7 @@ private fun ReceiverList(receivers: List<NearbyReceiver>, onConnect: (NearbyRece
                     Icon(
                         signalIcon(signalBars(receiver.rssi)),
                         contentDescription = "Señal",
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = shareAccent(),
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(Modifier.width(12.dp))
@@ -217,7 +217,7 @@ private fun ReceiverList(receivers: List<NearbyReceiver>, onConnect: (NearbyRece
                             )
                         }
                     }
-                    if (receiver.isCompatible) TextButton(onClick = { onConnect(receiver) }) { Text("Conectar") }
+                    if (receiver.isCompatible) TextButton(onClick = { onConnect(receiver) }, colors = ButtonDefaults.textButtonColors(contentColor = shareAccent())) { Text("Conectar") }
                 }
             }
         }

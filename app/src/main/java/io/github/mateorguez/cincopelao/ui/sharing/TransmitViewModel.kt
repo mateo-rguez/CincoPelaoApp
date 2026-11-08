@@ -31,7 +31,9 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -186,7 +188,7 @@ class TransmitViewModel @Inject constructor(
             log("P2P", "Uniéndose a ${beacon.networkName} (WPA2, Android 10+ sin invitación)")
             val group = wifi.joinGroup(beacon)
             describeGroup(group.networkName, group.frequencyMhz, group.interfaceName, group.ownerMac, group.localIp, group.ownerIp)
-            wifi.ownDeviceAddress()?.let { tech(TechSection.DEVICE, "MAC Wi‑Fi Direct", it) }
+            tech(TechSection.DEVICE, "MAC Wi‑Fi Direct", describeMac(wifi.ownDeviceAddress()))
             log("P2P", "Grupo formado · IP ${group.localIp ?: "?"} → dueño ${group.ownerIp ?: "?"}")
 
             val host = group.ownerIp ?: throw WifiDirectException("No se conoce la IP del receptor")
@@ -238,6 +240,8 @@ class TransmitViewModel @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            // Si la sesión ya se ha cancelado (Cancelar, salir), el error es consecuencia de cortarla
+            currentCoroutineContext().ensureActive()
             fail(e)
         } finally {
             approval = null
@@ -267,7 +271,7 @@ class TransmitViewModel @Inject constructor(
         tech(TechSection.WIFI, "SSID", ssid)
         freq?.let { tech(TechSection.WIFI, "Frecuencia", describeFrequency(it)) }
         iface?.let { tech(TechSection.WIFI, "Interfaz", it) }
-        ownerMac?.let { tech(TechSection.WIFI, "MAC del dueño", it) }
+        tech(TechSection.WIFI, "MAC del dueño", describeMac(ownerMac))
         tech(TechSection.WIFI, "IP propia", localIp ?: "?")
         tech(TechSection.WIFI, "IP del dueño", ownerIp ?: "?")
     }

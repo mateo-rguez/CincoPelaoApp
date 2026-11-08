@@ -66,3 +66,10 @@ fun formatDistance(meters: Double): String = when {
 /** Separa un SHA-256 en grupos de 8 para leerlo mejor: "3fa2b1c0 9e…". */
 fun shortHash(sha256: String, groups: Int = 2): String =
     sha256.chunked(8).take(groups).joinToString(" ") + "…"
+
+/** Android devuelve 02:00:00:00:00:00 cuando no deja ver la MAC real a las apps. */
+fun describeMac(mac: String?): String = when {
+    mac.isNullOrBlank() -> "—"
+    mac.equals("02:00:00:00:00:00", ignoreCase = true) -> "oculta por Android"
+    else -> mac
+}

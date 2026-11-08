@@ -58,3 +58,5 @@ val TerminalText = Color(0xFF7EE787)
 val TerminalDim = Color(0xFF8B949E)
 val TerminalAccent = Color(0xFF79C0FF)
 val TerminalError = Color(0xFFFF7B72)
+/** Acento de iconos y datos en modo oscuro: AzulFuerte apenas contrasta con el fondo AzulOscuro. */
+val ShareAccentDark = Color(0xFF9D99FF)

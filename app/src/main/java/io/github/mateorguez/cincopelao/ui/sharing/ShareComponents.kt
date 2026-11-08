@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -40,6 +41,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -48,13 +50,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.sharing.session.SetupIssue
+import io.github.mateorguez.cincopelao.ui.theme.AzulFuerte
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
+import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
+import io.github.mateorguez.cincopelao.ui.theme.ShareAccentDark
 import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
 import io.github.mateorguez.cincopelao.ui.theme.TerminalAccent
 import io.github.mateorguez.cincopelao.ui.theme.TerminalBackground
 import io.github.mateorguez.cincopelao.ui.theme.TerminalDim
 import io.github.mateorguez.cincopelao.ui.theme.TerminalError
 import io.github.mateorguez.cincopelao.ui.theme.TerminalText
+
+/** Color de iconos y datos destacados: legible tanto en tema claro como oscuro. */
+@Composable
+fun shareAccent(): Color = if (LocalDarkTheme.current) ShareAccentDark else AzulFuerte
+
+/** Botón secundario con el acento legible (el primary del tema apenas se ve en modo oscuro). */
+@Composable
+fun SecondaryButton(text: String, onClick: () -> Unit) {
+    OutlinedButton(onClick = onClick, colors = ButtonDefaults.outlinedButtonColors(contentColor = shareAccent())) { Text(text) }
+}
 
 /** Icono animado, título y subtítulo de la fase actual. */
 @Composable
@@ -141,7 +156,7 @@ fun VerificationCode(code: String) {
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Bold,
             fontSize = 36.sp,
-            color = MaterialTheme.colorScheme.primary
+            color = shareAccent()
         )
         Text(
             "Código de emparejamiento: el otro móvil debe mostrar el mismo",
@@ -183,7 +198,7 @@ fun TechDetailsCard(tech: TechInfo, log: List<LogLine>) {
                 .clickable { expanded = !expanded }
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            Icon(Icons.Default.Terminal, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Icon(Icons.Default.Terminal, contentDescription = null, tint = shareAccent())
             Spacer(Modifier.width(8.dp))
             Text("Detalles técnicos", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
             Icon(
@@ -199,7 +214,7 @@ fun TechDetailsCard(tech: TechInfo, log: List<LogLine>) {
                         Text(
                             section.title.uppercase(),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = shareAccent(),
                             modifier = Modifier.padding(top = 8.dp, bottom = 2.dp)
                         )
                         rows.forEach { (label, value) -> TechRow(label, value) }
@@ -209,7 +224,7 @@ fun TechDetailsCard(tech: TechInfo, log: List<LogLine>) {
                     Text(
                         "CONSOLA",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = shareAccent(),
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(onClick = { clipboard.setText(AnnotatedString(log.joinToString("\n") { it.format() })) }) {
@@ -224,14 +239,15 @@ fun TechDetailsCard(tech: TechInfo, log: List<LogLine>) {
 
 @Composable
 private fun TechRow(label: String, value: String) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 1.dp)) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
         Text(
             label,
-            modifier = Modifier.width(120.dp),
-            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.width(112.dp),
+            fontSize = 12.sp,
+            lineHeight = 16.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Text(value, fontFamily = FontFamily.Monospace, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
+        Text(value, fontFamily = FontFamily.Monospace, fontSize = 12.sp, lineHeight = 16.sp, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 
