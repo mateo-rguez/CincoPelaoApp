@@ -79,7 +79,7 @@ tanto se puede empezar la fase 7.
 - `26c5b4e` Iconos animados por fase (Compose, sin Lottie) y ajustes tras probar en el Realme.
 - `68eab36` Tolerancia a fabricantes que cambian el grupo Wi‑Fi Direct.
 
-Cómo funciona ahora:
+Cómo funciona ahora (explicación detallada, capa a capa: [`COMPARTICION.md`](COMPARTICION.md)):
 
 ```
 Recibir                                   Transmitir
