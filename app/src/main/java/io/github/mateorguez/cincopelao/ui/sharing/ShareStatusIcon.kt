@@ -19,6 +19,16 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -27,7 +37,6 @@ import androidx.compose.material.icons.automirrored.filled.FactCheck
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.SettingsSuggest
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -60,7 +69,8 @@ import io.github.mateorguez.cincopelao.ui.theme.StatusDone
 
 /** Escenas del icono: varias fases comparten animación. */
 private enum class IconScene(val description: String) {
-    SETUP("Preparando"),
+    SETUP("Faltan permisos o ajustes"),
+    NAMING("Escribiendo el nombre visible"),
     ADVERTISING("Anunciándose por Bluetooth"),
     SCANNING("Buscando por Bluetooth"),
     READING_BEACON("Leyendo la baliza Bluetooth"),
@@ -74,7 +84,8 @@ private enum class IconScene(val description: String) {
 }
 
 private fun sceneOf(phase: SharePhase): IconScene = when (phase) {
-    is SharePhase.NeedsSetup, SharePhase.Idle -> IconScene.SETUP
+    is SharePhase.NeedsSetup -> IconScene.SETUP
+    SharePhase.Idle -> IconScene.NAMING
     SharePhase.Advertising -> IconScene.ADVERTISING
     SharePhase.Scanning -> IconScene.SCANNING
     SharePhase.ReadingBeacon -> IconScene.READING_BEACON
@@ -113,6 +124,7 @@ fun ShareStatusIcon(phase: SharePhase, modifier: Modifier = Modifier) {
         Box(Modifier.size(ICON_SIZE), contentAlignment = Alignment.Center) {
             when (target) {
                 IconScene.SETUP -> SetupScene()
+                IconScene.NAMING -> NamingScene()
                 IconScene.ADVERTISING -> AdvertisingScene()
                 IconScene.SCANNING -> ScanningScene()
                 IconScene.READING_BEACON -> ReadingBeaconScene()
@@ -133,13 +145,78 @@ private fun CenterIcon(icon: androidx.compose.ui.graphics.vector.ImageVector, ti
     Icon(icon, contentDescription = null, tint = tint, modifier = modifier.size(56.dp))
 }
 
-/** Engranaje que gira despacio. */
+/** Deslizadores de ajustes que laten suave: falta algo por activar. */
 @Composable
 private fun SetupScene() {
-    val rotation by rememberInfiniteTransition(label = "setup").animateFloat(
-        0f, 360f, infiniteRepeatable(tween(8_000, easing = LinearEasing)), label = "giro"
+    val scale by rememberInfiniteTransition(label = "ajustes").animateFloat(
+        1f, 1.1f, infiniteRepeatable(tween(1_000, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "latido"
     )
-    CenterIcon(Icons.Default.SettingsSuggest, modifier = Modifier.graphicsLayer { rotationZ = rotation })
+    CenterIcon(Icons.Default.Tune, modifier = Modifier.graphicsLayer { scaleX = scale; scaleY = scale })
+}
+
+/** Puntos de la línea en cursiva: un cicloide alargado, que hace bucles como una "l" manuscrita. */
+private fun cursivePoints(width: Float, height: Float, samples: Int = 160): List<Offset> {
+    val loops = 4
+    val tMax = loops * 2 * PI
+    val left = width * 0.12f
+    val a = width * 0.76f / tMax.toFloat() // avance por radián
+    val b = a * 1.9f                       // b > a: la curva se cruza y forma bucles
+    val baseline = height * 0.62f
+    return (0..samples).map { i ->
+        val t = tMax * i / samples
+        Offset(
+            x = left + (a * t - b * sin(t)).toFloat() + b,
+            y = baseline - (b * 1.5f * (1 - cos(t))).toFloat()
+        )
+    }
+}
+
+/** Un lápiz escribiendo una línea en cursiva: el usuario está poniendo su nombre visible. */
+@Composable
+private fun NamingScene() {
+    val color = shareAccent()
+    val t by rememberInfiniteTransition(label = "escribir").animateFloat(
+        0f, 1.3f, infiniteRepeatable(tween(3_000, easing = LinearEasing)), label = "trazo"
+    )
+    val progress = t.coerceAtMost(1f)
+    val fade = if (t <= 1f) 1f else 1f - (t - 1f) / 0.3f // al acabar, la línea se desvanece y empieza otra
+    val pencilSize = 44.dp
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val density = LocalDensity.current
+        val widthPx = with(density) { maxWidth.toPx() }
+        val heightPx = with(density) { maxHeight.toPx() }
+        val points = remember(widthPx, heightPx) { cursivePoints(widthPx, heightPx) }
+        val drawn = (progress * (points.size - 1)).toInt().coerceAtLeast(1)
+        Canvas(Modifier.fillMaxSize()) {
+            // Renglón
+            drawLine(
+                color.copy(alpha = 0.2f * fade),
+                Offset(size.width * 0.08f, points.first().y + 6.dp.toPx()),
+                Offset(size.width * 0.92f, points.first().y + 6.dp.toPx()),
+                strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round
+            )
+            val path = Path().apply {
+                moveTo(points[0].x, points[0].y)
+                for (i in 1..drawn) lineTo(points[i].x, points[i].y)
+            }
+            drawPath(path, color.copy(alpha = fade), style = Stroke(3.5.dp.toPx(), cap = StrokeCap.Round))
+        }
+        // En el icono Edit (cuadrícula de 24) la punta está en (3, 21): se coloca para que toque
+        // el final del trazo
+        val tip = points[drawn]
+        val pencilPx = with(density) { pencilSize.toPx() }
+        val tipX = pencilPx * 3f / 24f
+        val tipY = pencilPx * 21f / 24f
+        Icon(
+            Icons.Default.Edit,
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier
+                .size(pencilSize)
+                .offset { IntOffset((tip.x - tipX).roundToInt(), (tip.y - tipY).roundToInt()) }
+                .graphicsLayer { alpha = fade }
+        )
+    }
 }
 
 /** Ondas que salen del icono de Bluetooth: el receptor se está anunciando. */

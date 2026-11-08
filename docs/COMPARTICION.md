@@ -312,7 +312,13 @@ receptor → HELLO {…, nonce}
    - calcula el **SHA‑256** del cuerpo recibido;
    - contesta `ACK {sha256}`.
 4. El emisor compara ese SHA‑256 con el del cuerpo que envió. Si no coinciden, la sesión falla.
-5. Los dos guardan cifras para el panel técnico: bytes en el cable, tiempo, velocidad (B/s y
+   Si coinciden, cierra su socket.
+5. **Cierre ordenado**: el receptor no deshace nada hasta leer el final del flujo (el FIN de TCP)
+   que manda el emisor al cerrar, como mucho 3 s (`awaitPeerClose`). Si deshiciera el grupo nada
+   más mandar el ACK, la interfaz `p2p0` podría desaparecer con el ACK aún en camino, y el emisor
+   vería "Software caused connection abort" tras una transferencia correcta. Este bug lo encontró
+   el autor con dos móviles. Lo mismo hace el emisor tras mandar un ERROR al rechazar.
+6. Los dos guardan cifras para el panel técnico: bytes en el cable, tiempo, velocidad (B/s y
    Mbit/s), CRC32 y SHA‑256 abreviado. El cronómetro del receptor arranca con el **primer
    bloque**, no al enviar la petición, para no contar el rato que el emisor tarda en aceptar.
 
@@ -323,7 +329,8 @@ tiene exactamente lo que el emisor envió.
 
 ### Paso 11 · Cierre
 
-Pase lo que pase (éxito, error o cancelación), el bloque `finally` de cada sesión:
+Quien manda el último mensaje (ACK o ERROR) ya ha esperado a que el otro cierre (paso 10).
+Después, pase lo que pase (éxito, error o cancelación), el bloque `finally` de cada sesión:
 
 - cierra el socket TCP (y el `ServerSocket` en el receptor);
 - deshace el grupo Wi‑Fi Direct (`removeGroupQuietly`) dentro de `NonCancellable`: aunque la
@@ -442,6 +449,7 @@ Cancelar, salir de la pantalla o "Enviar a otro" la cancela, y la cancelación s
 | Unirse al grupo | 30 s |
 | Conexión TCP | 5 s × 5 intentos |
 | Desaparecer de la lista de receptores | 5 s sin anuncios |
+| Esperar el cierre del otro tras el último mensaje | 3 s |
 | Esperas a una decisión del usuario (elegir, aceptar) | sin límite (se sale con Cancelar) |
 
 Limitación conocida: **no hay tiempo límite de lectura en el socket** mientras se espera al
