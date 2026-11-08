@@ -48,22 +48,32 @@ class ShareConnection(
         }
     }
 
-    /** Ejecuta [block] en el hilo de E/S; si la corrutina se cancela mientras tanto, cierra la conexión. */
-    private suspend fun <T> blocking(block: () -> T): T = coroutineScope {
-        val finished = AtomicBoolean(false)
-        // UNDISPATCHED: el vigilante entra en el try ya, aunque la cancelación llegue enseguida
-        val watchdog = launch(start = CoroutineStart.UNDISPATCHED) {
-            try {
-                awaitCancellation()
-            } finally {
-                if (!finished.get()) close()
-            }
-        }
+    private suspend fun <T> blocking(block: () -> T): T = cancellableBlocking(io, ::close, block)
+}
+
+/**
+ * Ejecuta una operación bloqueante de red en [io]. Si la corrutina se cancela mientras tanto,
+ * llama a [onCancel] (normalmente cerrar el socket), que es lo único que desbloquea un read,
+ * accept o connect.
+ */
+suspend fun <T> cancellableBlocking(
+    io: CoroutineDispatcher = Dispatchers.IO,
+    onCancel: () -> Unit,
+    block: () -> T
+): T = coroutineScope {
+    val finished = AtomicBoolean(false)
+    // UNDISPATCHED: el vigilante entra en el try ya, aunque la cancelación llegue enseguida
+    val watchdog = launch(start = CoroutineStart.UNDISPATCHED) {
         try {
-            withContext(io) { block() }
+            awaitCancellation()
         } finally {
-            finished.set(true)
-            watchdog.cancel()
+            if (!finished.get()) runCatching(onCancel)
         }
+    }
+    try {
+        withContext(io) { block() }
+    } finally {
+        finished.set(true)
+        watchdog.cancel()
     }
 }
