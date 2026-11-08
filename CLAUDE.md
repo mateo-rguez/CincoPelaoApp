@@ -41,7 +41,8 @@ El proyecto está en pleno refactor por fases: **el plan, lo hecho y lo pendient
 - `domain/stats` — cálculo de notas y estadísticas (puro, con tests).
 - `notifications` — `ReminderPlanner` (puro) + `ReminderManager`, que reconcilia con WorkManager.
   **La UI nunca programa ni cancela recordatorios**: se sincronizan solos al cambiar los datos.
-- `sharing` — BLE, Wi‑Fi Direct y el modelo `DataToSend` (pendiente de reescribir, fase 6).
+- `sharing` — compartición: `protocol` (tramas, mensajes, selección; puro), `session` (emisor/receptor,
+  fases, permisos; puro), `ble` y `wifidirect` (transportes), `ShareEnvironment`.
 - `ui/<pantalla>` — una pantalla = `XxxScreen` + `XxxViewModel` con un `uiState: StateFlow`
   (`collectAsStateWithLifecycle`); componentes en archivos propios del mismo paquete.
   `ui/theme`: `CincoPelaoTheme`/`CincoPelaoAppTheme`, `LocalDarkTheme`, colores y fuentes con nombre.
