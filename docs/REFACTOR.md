@@ -166,8 +166,12 @@ asignatura con subtareas, tareas generales, alguna tarea archivada y un horario.
 - Publicación: R8/minify activado y firma de release.
 - Animaciones Lottie para los iconos de compartir (si el autor encuentra unas que le gusten:
   basta con cambiar `ShareStatusIcon`).
-- Contraste del azul del tema en modo oscuro en el resto de pantallas (en compartir ya se usa
-  `ShareAccentDark`).
+- **Colores y temas**: revisar la paleta (hay combinaciones poco agradables, como el azul del tema
+  sobre el fondo oscuro; en compartir ya se usa `ShareAccentDark`) y quizá una sección de temas
+  para personalizar la apariencia de la app. Pedido por el autor el 8 de noviembre de 2026.
+- **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
+  qué textos usan las fuentes propias (Delight) y cuáles la del sistema, que cambia según el
+  fabricante, y unificarlo.
 
 ### Aplazado a propósito
 - Actualizar versiones de librerías (Compose, Kotlin, AGP…): el autor prefirió no hacerlo aún.

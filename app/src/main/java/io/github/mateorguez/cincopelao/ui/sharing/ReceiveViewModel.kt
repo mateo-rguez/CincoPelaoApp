@@ -188,7 +188,7 @@ class ReceiveViewModel @Inject constructor(
                 passphrase = created.credentials.passphrase
             )
             tech(TechSection.BLE, "Servicio", BleAdvert.SERVICE_UUID.toString())
-            tech(TechSection.BLE, "Baliza GATT", "${beacon.encode().size} B (la contraseña no se muestra)")
+            tech(TechSection.BLE, "Baliza GATT", "${beacon.encode().size} B")
             val socket = coroutineScope {
                 val advertising = launch {
                     ble.advertise(displayName, beacon).collect { event ->

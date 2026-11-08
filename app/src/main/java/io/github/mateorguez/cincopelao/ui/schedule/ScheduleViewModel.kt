@@ -12,6 +12,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
 import io.github.mateorguez.cincopelao.data.prefs.getScheduleState
 import io.github.mateorguez.cincopelao.data.prefs.saveScheduleState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,8 +20,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -34,7 +38,7 @@ sealed interface ScheduleUiState {
     data class Loaded(val bitmap: Bitmap, val zoom: Float, val offset: Offset, val version: Int) : ScheduleUiState
 }
 
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -51,12 +55,24 @@ class ScheduleViewModel @Inject constructor(
     private var currentUri: String? = null
     private var version = 0
 
+    /** Instancia y archivo que hay ahora en pantalla, para no recargar lo mismo. */
+    private var loadedKey: Pair<String, String?>? = null
+
     /** Último zoom/desplazamiento; se guarda cuando el gesto se detiene, no en cada movimiento. */
     private val transform = MutableStateFlow<Pair<Float, Offset>?>(null)
 
     init {
+        // Se observa el archivo del horario de la instancia activa, no se lee una sola vez: al
+        // recibir datos de otro móvil, la instancia nueva se activa antes de que se guarde su
+        // horario, y antes la pestaña se quedaba vacía hasta reiniciar o cambiar de instancia
         viewModelScope.launch {
-            instances.currentInstanceId.collectLatest { instanceId -> loadSaved(instanceId) }
+            instances.currentInstanceId
+                .flatMapLatest { instanceId ->
+                    getScheduleState(context, instanceId)
+                        .map { (uri, _, _) -> instanceId to uri }
+                        .distinctUntilChanged() // el zoom y el desplazamiento no recargan la imagen
+                }
+                .collectLatest { key -> if (key != loadedKey) loadSaved(key.first) }
         }
         viewModelScope.launch {
             transform.filterNotNull().debounce(SAVE_DELAY_MS).collect { (zoom, offset) ->
@@ -74,6 +90,7 @@ class ScheduleViewModel @Inject constructor(
         _uiState.value = ScheduleUiState.Loading
         val (uriString, zoom, offset) = getScheduleState(context, instanceId).first()
         currentUri = uriString
+        loadedKey = instanceId to uriString
         val bitmap = uriString?.let { ScheduleFileLoader.load(context, Uri.parse(it)) }
         _uiState.value = if (bitmap != null) ScheduleUiState.Loaded(bitmap, zoom, offset, ++version) else ScheduleUiState.Empty
     }
@@ -94,6 +111,7 @@ class ScheduleViewModel @Inject constructor(
                 return@launch
             }
             currentUri = uri.toString()
+            loadedKey = instances.currentInstanceId.value to currentUri
             _uiState.value = ScheduleUiState.Loaded(bitmap, 1f, Offset.Zero, ++version)
             saveScheduleState(context, instances.currentInstanceId.value, currentUri, 1f, Offset.Zero)
         } catch (e: Exception) {
