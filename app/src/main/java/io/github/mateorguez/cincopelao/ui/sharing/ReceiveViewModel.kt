@@ -165,7 +165,11 @@ class ReceiveViewModel @Inject constructor(
         try {
             setPhase(SharePhase.Advertising)
             log("P2P", "Creando grupo ${credentials.networkName} · banda AUTO · WPA2")
-            val group = wifi.createGroup(credentials)
+            val created = wifi.createGroup(credentials)
+            val group = created.info
+            if (created.credentials.networkName != credentials.networkName) {
+                log("P2P", "El sistema ha usado otro nombre de red: ${created.credentials.networkName}")
+            }
             tech(TechSection.WIFI, "SSID", group.networkName)
             group.frequencyMhz?.let { tech(TechSection.WIFI, "Frecuencia", describeFrequency(it)) }
             group.interfaceName?.let { tech(TechSection.WIFI, "Interfaz", it) }
@@ -178,7 +182,11 @@ class ReceiveViewModel @Inject constructor(
             tech(TechSection.TCP, "Escuchando", "0.0.0.0:${ShareProtocol.PORT}")
             log("TCP", "Escuchando en el puerto ${ShareProtocol.PORT}")
 
-            val beacon = ReceiverBeacon(displayName = displayName, networkName = credentials.networkName, passphrase = credentials.passphrase)
+            val beacon = ReceiverBeacon(
+                displayName = displayName,
+                networkName = created.credentials.networkName,
+                passphrase = created.credentials.passphrase
+            )
             tech(TechSection.BLE, "Servicio", BleAdvert.SERVICE_UUID.toString())
             tech(TechSection.BLE, "Baliza GATT", "${beacon.encode().size} B (la contraseña no se muestra)")
             val socket = coroutineScope {

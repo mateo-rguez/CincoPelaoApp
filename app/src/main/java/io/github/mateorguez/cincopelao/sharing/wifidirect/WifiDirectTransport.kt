@@ -43,6 +43,9 @@ data class GroupInfo(
     val isOwner: Boolean
 )
 
+/** Grupo creado por el receptor con las credenciales que de verdad usa el sistema. */
+class CreatedGroup(val info: GroupInfo, val credentials: GroupCredentials)
+
 class WifiDirectException(message: String) : Exception(message)
 
 /**
@@ -70,8 +73,12 @@ class WifiDirectTransport @Inject constructor(@ApplicationContext private val co
         return m to c
     }
 
-    /** Receptor: crea el grupo y espera a que esté listo. */
-    suspend fun createGroup(credentials: GroupCredentials): GroupInfo {
+    /**
+     * Receptor: crea el grupo y espera a que esté listo. Si el sistema no respeta el nombre o la
+     * contraseña pedidos (algún fabricante), devuelve los que usa de verdad, que son los que hay
+     * que publicar por BLE.
+     */
+    suspend fun createGroup(credentials: GroupCredentials): CreatedGroup {
         val (m, c) = p2p()
         removeGroupQuietly() // un grupo que se quedó abierto haría fallar la creación (BUSY)
         val config = WifiP2pConfig.Builder()
@@ -85,8 +92,12 @@ class WifiDirectTransport @Inject constructor(@ApplicationContext private val co
         // El grupo tarda un poco en aparecer; antes se esperaban 500 ms a ciegas
         repeat(40) {
             val group = requestGroup()
-            if (group != null && group.isGroupOwner && group.networkName == credentials.networkName) {
-                return describe(group, requestConnectionInfo())
+            if (group != null && group.isGroupOwner && !group.networkName.isNullOrEmpty()) {
+                val actual = GroupCredentials(
+                    networkName = group.networkName,
+                    passphrase = group.passphrase?.takeIf { it.isNotEmpty() } ?: credentials.passphrase
+                )
+                return CreatedGroup(describe(group, requestConnectionInfo()), actual)
             }
             delay(250)
         }
@@ -128,10 +139,11 @@ class WifiDirectTransport @Inject constructor(@ApplicationContext private val co
 
         return try {
             withTimeout(timeoutMillis) {
-                // El aviso es "pegajoso": se ignora el estado anterior y otros grupos
+                // El aviso es "pegajoso": se ignora el estado anterior y otros grupos. Algunas
+                // versiones no adjuntan el grupo; entonces basta con que se haya formado como cliente
                 val (info, group) = changes.first { (info, group) ->
                     info?.groupFormed == true && !info.isGroupOwner && info.groupOwnerAddress != null &&
-                        group?.networkName == beacon.networkName
+                        (group?.networkName.isNullOrEmpty() || group?.networkName == beacon.networkName)
                 }
                 describe(group, info)
             }
