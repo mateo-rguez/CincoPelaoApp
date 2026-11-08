@@ -198,7 +198,9 @@ La lista de receptores (`NearbyReceiver`, reglas puras con tests):
 - **Distancia estimada** con el modelo de pérdida en espacio libre:
   `d = 10^((TxPower − RSSI) / (10·n))`, con TxPower = −59 dBm a 1 m y n = 2. Paredes y cuerpos
   la cambian mucho; es orientativa.
-- Un receptor desaparece si pasan **5 s** sin anuncios.
+- Un receptor desaparece si pasan **3 s** sin anuncios (anuncia unas 10 veces por segundo).
+- Al volver a hacerse visible, un receptor estrena dirección BLE aleatoria: si llega uno con el
+  mismo nombre y otra dirección, sustituye al antiguo en vez de salir duplicado.
 - Si anuncia otra versión del protocolo, aparece pero no se puede pulsar.
 - La dirección que se ve (`CE:59:…`) es una **dirección aleatoria** de BLE (*resolvable private
   address*): Android la cambia cada cierto tiempo y no identifica al móvil.
@@ -448,7 +450,7 @@ Cancelar, salir de la pantalla o "Enviar a otro" la cancela, y la cancelación s
 | Creación del grupo (esperar a que exista) | 10 s (40 × 250 ms) |
 | Unirse al grupo | 30 s |
 | Conexión TCP | 5 s × 5 intentos |
-| Desaparecer de la lista de receptores | 5 s sin anuncios |
+| Desaparecer de la lista de receptores | 3 s sin anuncios |
 | Esperar el cierre del otro tras el último mensaje | 3 s |
 | Esperas a una decisión del usuario (elegir, aceptar) | sin límite (se sale con Cancelar) |
 
@@ -477,7 +479,9 @@ técnico (clase y mensaje) queda en la consola con la etiqueta `ERR`.
   JSON, baliza y que el horario sea una imagen. Un emisor malicioso no puede tumbar la app con
   un tamaño gigante ni colar referencias rotas en la base de datos.
 - **Privacidad**: el anuncio BLE no lleva el nombre del móvil; las direcciones BLE son
-  aleatorias; no se comparten notas ni progreso; **la contraseña no aparece** en pantalla, en la
+  aleatorias; la MAC de Wi‑Fi Direct que ve el emisor (la del dueño del grupo) también es
+  aleatoria desde Android 10 y ya viaja al aire en cada trama del grupo, así que enseñarla no
+  revela nada nuevo (la propia la oculta Android a las apps); no se comparten notas ni progreso; **la contraseña no aparece** en pantalla, en la
   consola ni en el log de Android (antes salía en un Toast y en el log).
 
 **No protegido (decisiones conscientes)**
@@ -526,8 +530,8 @@ técnico (clase y mensaje) queda en la consola con la etiqueta `ERR`.
 | Sección | Datos | Paso |
 |---|---|---|
 | Este móvil | Modelo, Android y API, versión de la app y del protocolo, MAC de Wi‑Fi Direct (normalmente "oculta por Android") | 0 |
-| Bluetooth LE | UUID del servicio, tamaño de la baliza, modo y potencia del anuncio · receptor elegido, su MAC BLE, RSSI y distancia, MTU y tiempo de lectura GATT | 3–5 |
-| Wi‑Fi Direct | SSID, banda, canal y frecuencia, interfaz (`p2p0`…), IP propia y del dueño | 1, 6 |
+| Bluetooth LE | Tamaño de la baliza, modo y potencia del anuncio · receptor elegido, su MAC BLE, RSSI y distancia, MTU y tiempo de lectura GATT | 3–5 |
+| Wi‑Fi Direct | SSID, banda, canal y frecuencia, interfaz (`p2p0`…), MAC del dueño, IP propia y del dueño | 1, 6 |
 | Socket TCP | Puerto en escucha, extremos local y remoto, opciones | 2, 7 |
 | Protocolo | Modelo y versión del otro, código, bytes, tiempo, velocidad, CRC32 y SHA‑256 | 8–10 |
 

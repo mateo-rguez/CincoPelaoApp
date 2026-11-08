@@ -204,7 +204,7 @@ private fun ReceiverList(receivers: List<NearbyReceiver>, onConnect: (NearbyRece
                             fontSize = 12.sp
                         )
                         Text(
-                            "${receiver.address} · ${receiver.sightings} anuncios",
+                            receiver.address,
                             fontFamily = FontFamily.Monospace,
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant

@@ -172,6 +172,9 @@ asignatura con subtareas, tareas generales, alguna tarea archivada y un horario.
 - **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
   qué textos usan las fuentes propias (Delight) y cuáles la del sistema, que cambia según el
   fabricante, y unificarlo.
+  Ojo al compararlos: el Samsung tiene la letra del sistema al 90 % y el Realme al 100 % con el
+  tamaño de pantalla ampliado (densidad 480 en vez de 560), así que parte de la diferencia de
+  tamaño (p. ej. la tarjeta de la petición en Transmitir) viene de los ajustes de cada móvil.
 
 ### Aplazado a propósito
 - Actualizar versiones de librerías (Compose, Kotlin, AGP…): el autor prefirió no hacerlo aún.

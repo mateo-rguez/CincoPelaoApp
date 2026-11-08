@@ -21,9 +21,19 @@ data class NearbyReceiver(
     val isCompatible: Boolean get() = protocolVersion == ShareProtocol.VERSION
 }
 
-/** Añade o actualiza un avistamiento. El RSSI se suaviza para que la lista no baile. */
+/** Sin anuncios durante este tiempo, el receptor se quita de la lista (anuncia ~10 veces por segundo). */
+const val STALE_RECEIVER_MILLIS = 3_000L
+
+/**
+ * Añade o actualiza un avistamiento. El RSSI se suaviza para que la lista no baile.
+ *
+ * Un receptor que vuelve a anunciarse estrena dirección BLE aleatoria: si llega uno con el mismo
+ * nombre y otra dirección, sustituye al antiguo en su sitio en vez de salir duplicado.
+ */
 fun List<NearbyReceiver>.withSighting(s: ScanSighting): List<NearbyReceiver> {
-    val existing = find { it.address == s.address }
+    val sameAddress = find { it.address == s.address }
+    val sameName = if (sameAddress == null) find { it.displayName == s.displayName } else null
+    val existing = sameAddress
     val updated = if (existing == null) {
         NearbyReceiver(s.address, s.displayName, s.rssi, s.txPower, s.protocolVersion, s.timestampMillis, 1)
     } else {
@@ -37,11 +47,15 @@ fun List<NearbyReceiver>.withSighting(s: ScanSighting): List<NearbyReceiver> {
         )
     }
     // Se mantiene el orden de aparición para que la lista no salte mientras se pulsa
-    return if (existing == null) this + updated else map { if (it.address == s.address) updated else it }
+    return when {
+        sameAddress != null -> map { if (it.address == s.address) updated else it }
+        sameName != null -> map { if (it.address == sameName.address) updated else it }
+        else -> this + updated
+    }
 }
 
 /** Quita los receptores que hace más de [timeoutMillis] que no se ven (han dejado de anunciarse). */
-fun List<NearbyReceiver>.withoutStale(nowMillis: Long, timeoutMillis: Long = 5_000): List<NearbyReceiver> =
+fun List<NearbyReceiver>.withoutStale(nowMillis: Long, timeoutMillis: Long = STALE_RECEIVER_MILLIS): List<NearbyReceiver> =
     filter { nowMillis - it.lastSeenMillis <= timeoutMillis }
 
 /** Una línea de la consola técnica. */

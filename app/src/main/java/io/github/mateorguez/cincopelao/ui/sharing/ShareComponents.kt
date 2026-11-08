@@ -208,22 +208,25 @@ fun TechDetailsCard(tech: TechInfo, log: List<LogLine>) {
         }
         AnimatedVisibility(visible = expanded) {
             Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
-                TechSection.entries.forEach { section ->
+                TechSection.entries.filter { tech[it].orEmpty().isNotEmpty() }.forEachIndexed { index, section ->
                     val rows = tech[section].orEmpty()
                     if (rows.isNotEmpty()) {
                         Text(
                             section.title.uppercase(),
                             style = MaterialTheme.typography.labelSmall,
+                            fontSize = 13.sp,
                             color = shareAccent(),
-                            modifier = Modifier.padding(top = 8.dp, bottom = 2.dp)
+                            // Más aire entre apartados que entre filas
+                            modifier = Modifier.padding(top = if (index == 0) 8.dp else 18.dp, bottom = 4.dp)
                         )
                         rows.forEach { (label, value) -> TechRow(label, value) }
                     }
                 }
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 14.dp)) {
                     Text(
                         "CONSOLA",
                         style = MaterialTheme.typography.labelSmall,
+                        fontSize = 13.sp,
                         color = shareAccent(),
                         modifier = Modifier.weight(1f)
                     )

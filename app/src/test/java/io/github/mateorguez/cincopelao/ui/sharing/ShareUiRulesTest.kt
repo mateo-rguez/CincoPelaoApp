@@ -41,6 +41,27 @@ class ShareUiRulesTest {
     }
 
     @Test
+    fun `un receptor que vuelve a anunciarse con otra direccion sustituye al antiguo`() {
+        // Bug visto con dos móviles: al volver a hacerse visible salía dos veces, una inválida
+        val again = ScanSighting("NUEVA", -50, null, ShareProtocol.VERSION, displayName = "R-A", timestampMillis = 10)
+        val list = emptyList<NearbyReceiver>()
+            .withSighting(sighting("A", -60, 0))
+            .withSighting(sighting("B", -60, 0))
+            .withSighting(again)
+
+        assertEquals(listOf("NUEVA", "B"), list.map { it.address })
+        assertEquals(1, list[0].sightings)
+    }
+
+    @Test
+    fun `un receptor que deja de anunciarse desaparece a los 3 segundos`() {
+        val list = emptyList<NearbyReceiver>().withSighting(sighting("A", -60, 0))
+
+        assertEquals(1, list.withoutStale(nowMillis = 3_000).size)
+        assertTrue(list.withoutStale(nowMillis = 3_001).isEmpty())
+    }
+
+    @Test
     fun `un receptor con otra version se marca como incompatible`() {
         val list = emptyList<NearbyReceiver>().withSighting(sighting("A", -60, 0, version = 9))
 

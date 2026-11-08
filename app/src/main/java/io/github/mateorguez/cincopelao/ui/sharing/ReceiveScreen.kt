@@ -162,7 +162,7 @@ private fun SelectionCard(selection: ShareSelection, onChange: (ShareSelection) 
                 selection.subjectTasks,
                 enabled = selection.subjectsAndEvents
             ) { onChange(selection.copy(subjectTasks = it)) }
-            SelectionRow("Tareas generales", "Las que no tienen asignatura", selection.generalTasks) {
+            SelectionRow("Tareas generales", null, selection.generalTasks) {
                 onChange(selection.copy(generalTasks = it))
             }
             SelectionRow("Horario", null, selection.schedule) { onChange(selection.copy(schedule = it)) }

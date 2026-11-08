@@ -140,7 +140,7 @@ class TransmitViewModel @Inject constructor(
         scanJob = viewModelScope.launch {
             launch {
                 while (isActive) {
-                    delay(1_000)
+                    delay(500)
                     val now = System.currentTimeMillis()
                     val before = _uiState.value.receivers
                     val after = before.withoutStale(now)
@@ -271,7 +271,7 @@ class TransmitViewModel @Inject constructor(
         tech(TechSection.WIFI, "SSID", ssid)
         freq?.let { tech(TechSection.WIFI, "Frecuencia", describeFrequency(it)) }
         iface?.let { tech(TechSection.WIFI, "Interfaz", it) }
-        tech(TechSection.WIFI, "MAC del dueño", describeMac(ownerMac))
+        tech(TechSection.WIFI, "MAC del dueño", describeMac(ownerMac).let { if (it.contains(":")) "$it (aleatoria)" else it })
         tech(TechSection.WIFI, "IP propia", localIp ?: "?")
         tech(TechSection.WIFI, "IP del dueño", ownerIp ?: "?")
     }
