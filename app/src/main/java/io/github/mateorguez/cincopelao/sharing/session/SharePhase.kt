@@ -35,6 +35,9 @@ sealed interface SharePhase {
     /** Los dos: datos en camino. [progress] entre 0 y 1. */
     data class Transferring(val progress: Float) : SharePhase
 
+    /** Receptor: datos recibidos y verificados; falta darles nombre para guardarlos. */
+    data object Received : SharePhase
+
     /** Receptor: guardando los datos en una instancia nueva. */
     data object Importing : SharePhase
 

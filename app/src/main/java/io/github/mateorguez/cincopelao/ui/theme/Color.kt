@@ -51,3 +51,10 @@ val TimelineTaskContainerDark = Color(0xFF1A3A2B)
 val TimelineTaskContainerLight = Color(0xFF7C981D)
 val TimelineEventPoint = Color(0xFF2196F3) // azul, como las tarjetas de eventos
 val TimelineTaskPoint = Color(0xFF4CAF50)  // verde, como las tarjetas de tareas
+
+// Compartición: consola técnica (siempre oscura, como un terminal) y estados
+val TerminalBackground = Color(0xFF0D1117)
+val TerminalText = Color(0xFF7EE787)
+val TerminalDim = Color(0xFF8B949E)
+val TerminalAccent = Color(0xFF79C0FF)
+val TerminalError = Color(0xFFFF7B72)
