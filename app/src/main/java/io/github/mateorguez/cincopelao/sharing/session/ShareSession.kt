@@ -36,6 +36,14 @@ fun verificationCode(nonceA: String, nonceB: String): String {
     return "%04d".format((number.toLong() and 0xFFFFFFFFL) % 10_000)
 }
 
+/** Lo que se espera a que el otro cierre tras el último mensaje antes de deshacer el grupo. */
+const val CLOSE_GRACE_MILLIS = 3_000L
+
+private suspend fun ShareConnection.closeGracefully(log: ShareLogger) {
+    if (awaitPeerClose(CLOSE_GRACE_MILLIS)) log("TCP", "FIN recibido: el otro extremo ha cerrado")
+    else log("TCP", "El otro extremo no cerró en ${CLOSE_GRACE_MILLIS / 1000} s; se cierra igualmente")
+}
+
 private fun FrameInfo.describe(arrow: String) = "$arrow $type ${wireBytes} B crc=%08X".format(crc32)
 
 private fun unexpected(expected: String, message: ShareMessage): Nothing =
@@ -84,9 +92,10 @@ class SenderSession(
         return report
     }
 
-    /** Rechaza la petición avisando al otro lado. */
+    /** Rechaza la petición avisando al otro lado y espera a que lo haya leído y cerrado. */
     suspend fun decline(reason: String) {
         log("TCP", connection.send(ShareMessage.Error(reason)).describe("→"))
+        connection.closeGracefully(log)
     }
 }
 
@@ -120,6 +129,8 @@ class ReceiverSession(
         log("TCP", frame.info.describe("←"))
         val payload = frame.message as? ShareMessage.Payload ?: unexpected("PAYLOAD", frame.message)
         log("TCP", connection.send(ShareMessage.Ack(frame.info.sha256)).describe("→"))
+        // El emisor cierra al leer el ACK; hasta entonces no se puede deshacer el grupo
+        connection.closeGracefully(log)
         return ReceivedPayload(payload.data, payload.schedule, report)
     }
 }

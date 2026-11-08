@@ -15,6 +15,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Canal de mensajes sobre un socket (o cualquier par de streams).
@@ -42,6 +43,26 @@ class ShareConnection(
 
     suspend fun receive(onProgress: (Long, Long) -> Unit = { _, _ -> }): ReceivedFrame =
         blocking { FrameCodec.read(input, onProgress) }
+
+    /**
+     * Espera, como mucho [timeoutMillis], a que el otro extremo cierre la conexión (lee hasta el
+     * final del flujo, el FIN de TCP). Devuelve true si cerró.
+     *
+     * Lo usa quien envía el último mensaje antes de deshacer el grupo Wi‑Fi Direct: si deshiciera
+     * el grupo enseguida, la interfaz de red desaparecería con el mensaje aún en camino y el otro
+     * vería "Software caused connection abort" aunque todo hubiera ido bien.
+     */
+    suspend fun awaitPeerClose(timeoutMillis: Long): Boolean =
+        withTimeoutOrNull(timeoutMillis) {
+            blocking {
+                try {
+                    while (input.read() != -1) Unit // no debería llegar nada más; se descarta
+                } catch (_: java.io.IOException) {
+                    // El otro ya no está: para lo que importa aquí, equivale a haber cerrado
+                }
+                true
+            }
+        } ?: false
 
     override fun close() {
         if (closed.compareAndSet(false, true)) {

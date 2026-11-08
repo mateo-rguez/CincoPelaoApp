@@ -10,7 +10,9 @@ import io.github.mateorguez.cincopelao.sharing.protocol.ShareSelection
 import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertArrayEquals
@@ -76,7 +78,10 @@ class ShareSessionTest {
 
         val selection = async { sender.handshake(); sender.awaitRequest() }
         receiver.handshake()
-        val pending = async { runCatching { receiver.request(ShareSelection(subjectTasks = true, generalTasks = true)) } }
+        val pending = async {
+            // Como en el ViewModel: tras el rechazo, el receptor cierra la conexión
+            runCatching { receiver.request(ShareSelection(subjectTasks = true, generalTasks = true)) }.also { receiverConn.close() }
+        }
 
         assertFalse(selection.await().subjectTasks)
         sender.decline("cancelado")
@@ -93,11 +98,50 @@ class ShareSessionTest {
         val senderSide = async { sender.handshake(); sender.awaitRequest(); sender.decline("El emisor ha cancelado") }
         receiver.handshake()
         val error = runCatching { receiver.request(ShareSelection(generalTasks = true)) }.exceptionOrNull()
-        senderSide.await()
+        receiverConn.close()
+        withTimeout(1_000) { senderSide.await() } // el emisor no espera los 3 s: ve el cierre
 
         assertTrue(error is ShareProtocolException.Rejected)
         assertEquals("El emisor ha cancelado", error?.message)
         senderConn.close(); receiverConn.close()
+    }
+
+    @Test
+    fun `el receptor no termina hasta que el emisor ha leido el ACK y cerrado`() = runBlocking {
+        // Bug encontrado con dos móviles: el receptor deshacía el grupo nada más mandar el ACK y el
+        // emisor, que aún no lo había leído, mostraba "Software caused connection abort"
+        val (senderConn, receiverConn) = connectedPair()
+        val sender = SenderSession(senderConn, hello("E", "a"))
+        val receiver = ReceiverSession(receiverConn, hello("R", "b"))
+        val senderClosedAt = AtomicLong(Long.MAX_VALUE)
+
+        val senderSide = async {
+            sender.handshake()
+            sender.awaitRequest()
+            sender.send(data, null)
+            delay(300) // el emisor tarda un poco en cerrar tras leer el ACK
+            senderClosedAt.set(System.nanoTime())
+            senderConn.close()
+        }
+        receiver.handshake()
+        receiver.request(ShareSelection(generalTasks = true))
+        val receiverDoneAt = System.nanoTime()
+        senderSide.await()
+
+        assertTrue("El receptor terminó antes de que el emisor cerrara", receiverDoneAt >= senderClosedAt.get())
+        receiverConn.close()
+    }
+
+    @Test
+    fun `si el otro no cierra, se espera como mucho el tiempo de gracia`() = runBlocking {
+        val (a, b) = connectedPair()
+        val start = System.nanoTime()
+
+        val closed = a.awaitPeerClose(200)
+
+        assertFalse(closed)
+        assertTrue((System.nanoTime() - start) / 1_000_000 < 2_000)
+        a.close(); b.close()
     }
 
     @Test
