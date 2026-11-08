@@ -1,7 +1,7 @@
 # Refactor de CincoPelao
 
 Seguimiento del refactor de la app: plan por fases, lo hecho y lo que queda.
-Rama de trabajo: `rework`. Última actualización: 8 de noviembre de 2026.
+Rama de trabajo: `rework`. Última actualización: 8 de noviembre de 2026 (fin de la fase 6).
 
 ## Punto de partida
 
@@ -23,12 +23,13 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 | 3 | Capa de datos: `InstanceRepository`, repositorios, operaciones atómicas | ✅ |
 | 4 | Recordatorios: planificador puro + reconciliación con WorkManager | ✅ |
 | 5 | Interfaz: tema, navegación, un ViewModel por pantalla, rendimiento | ✅ |
-| 6 | Compartición BLE / Wi‑Fi Direct | 🧪 código hecho; falta probar con dos móviles |
+| 6 | Compartición BLE / Wi‑Fi Direct | ✅ (probada con dos móviles; falta Android 10–12) |
 | 7 | Mejoras y funcionalidades nuevas | ⏳ |
 
-**Siguiente paso:** probar la fase 6 con **dos móviles Android** siguiendo la lista de
-[Pruebas con dos móviles](#pruebas-con-dos-móviles-fase-6) y arreglar lo que salga. Mientras
-tanto se puede empezar la fase 7.
+**Siguiente paso:** fase 7, cuando el autor lo pida (empezar preguntando por cuál de las
+mejoras propuestas). La fase 6 está probada por el autor con un Realme (Android 16) y un Samsung
+Galaxy A56 (Android 17): todas las pruebas de la lista pasan. Queda sin probar en Android 10–12,
+donde se pide ubicación.
 
 ## Hecho
 
@@ -123,6 +124,10 @@ compartición) — `./gradlew testDebugUnitTest`.
 ## Pendiente
 
 ### Pruebas con dos móviles (fase 6)
+
+Resultado (8 de noviembre de 2026): todas correctas en Realme (Android 16) + Samsung A56
+(Android 17). Pendiente solo la 12 en Android 10–12. Sirven de lista de regresión si se toca
+la compartición.
 
 Abrir **Detalles técnicos** en los dos móviles: la consola cuenta qué paso falla. Si algo va
 mal, copiar el registro (botón de copiar) y pasárselo a Claude.
