@@ -19,21 +19,16 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.offset
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import kotlin.math.PI
 import kotlin.math.cos
-import kotlin.math.roundToInt
 import kotlin.math.sin
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.BluetoothSearching
 import androidx.compose.material.icons.automirrored.filled.FactCheck
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Save
@@ -70,7 +65,7 @@ import io.github.mateorguez.cincopelao.ui.theme.StatusDone
 /** Escenas del icono: varias fases comparten animación. */
 private enum class IconScene(val description: String) {
     SETUP("Faltan permisos o ajustes"),
-    NAMING("Escribiendo el nombre visible"),
+    NAMING("Listo para recibir"),
     ADVERTISING("Anunciándose por Bluetooth"),
     SCANNING("Buscando por Bluetooth"),
     READING_BEACON("Leyendo la baliza Bluetooth"),
@@ -154,67 +149,58 @@ private fun SetupScene() {
     CenterIcon(Icons.Default.Tune, modifier = Modifier.graphicsLayer { scaleX = scale; scaleY = scale })
 }
 
-/** Puntos de la línea en cursiva: un cicloide alargado, que hace bucles como una "l" manuscrita. */
-private fun cursivePoints(width: Float, height: Float, samples: Int = 160): List<Offset> {
-    val loops = 4
-    val tMax = loops * 2 * PI
-    val left = width * 0.12f
-    val a = width * 0.76f / tMax.toFloat() // avance por radián
-    val b = a * 1.9f                       // b > a: la curva se cruza y forma bucles
-    val baseline = height * 0.62f
-    return (0..samples).map { i ->
-        val t = tMax * i / samples
-        Offset(
-            x = left + (a * t - b * sin(t)).toFloat() + b,
-            y = baseline - (b * 1.5f * (1 - cos(t))).toFloat()
-        )
-    }
-}
-
-/** Un lápiz escribiendo una línea en cursiva: el usuario está poniendo su nombre visible. */
+/**
+ * Avión de papel flotando en el sitio: sube y baja con un ligero cabeceo, con una sombra que se
+ * encoge al subir y estelas que aparecen detrás. Es la espera tranquila antes de hacerse visible.
+ */
 @Composable
 private fun NamingScene() {
     val color = shareAccent()
-    val t by rememberInfiniteTransition(label = "escribir").animateFloat(
-        0f, 1.3f, infiniteRepeatable(tween(3_000, easing = LinearEasing)), label = "trazo"
+    val transition = rememberInfiniteTransition(label = "avión")
+    // Una vuelta completa (0..2π) cada 2,8 s: seno para la altura, coseno para el cabeceo
+    val phase by transition.animateFloat(
+        0f, (2 * PI).toFloat(), infiniteRepeatable(tween(2_800, easing = LinearEasing)), label = "vuelo"
     )
-    val progress = t.coerceAtMost(1f)
-    val fade = if (t <= 1f) 1f else 1f - (t - 1f) / 0.3f // al acabar, la línea se desvanece y empieza otra
-    val pencilSize = 44.dp
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        val density = LocalDensity.current
-        val widthPx = with(density) { maxWidth.toPx() }
-        val heightPx = with(density) { maxHeight.toPx() }
-        val points = remember(widthPx, heightPx) { cursivePoints(widthPx, heightPx) }
-        val drawn = (progress * (points.size - 1)).toInt().coerceAtLeast(1)
+    val trail by transition.animateFloat(
+        0f, 1f, infiniteRepeatable(tween(1_400, easing = LinearEasing)), label = "estela"
+    )
+    val lift = sin(phase)              // −1 abajo … 1 arriba
+    val pitch = cos(phase) * 6f        // grados: morro arriba al subir, abajo al bajar
+    val planeSize = 64.dp
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
-            // Renglón
-            drawLine(
-                color.copy(alpha = 0.2f * fade),
-                Offset(size.width * 0.08f, points.first().y + 6.dp.toPx()),
-                Offset(size.width * 0.92f, points.first().y + 6.dp.toPx()),
-                strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round
+            // Sombra en el "suelo": más pequeña y clara cuanto más alto vuela
+            val shadowWidth = size.width * (0.34f - 0.06f * lift)
+            drawOval(
+                color.copy(alpha = 0.16f - 0.06f * lift),
+                topLeft = Offset(center.x - shadowWidth / 2, size.height * 0.80f),
+                size = Size(shadowWidth, 6.dp.toPx())
             )
-            val path = Path().apply {
-                moveTo(points[0].x, points[0].y)
-                for (i in 1..drawn) lineTo(points[i].x, points[i].y)
+            // Estelas detrás del avión (a su izquierda), que se alargan y se desvanecen
+            val planeY = center.y - lift * 10.dp.toPx()
+            listOf(-9.dp.toPx() to 0f, 7.dp.toPx() to 0.5f).forEach { (dy, delay) ->
+                val t = (trail + delay) % 1f
+                val endX = center.x - 30.dp.toPx() - t * 8.dp.toPx()
+                val length = 14.dp.toPx() + t * 14.dp.toPx()
+                drawLine(
+                    color.copy(alpha = (1f - t) * 0.55f),
+                    Offset(endX - length, planeY + dy),
+                    Offset(endX, planeY + dy),
+                    strokeWidth = 3.dp.toPx(),
+                    cap = StrokeCap.Round
+                )
             }
-            drawPath(path, color.copy(alpha = fade), style = Stroke(3.5.dp.toPx(), cap = StrokeCap.Round))
         }
-        // En el icono Edit (cuadrícula de 24) la punta está en (3, 21): se coloca para que toque
-        // el final del trazo
-        val tip = points[drawn]
-        val pencilPx = with(density) { pencilSize.toPx() }
-        val tipX = pencilPx * 3f / 24f
-        val tipY = pencilPx * 21f / 24f
         Icon(
-            Icons.Default.Edit,
+            Icons.AutoMirrored.Filled.Send, // el icono de "enviar" de Material es un avión de papel
             contentDescription = null,
             tint = color,
             modifier = Modifier
-                .size(pencilSize)
-                .offset { IntOffset((tip.x - tipX).roundToInt(), (tip.y - tipY).roundToInt()) }
-                .graphicsLayer { alpha = fade }
+                .size(planeSize)
+                .graphicsLayer {
+                    translationY = -lift * 10.dp.toPx()
+                    rotationZ = -pitch
+                }
         )
     }
 }
