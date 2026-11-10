@@ -19,9 +19,9 @@ data class AppColors(
     val subjectCardEnd: Color,
     /** Tono del borde y del degradado de las tarjetas de tareas (se aplica con transparencia). */
     val taskCardTint: Color,
-    /** Calendario: borde del día de hoy, fondo y borde del día elegido. */
+    /** Calendario: borde del día de hoy, fondo de las casillas de los días y borde del elegido. */
     val calendarToday: Color,
-    val calendarSelectedBackground: Color,
+    val calendarDayBackground: Color,
     val calendarSelectedBorder: Color,
     /** Línea de tiempo del calendario: tarjetas de eventos y de tareas. */
     val timelineEventContainer: Color,

@@ -52,6 +52,11 @@
             android:label="@string/title_activity_notifications"
             android:theme="@style/Theme.CincoPelao" />
         <activity
+            android:name=".ui.appearance.AppearanceActivity"
+            android:exported="false"
+            android:label="Apariencia"
+            android:theme="@style/Theme.CincoPelao" />
+        <activity
             android:name=".ui.instances.InstancesActivity"
             android:exported="false"
             android:label="@string/title_activity_instances"

@@ -44,7 +44,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.DataArray
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.DoneAll
@@ -70,6 +70,7 @@ import com.exyte.animatednavbar.animation.indendshape.shapeCornerRadius
 import com.exyte.animatednavbar.utils.noRippleClickable
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.ui.calendar.CalendarScreen
+import io.github.mateorguez.cincopelao.ui.appearance.AppearanceActivity
 import io.github.mateorguez.cincopelao.ui.instances.InstancesActivity
 import io.github.mateorguez.cincopelao.ui.notifications.NotificationsActivity
 import io.github.mateorguez.cincopelao.ui.schedule.ScheduleScreen
@@ -122,7 +123,7 @@ private fun NavGraphBuilder.tab(
 }
 
 @Composable
-fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
+fun AppScaffold() {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -138,8 +139,6 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
         drawerState = drawerState,
         drawerContent = {
             DrawerContent(
-                onToggleTheme = onToggleTheme,
-                darkTheme = darkTheme,
                 onItemSelected = navController::navigateToTab,
                 closeDrawer = { scope.launch { drawerState.close() } }
             )
@@ -205,8 +204,6 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
 
 @Composable
 fun DrawerContent(
-    onToggleTheme: () -> Unit,
-    darkTheme: Boolean,
     onItemSelected: (BottomNavItem) -> Unit,
     closeDrawer: () -> Unit
 ) {
@@ -261,38 +258,22 @@ fun DrawerContent(
 
         Spacer(Modifier.height(24.dp))
 
-        Row(
+        val context = LocalContext.current
+        TextButton(
+            onClick = {
+                closeDrawer()
+                context.startActivity(Intent(context, AppearanceActivity::class.java))
+            },
             modifier = Modifier
-                .padding(start = 19.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(start = 8.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.DarkMode,
-                contentDescription = "Modo Oscuro",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Modo Oscuro",
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = darkTheme,
-                onCheckedChange = { onToggleTheme() },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                    checkedTrackColor = MaterialTheme.colorScheme.primary,
-                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                ), modifier = Modifier.padding(end = 19.dp)
-            )
+            Icon(Icons.Default.Palette, contentDescription = "Apariencia", tint = MaterialTheme.colorScheme.onPrimaryContainer)
+            Spacer(Modifier.width(8.dp))
+            Text("Apariencia", color = MaterialTheme.colorScheme.onPrimaryContainer)
         }
 
         Spacer(Modifier.height(8.dp))
 
-        val context = LocalContext.current
         TextButton(
             onClick = {
                 closeDrawer() // al volver, el menú ya no está abierto

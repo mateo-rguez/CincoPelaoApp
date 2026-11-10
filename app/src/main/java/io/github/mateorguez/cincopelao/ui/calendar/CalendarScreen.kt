@@ -106,7 +106,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
                         isSheetVisible = true
                     },
                     todayColor = appColors.calendarToday,
-                    itemBackgroundColor = appColors.calendarSelectedBackground,
+                    itemBackgroundColor = appColors.calendarDayBackground,
                     selectedItemColor = appColors.calendarSelectedBorder,
                     inactiveTextColor = CalendarInactiveText,
                     normalTextColor = MaterialTheme.colorScheme.onBackground,
