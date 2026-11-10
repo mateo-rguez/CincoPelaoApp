@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -63,8 +62,8 @@ fun TaskRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(checked = task.isCompleted, onCheckedChange = onCheckedChange)
-            Spacer(modifier = Modifier.width(8.dp))
+            TaskCheckbox(checked = task.isCompleted, onCheckedChange = onCheckedChange)
+            Spacer(modifier = Modifier.width(4.dp))
             Column {
                 ScribbleStrikeThroughText(text = task.title, isChecked = task.isCompleted)
                 task.dueDate?.let {

@@ -22,10 +22,17 @@ data class TaskGroup(
 ) {
     val key: Long get() = subject?.subjectId ?: GENERAL_KEY
 
+    /** Tareas por hacer: las que no son subtareas y no están completadas (una con subtareas cuenta una vez). */
+    val pendingCount: Int get() = tasks.count { it.parentTaskId == null && !it.isCompleted }
+
     companion object {
         const val GENERAL_KEY = -1L
     }
 }
+
+/** Título de un bloque de tareas: el nombre completo si cabe; si no, la abreviatura (si la hay). */
+fun groupTitle(name: String, abbrev: String, nameFits: Boolean): String =
+    if (nameFits || abbrev.isBlank()) name else abbrev
 
 data class TasksUiState(
     val groups: List<TaskGroup> = emptyList(),

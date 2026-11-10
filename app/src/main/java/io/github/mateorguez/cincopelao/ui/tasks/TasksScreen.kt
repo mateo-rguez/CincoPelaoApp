@@ -1,9 +1,13 @@
 package io.github.mateorguez.cincopelao.ui.tasks
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -137,24 +141,33 @@ private fun TaskGroupSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onToggleExpanded)
-                .padding(vertical = 2.dp, horizontal = 12.dp),
+                .padding(start = 12.dp, end = 8.dp, top = 2.dp, bottom = 2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = subject?.name ?: "Tareas Generales",
-                style = MaterialTheme.typography.titleLarge.copy(fontFamily = DelightRegular),
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(onClick = onAddTask) {
-                Icon(Icons.Default.Add, contentDescription = if (subject == null) "Añadir tarea general" else "Añadir tarea")
+            // Nombre y contador ocupan todo lo que dejan los iconos, que quedan siempre a la derecha
+            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                GroupTitle(
+                    name = subject?.name ?: "Tareas Generales",
+                    abbrev = subject?.abbrev.orEmpty(),
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                if (group.pendingCount > 0) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    PendingBadge(group.pendingCount)
+                }
+            }
+            val iconTint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+            IconButton(onClick = onAddTask, modifier = Modifier.size(40.dp)) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = if (subject == null) "Añadir tarea general" else "Añadir tarea",
+                    tint = iconTint
+                )
             }
             Icon(
                 imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = "Expandir o colapsar"
+                contentDescription = "Expandir o colapsar",
+                tint = iconTint
             )
         }
 
@@ -194,6 +207,39 @@ private fun TaskGroupSection(
             }
         }
     }
+}
+
+/** Nombre del bloque; si no cabe en una línea, la abreviatura de la asignatura (si tiene). */
+@Composable
+private fun GroupTitle(name: String, abbrev: String, modifier: Modifier = Modifier) {
+    val style = MaterialTheme.typography.titleLarge.copy(fontFamily = DelightRegular, fontWeight = FontWeight.Bold)
+    val measurer = rememberTextMeasurer()
+    BoxWithConstraints(modifier = modifier) {
+        val nameFits = remember(name, style, constraints.maxWidth) {
+            measurer.measure(name, style, maxLines = 1).size.width <= constraints.maxWidth
+        }
+        Text(
+            text = groupTitle(name, abbrev, nameFits),
+            style = style,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+/** Número de tareas pendientes de un bloque, en una pastilla junto a su nombre. */
+@Composable
+private fun PendingBadge(count: Int) {
+    Text(
+        text = count.toString(),
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onPrimary,
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(MaterialTheme.colorScheme.primary)
+            .padding(horizontal = 8.dp, vertical = 1.dp)
+    )
 }
 
 /** Confirmación de borrado; si la tarea tiene subtareas, permite conservarlas. */

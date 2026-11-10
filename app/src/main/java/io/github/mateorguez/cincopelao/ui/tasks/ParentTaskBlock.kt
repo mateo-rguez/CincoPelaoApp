@@ -2,6 +2,7 @@ package io.github.mateorguez.cincopelao.ui.tasks
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -11,14 +12,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,11 +57,7 @@ fun ParentTaskBlock(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     parentTask.dueDate?.let { DueDateChip(dueDate = it, isCompleted = parentTask.isCompleted) }
-                    Text(
-                        text = "${subtasks.count { it.isCompleted }} de ${subtasks.size} completadas",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
+                    SubtaskProgress(done = subtasks.count { it.isCompleted }, total = subtasks.size)
                 }
             }
 
@@ -67,7 +70,7 @@ fun ParentTaskBlock(
             }
         }
 
-        HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), thickness = 0.5.dp)
+        SubtaskDivider()
 
         // Subtareas
         Column {
@@ -75,15 +78,38 @@ fun ParentTaskBlock(
             sortedSubtasks.forEachIndexed { index, subtask ->
                 TaskRow(
                     task = subtask,
-                    modifier = Modifier.padding(horizontal = 0.dp),
+                    modifier = Modifier,
                     onCheckedChange = { checked -> onCheckedChange(subtask, checked) },
                     onClick = { showInfoSheet(subtask) },
                     onArchive = { /* las subtareas se archivan con su madre */ }
                 )
-                if (index < sortedSubtasks.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), thickness = 0.5.dp)
-                }
+                if (index < sortedSubtasks.lastIndex) SubtaskDivider()
             }
         }
+    }
+}
+
+/** Separador suave entre la tarea madre y sus subtareas, y entre subtarea y subtarea. */
+@Composable
+private fun SubtaskDivider() {
+    HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.12f), thickness = 1.dp)
+}
+
+/** "2/5" y una barra fina que se llena con el color de los controles de la paleta. */
+@Composable
+private fun SubtaskProgress(done: Int, total: Int) {
+    val progress by animateFloatAsState(
+        targetValue = if (total == 0) 0f else done.toFloat() / total,
+        label = "progreso"
+    )
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier.width(56.dp).height(5.dp).clip(RoundedCornerShape(50)),
+            trackColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.12f),
+            gapSize = 0.dp,
+            drawStopIndicator = {}
+        )
+        Text(text = "$done/$total", style = MaterialTheme.typography.labelMedium, color = Color.Gray)
     }
 }
