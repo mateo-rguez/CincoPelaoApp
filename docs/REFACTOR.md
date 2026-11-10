@@ -1,7 +1,7 @@
 # Refactor de CincoPelao
 
 Seguimiento del refactor de la app: plan por fases, lo hecho y lo que queda.
-Rama de trabajo: `rework`. Última actualización: 8 de noviembre de 2026 (fin de la fase 6).
+Rama de trabajo: `rework`. Última actualización: 10 de noviembre de 2026 (fase 7: temas).
 
 ## Punto de partida
 
@@ -23,13 +23,13 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 | 3 | Capa de datos: `InstanceRepository`, repositorios, operaciones atómicas | ✅ |
 | 4 | Recordatorios: planificador puro + reconciliación con WorkManager | ✅ |
 | 5 | Interfaz: tema, navegación, un ViewModel por pantalla, rendimiento | ✅ |
-| 6 | Compartición BLE / Wi‑Fi Direct | ✅ (probada con dos móviles; falta Android 10–12) |
-| 7 | Mejoras y funcionalidades nuevas | ⏳ |
+| 6 | Compartición BLE / Wi‑Fi Direct | ✅ (probada con dos móviles) |
+| 7 | Mejoras, una a una (lista abierta) | ⏳ |
 
-**Siguiente paso:** fase 7, cuando el autor lo pida (empezar preguntando por cuál de las
-mejoras propuestas). La fase 6 está probada por el autor con un Realme (Android 16) y un Samsung
-Galaxy A56 (Android 17): todas las pruebas de la lista pasan. Queda sin probar en Android 10–12,
-donde se pide ubicación.
+**Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
+aplica de una en una (ver «Fase 7 — Mejoras»). En curso: **colores y temas**. La fase 6 está
+probada por el autor con un Realme (Android 16) y un Samsung Galaxy A56 (Android 17): todas las
+pruebas de la lista pasan.
 
 ## Hecho
 
@@ -97,10 +97,6 @@ Recibir                                   Transmitir
  nombre de instancia → importa
 ```
 
-Probado en un solo móvil (Realme, Android 16): grupo en 5 GHz, socket, anuncio BLE, cancelar
-deshace el grupo y para el anuncio, el escaneo se para al salir. Sin probar: todo lo que
-necesita el otro extremo.
-
 ### Bugs corregidos más relevantes
 - Crashes: editar una instancia ya borrada; `instanceId!!` en Horario; `subject!!` en el
   Calendario; estadísticas con un evento sin peso; franja horaria vacía en los recordatorios.
@@ -126,8 +122,8 @@ compartición) — `./gradlew testDebugUnitTest`.
 ### Pruebas con dos móviles (fase 6)
 
 Resultado (8 de noviembre de 2026): todas correctas en Realme (Android 16) + Samsung A56
-(Android 17). Pendiente solo la 12 en Android 10–12. Sirven de lista de regresión si se toca
-la compartición.
+(Android 17). La 12 en Android 10–12 queda descartada (no hay móviles con esas versiones).
+Sirven de lista de regresión si se toca la compartición.
 
 Abrir **Detalles técnicos** en los dos móviles: la consola cuenta qué paso falla. Si algo va
 mal, copiar el registro (botón de copiar) y pasárselo a Claude.
@@ -159,33 +155,40 @@ asignatura con subtareas, tareas generales, alguna tarea archivada y un horario.
    muestra un error claro y se puede reintentar; después, el Wi‑Fi normal sigue funcionando.
 10. **Horario grande** (PDF de varias páginas) → progreso fluido y sin cierres.
 11. **Alcance**: alejarse con los móviles hasta que falle → error claro, sin cuelgues.
-12. **Otras marcas**: si es posible, probar con un móvil de otro fabricante y con Android 10–12
-    (allí se pide ubicación y hay que tener la ubicación activada).
+12. ~~**Otras marcas** y Android 10–12~~ (allí se pide ubicación): descartada, no hay móviles
+    con esas versiones.
 
-### Fase 7 — Mejoras (propuestas)
-- Widgets de próximos exámenes y tareas.
-- Copia de seguridad: exportar e importar a archivo.
-- Horario estructurado (no solo imagen) que pueda avisar de las clases.
-- Media ponderada global por curso.
-- Material You con colores dinámicos.
-- Publicación: R8/minify activado y firma de release.
-- Animaciones Lottie para los iconos de compartir (si el autor encuentra unas que le gusten:
-  basta con cambiar `ShareStatusIcon`).
-- **Colores y temas**: revisar la paleta (hay combinaciones poco agradables, como el azul del tema
-  sobre el fondo oscuro; en compartir ya se usa `ShareAccentDark`) y quizá una sección de temas
-  para personalizar la apariencia de la app. Pedido por el autor el 8 de noviembre de 2026.
-- **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
+### Fase 7 — Mejoras (una a una)
+
+Lista abierta: se amplía cuando surge algo y cada mejora se hace por separado, con sus commits.
+Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
+
+- ⏳ **Colores y temas**: varias paletas con nombre, cada una con variante clara y oscura, y
+  modo Sistema / Claro / Oscuro, elegidos en una pantalla «Apariencia». Arreglar las
+  combinaciones poco agradables (como el azul del tema sobre el fondo oscuro) y quitar los
+  `if (oscuro) Blanco else primary` repartidos por las pantallas. Pedido por el autor el
+  8 de noviembre de 2026.
+- ☐ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
+  pantalla por pantalla con el autor (pedido el 10 de noviembre de 2026).
+- ☐ **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
   qué textos usan las fuentes propias (Delight) y cuáles la del sistema, que cambia según el
   fabricante, y unificarlo.
   Ojo al compararlos: el Samsung tiene la letra del sistema al 90 % y el Realme al 100 % con el
   tamaño de pantalla ampliado (densidad 480 en vez de 560), así que parte de la diferencia de
   tamaño (p. ej. la tarjeta de la petición en Transmitir) viene de los ajustes de cada móvil.
+- ☐ Pulir animaciones (p. ej. la entrada de la sección de Completadas que se perdió).
+- ☐ Widgets de próximos exámenes y tareas.
+- ☐ Copia de seguridad: exportar e importar a archivo.
+- ☐ Horario estructurado (no solo imagen) que pueda avisar de las clases.
+- ☐ Media ponderada global por curso.
+- ☐ Material You con colores dinámicos (encajaría como un tema más).
+- ☐ Publicación: R8/minify activado y firma de release.
+- ☐ Animaciones Lottie para los iconos de compartir (si el autor encuentra unas que le gusten:
+  basta con cambiar `ShareStatusIcon`).
 
 ### Aplazado a propósito
 - Actualizar versiones de librerías (Compose, Kotlin, AGP…): el autor prefirió no hacerlo aún.
 - Textos de la interfaz a `strings.xml` (~340 textos): la app seguirá solo en español por ahora;
   se hará si se añade otro idioma.
-- Pulir animaciones (p. ej. la entrada de la sección de Completadas que se perdió) junto con otras
-  mejoras, después de las fases.
 - Conservar el plegado de los bloques de Tareas al cambiar de pestaña: el autor prefiere el
   comportamiento actual (con tareas → desplegado).
