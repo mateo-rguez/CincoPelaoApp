@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
             }
             val isDarkTheme = (savedSettings ?: ThemeSettings()).isDark(isSystemInDarkTheme())
 
-            CincoPelaoTheme(darkTheme = isDarkTheme) {
+            CincoPelaoTheme(darkTheme = isDarkTheme, palette = (savedSettings ?: ThemeSettings()).palette) {
                 AppScaffold(
                     darkTheme = isDarkTheme,
                     onToggleTheme = {

@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.calendar
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,12 +25,7 @@ import com.pushpal.jetlime.JetLimeDefaults
 import com.pushpal.jetlime.JetLimeEvent
 import com.pushpal.jetlime.JetLimeEventDefaults
 import com.pushpal.jetlime.JetLimeEventStyle
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
-import io.github.mateorguez.cincopelao.ui.theme.TimelineEventContainerDark
-import io.github.mateorguez.cincopelao.ui.theme.TimelineEventContainerLight
 import io.github.mateorguez.cincopelao.ui.theme.TimelineEventPoint
-import io.github.mateorguez.cincopelao.ui.theme.TimelineTaskContainerDark
-import io.github.mateorguez.cincopelao.ui.theme.TimelineTaskContainerLight
 import io.github.mateorguez.cincopelao.ui.theme.TimelineTaskPoint
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -53,17 +49,16 @@ fun EventsAndTasksTimeline(
         )
     ) { index, item, position ->
 
-        val isDarkTheme = LocalDarkTheme.current
-
-        val eventContainerColor = if (isDarkTheme) TimelineEventContainerDark else TimelineEventContainerLight
-        val taskContainerColor = if (isDarkTheme) TimelineTaskContainerDark else TimelineTaskContainerLight
+        val appColors = MaterialTheme.appColors
+        val eventContainerColor = appColors.timelineEventContainer
+        val taskContainerColor = appColors.timelineTaskContainer
 
         when (item) {
             is TimelineEntry.HeaderItem -> {
                 Text(
                     text = item.date.format(DateTimeFormatter.ofPattern("d MMM", Locale.getDefault())),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = Color.Blue,
+                    color = appColors.accent,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }

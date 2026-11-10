@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -55,7 +56,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -70,7 +70,6 @@ import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -292,7 +291,7 @@ private fun EditableEventList(
     onUpdate: (key: Long, Event) -> Unit,
     onDelete: (EditableEvent) -> Unit,
 ) {
-    val accentColor = if (LocalDarkTheme.current) Color.White else MaterialTheme.colorScheme.primary
+    val accentColor = MaterialTheme.appColors.accent
     val dateFormatter = remember { SimpleDateFormat("d MMM yyyy", Locale.getDefault()) }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

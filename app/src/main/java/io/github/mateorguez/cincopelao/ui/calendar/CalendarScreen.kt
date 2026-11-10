@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.calendar
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,8 +35,6 @@ import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.OutDateStyle
 import com.kizitonwose.calendar.core.daysOfWeek
 import io.github.mateorguez.cincopelao.ui.theme.CalendarInactiveText
-import io.github.mateorguez.cincopelao.ui.theme.CalendarSelectedDayDark
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -48,7 +46,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val isDarkTheme = LocalDarkTheme.current
+    val appColors = MaterialTheme.appColors
 
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(500) }
@@ -107,9 +105,9 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
                         selection = day
                         isSheetVisible = true
                     },
-                    todayColor = if (isDarkTheme) MaterialTheme.colorScheme.primary else Color.Blue,
-                    itemBackgroundColor = if (isDarkTheme) CalendarSelectedDayDark else Color.Cyan,
-                    selectedItemColor = if (isDarkTheme) Color.Cyan else Color.Black,
+                    todayColor = appColors.calendarToday,
+                    itemBackgroundColor = appColors.calendarSelectedBackground,
+                    selectedItemColor = appColors.calendarSelectedBorder,
                     inactiveTextColor = CalendarInactiveText,
                     normalTextColor = MaterialTheme.colorScheme.onBackground,
                     highlighted = day.date in uiState.highlightedDates,
@@ -125,8 +123,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DayDetailsSheet(date: LocalDate, state: CalendarUiState, onDismiss: () -> Unit) {
-    val isDarkTheme = LocalDarkTheme.current
-    val sectionColor = if (!isDarkTheme) MaterialTheme.colorScheme.primary else Color.Blue
+    val sectionColor = MaterialTheme.appColors.accent
     val events = remember(date, state.events) { state.eventsOn(date) }
     val tasks = remember(date, state.tasks) { state.tasksOn(date) }
 

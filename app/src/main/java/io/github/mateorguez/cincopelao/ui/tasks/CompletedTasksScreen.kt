@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.tasks
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
@@ -53,7 +54,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.mateorguez.cincopelao.data.local.entity.Task
 import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import kotlinx.coroutines.launch
 
 /** Pestaña de tareas completadas (archivadas): se pueden restaurar o borrar. */
@@ -206,7 +206,7 @@ private fun TintedIconButton(icon: ImageVector, description: String, onClick: ()
         Icon(
             imageVector = icon,
             contentDescription = description,
-            tint = if (LocalDarkTheme.current) Color.White else MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.appColors.accent
         )
     }
 }

@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,12 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.data.local.entity.Event
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -61,7 +60,7 @@ fun EventDialog(
     onEventCreated: (Event) -> Unit,
     onEventUpdated: (Event) -> Unit,
 ) {
-    val accentColor = if (LocalDarkTheme.current) Color.White else MaterialTheme.colorScheme.primary
+    val accentColor = MaterialTheme.appColors.accent
 
     var name by remember { mutableStateOf(event?.name.orEmpty()) }
     var type by remember { mutableStateOf(event?.type.orEmpty()) }

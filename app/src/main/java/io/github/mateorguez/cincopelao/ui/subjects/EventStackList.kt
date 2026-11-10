@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +38,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.data.local.entity.Event
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import kotlinx.coroutines.launch
 
 // Lista de eventos de una asignatura, con una pestaña por modalidad.
@@ -69,13 +69,7 @@ fun EventStackList(
 
     Column(modifier = modifier.fillMaxWidth()) {
         if (hasTabs) {
-            val isDarkTheme = LocalDarkTheme.current
-
-            val contentColor = if (isDarkTheme) {
-                MaterialTheme.colorScheme.onBackground
-            } else {
-                MaterialTheme.colorScheme.primary
-            }
+            val contentColor = MaterialTheme.appColors.accent
 
             val containerColor = MaterialTheme.colorScheme.background
 
@@ -207,12 +201,7 @@ fun EventStackList(
                                             .padding(vertical = 8.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        val isDarkTheme = LocalDarkTheme.current
-                                        val contentColor = if (isDarkTheme) {
-                                            MaterialTheme.colorScheme.onBackground
-                                        } else {
-                                            MaterialTheme.colorScheme.primary
-                                        }
+                                        val contentColor = MaterialTheme.appColors.accent
 
                                         Text(
                                             "No puntuables",

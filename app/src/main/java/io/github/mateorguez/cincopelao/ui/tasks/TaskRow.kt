@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.tasks
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
@@ -41,7 +42,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.data.local.entity.Task
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 
 /** Fila de una tarea: casilla, título (tachado animado al completarla) y fecha límite. */
 @Composable
@@ -94,7 +94,7 @@ fun ArchiveButton(onArchive: () -> Unit) {
         Icon(
             imageVector = Icons.Default.Archive,
             contentDescription = "Archivar tarea",
-            tint = if (LocalDarkTheme.current) Color.White else MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.appColors.accent
         )
     }
 }

@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.sharing
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -50,10 +51,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.sharing.session.SetupIssue
-import io.github.mateorguez.cincopelao.ui.theme.AzulFuerte
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
-import io.github.mateorguez.cincopelao.ui.theme.ShareAccentDark
 import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
 import io.github.mateorguez.cincopelao.ui.theme.TerminalAccent
 import io.github.mateorguez.cincopelao.ui.theme.TerminalBackground
@@ -63,7 +61,7 @@ import io.github.mateorguez.cincopelao.ui.theme.TerminalText
 
 /** Color de iconos y datos destacados: legible tanto en tema claro como oscuro. */
 @Composable
-fun shareAccent(): Color = if (LocalDarkTheme.current) ShareAccentDark else AzulFuerte
+fun shareAccent(): Color = MaterialTheme.appColors.accent
 
 /** Botón secundario con el acento legible (el primary del tema apenas se ve en modo oscuro). */
 @Composable

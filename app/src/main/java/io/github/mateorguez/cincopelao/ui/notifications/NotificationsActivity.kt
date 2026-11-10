@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.notifications
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
@@ -71,7 +72,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.notifications.ReminderSettings
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import kotlinx.coroutines.launch
 
 /** Ajustes de los recordatorios: con cuántos días de antelación y en qué franja horaria. */
@@ -137,7 +137,7 @@ fun NotificationsScreen(modifier: Modifier = Modifier, viewModel: NotificationsV
             })
         }
 
-        val contentColor = if (LocalDarkTheme.current) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.primary
+        val contentColor = MaterialTheme.appColors.accent
         TabRow(
             selectedTabIndex = pagerState.currentPage,
             containerColor = MaterialTheme.colorScheme.background,

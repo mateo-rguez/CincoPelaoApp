@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.instances
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,7 +46,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.mateorguez.cincopelao.data.instances.DatabaseInstance
 import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import kotlinx.coroutines.launch
 
 /** Letras, números y espacios (ya no se usa como nombre de archivo, así que puede tener espacios). */
@@ -133,8 +133,7 @@ private fun InstanceCard(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val isDarkTheme = LocalDarkTheme.current
-    val accentColor = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.primary
+    val accentColor = MaterialTheme.appColors.accent
     val dismissState = rememberSwipeToDismissBoxState()
     val coroutineScope = rememberCoroutineScope()
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -177,7 +176,7 @@ private fun InstanceCard(
                     instance.name,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontFamily = DelightRegular,
-                        color = if (isSelected && !isDarkTheme) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (isSelected) accentColor else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 )
                 Spacer(Modifier.weight(1f))

@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.tasks
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,17 +20,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
-import io.github.mateorguez.cincopelao.ui.theme.TaskCardTintLight
 
 /** Colores del borde degradado de las tarjetas de tareas. */
 @Composable
 fun taskCardBorderColors(): List<Color> =
-    if (LocalDarkTheme.current) {
-        listOf(Color.White.copy(alpha = 0.3f), Color.White.copy(alpha = 0.05f))
-    } else {
-        listOf(TaskCardTintLight.copy(alpha = 0.3f), TaskCardTintLight.copy(alpha = 0.05f))
-    }
+    MaterialTheme.appColors.taskCardTint.let { listOf(it.copy(alpha = 0.3f), it.copy(alpha = 0.05f)) }
 
 /**
  * Marco "de cristal" de las tarjetas de tareas: una capa difuminada con borde degradado

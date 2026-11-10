@@ -1,6 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.navigation
 
-import io.github.mateorguez.cincopelao.ui.theme.NavBarUnselected
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavBackStackEntry
@@ -56,7 +56,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
@@ -413,7 +412,7 @@ fun AppBottomBar(
         ) {
             BottomNavItem.entries.forEach { item ->
                 val animatedColor by animateColorAsState(
-                    targetValue = if (selectedItem == item) Color.White else NavBarUnselected,
+                    targetValue = if (selectedItem == item) MaterialTheme.colorScheme.onPrimary else MaterialTheme.appColors.navBarUnselected,
                     animationSpec = tween(durationMillis = 300)
                 )
                 Box(

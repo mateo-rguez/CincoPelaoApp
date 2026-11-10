@@ -1,10 +1,8 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.mateorguez.cincopelao.ui.theme.SubjectCardGradientStart
-import io.github.mateorguez.cincopelao.ui.theme.SubjectCardGradientEnd
 import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -56,7 +54,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
@@ -128,23 +125,8 @@ fun SubjectCard(
 ) {
     val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
-    val isDarkTheme = LocalDarkTheme.current
-
-    val cardGradient = if (isDarkTheme) {
-        Brush.horizontalGradient(
-            listOf(
-                MaterialTheme.colorScheme.primaryContainer,
-                MaterialTheme.colorScheme.secondaryContainer
-            )
-        )
-    } else {
-        Brush.horizontalGradient(
-            listOf(
-                SubjectCardGradientStart,
-                SubjectCardGradientEnd
-            )
-        )
-    }
+    val appColors = MaterialTheme.appColors
+    val cardGradient = Brush.horizontalGradient(listOf(appColors.subjectCardStart, appColors.subjectCardEnd))
 
 
     Column(
@@ -226,9 +208,9 @@ fun SubjectCard(
                     onCollapse()
                     context.startActivity(AddEditSubjectActivity.editIntent(context, subject.subjectId))
                 }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Editar", modifier = Modifier.size(18.dp), tint = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Default.Edit, contentDescription = "Editar", modifier = Modifier.size(18.dp), tint = appColors.accent)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Editar", color = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.primary)
+                    Text("Editar", color = appColors.accent)
                 }
 
                 TextButton(onClick = {
@@ -258,7 +240,7 @@ fun SubjectCard(
                 dismissButton = {
                     TextButton(onClick = { showDeleteDialog = false }) {
                         // onPrimary (blanco) no se veía sobre el diálogo en modo claro
-                        Text("Cancelar", color = if (isDarkTheme) Color.White else MaterialTheme.colorScheme.primary)
+                        Text("Cancelar", color = appColors.accent)
                     }
                 }
             )

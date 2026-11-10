@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -51,10 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
-import io.github.mateorguez.cincopelao.ui.theme.GlowFailDark
-import io.github.mateorguez.cincopelao.ui.theme.GlowRegularDark
-import io.github.mateorguez.cincopelao.ui.theme.GlowRegularLight
-import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import kotlinx.coroutines.launch
 
 // Detalle de una asignatura: cabecera con la nota y lista de eventos.
@@ -150,14 +147,14 @@ fun HeaderSection(
         else -> "%.2f".format(grade)
     }
 
-    val isDarkTheme = LocalDarkTheme.current
+    val appColors = MaterialTheme.appColors
 
     val targetGlowColor = when {
-        meanScore == null -> if (isDarkTheme) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-        meanScore == 10f -> if (isDarkTheme) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-        meanScore >= 6f -> if (isDarkTheme) Color.Blue.copy(alpha = 0.3f) else Color.Yellow.copy(alpha = 0.5f)
-        meanScore >= 4f -> if (isDarkTheme) GlowRegularDark.copy(alpha = 0.3f) else GlowRegularLight.copy(alpha = 0.5f)
-        else -> if (isDarkTheme) GlowFailDark.copy(alpha = 0.5f) else Color.Red.copy(alpha = 0.5f)
+        meanScore == null -> appColors.glowNoScore
+        meanScore == 10f -> appColors.glowPerfect
+        meanScore >= 6f -> appColors.glowPass
+        meanScore >= 4f -> appColors.glowRegular
+        else -> appColors.glowFail
     }
 
     val glowColor by animateColorAsState(
