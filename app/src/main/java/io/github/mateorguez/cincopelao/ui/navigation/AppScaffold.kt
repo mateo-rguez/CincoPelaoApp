@@ -45,6 +45,9 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material.icons.filled.DataArray
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.DoneAll
@@ -123,7 +126,7 @@ private fun NavGraphBuilder.tab(
 }
 
 @Composable
-fun AppScaffold() {
+fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -139,6 +142,8 @@ fun AppScaffold() {
         drawerState = drawerState,
         drawerContent = {
             DrawerContent(
+                onToggleTheme = onToggleTheme,
+                darkTheme = darkTheme,
                 onItemSelected = navController::navigateToTab,
                 closeDrawer = { scope.launch { drawerState.close() } }
             )
@@ -204,6 +209,8 @@ fun AppScaffold() {
 
 @Composable
 fun DrawerContent(
+    onToggleTheme: () -> Unit,
+    darkTheme: Boolean,
     onItemSelected: (BottomNavItem) -> Unit,
     closeDrawer: () -> Unit
 ) {
@@ -257,6 +264,38 @@ fun DrawerContent(
         )
 
         Spacer(Modifier.height(24.dp))
+
+        // Atajo: fija Claro u Oscuro. El modo «Sistema» y las paletas están en Apariencia.
+        Row(
+            modifier = Modifier
+                .padding(start = 19.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.DarkMode,
+                contentDescription = "Modo Oscuro",
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Modo Oscuro",
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = darkTheme,
+                onCheckedChange = { onToggleTheme() },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                ), modifier = Modifier.padding(end = 19.dp)
+            )
+        }
+
+        Spacer(Modifier.height(8.dp))
 
         val context = LocalContext.current
         TextButton(

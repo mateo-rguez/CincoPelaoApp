@@ -19,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.notifications.NotificationUtils
 import io.github.mateorguez.cincopelao.ui.navigation.AppScaffold
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
+import io.github.mateorguez.cincopelao.data.prefs.ThemeMode
 import io.github.mateorguez.cincopelao.data.prefs.ThemeSettings
 import androidx.compose.foundation.isSystemInDarkTheme
 
@@ -66,7 +67,12 @@ class MainActivity : ComponentActivity() {
             val isDarkTheme = (savedSettings ?: ThemeSettings()).isDark(isSystemInDarkTheme())
 
             CincoPelaoTheme(darkTheme = isDarkTheme, palette = (savedSettings ?: ThemeSettings()).palette) {
-                AppScaffold()
+                AppScaffold(
+                    darkTheme = isDarkTheme,
+                    onToggleTheme = {
+                        themeViewModel.setMode(if (isDarkTheme) ThemeMode.LIGHT else ThemeMode.DARK)
+                    }
+                )
             }
         }
     }
