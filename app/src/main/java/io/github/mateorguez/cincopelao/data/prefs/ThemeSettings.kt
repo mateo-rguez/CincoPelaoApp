@@ -4,7 +4,7 @@ package io.github.mateorguez.cincopelao.data.prefs
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
 /** Paleta de colores de la app; cada una tiene variante clara y oscura. */
-enum class AppPalette { CLASSIC }
+enum class AppPalette { CLASSIC, FOREST, CORAL, VIOLET, GRAPHITE }
 
 /** Apariencia elegida por el usuario. */
 data class ThemeSettings(
