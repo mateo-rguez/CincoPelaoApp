@@ -175,6 +175,8 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   - Tras revisarlo el autor: Clásico oscuro vuelve al texto blanco (la compartición conserva su
     lila), los puntos de la línea de tiempo siguen a la paleta, y se quitan Bosque, Coral y
     Violeta. Quedan **Clásico y Grafito**.
+  - Grafito: eventos en azul acero y tareas en verde azulado en la línea de tiempo, con tarjetas
+    más claras en oscuro y puntos que no se confunden con la línea gris.
   - Para añadir una paleta: un valor en `AppPalette`, su nombre en `displayName` y dos
     `namedPalette(...)` (claro y oscuro) en `ui/theme/Palettes.kt`; el test de contraste la revisa.
   - Visto y sin tocar: los días de otros meses del calendario (`CalendarInactiveText`, gris fijo)
