@@ -18,7 +18,7 @@ class HiltApplication : Application() {
     @Inject lateinit var taskMaintenance: TaskMaintenance
     @Inject lateinit var reminderManager: ReminderManager
     @Inject lateinit var notiPrefs: NotiPrefsManager
-    @Inject lateinit var themeRepository: ThemeRepository // se crea ya para empezar a leer el modo oscuro
+    @Inject lateinit var themeRepository: ThemeRepository // se crea ya para empezar a leer la apariencia
     @Inject @ApplicationScope lateinit var applicationScope: CoroutineScope
 
     override fun onCreate() {

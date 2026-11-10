@@ -19,6 +19,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.notifications.NotificationUtils
 import io.github.mateorguez.cincopelao.ui.navigation.AppScaffold
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
+import io.github.mateorguez.cincopelao.data.prefs.ThemeMode
+import io.github.mateorguez.cincopelao.data.prefs.ThemeSettings
+import androidx.compose.foundation.isSystemInDarkTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -55,18 +58,20 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val themeViewModel: ThemeViewModel = hiltViewModel()
-            val savedDarkTheme by themeViewModel.isDarkTheme.collectAsState()
+            val savedSettings by themeViewModel.settings.collectAsState()
 
             // La pantalla de carga se mantiene hasta saber qué tema usar, para no mostrar el equivocado
-            LaunchedEffect(savedDarkTheme) {
-                if (savedDarkTheme != null) isThemeReady = true
+            LaunchedEffect(savedSettings) {
+                if (savedSettings != null) isThemeReady = true
             }
-            val isDarkTheme = savedDarkTheme ?: false
+            val isDarkTheme = (savedSettings ?: ThemeSettings()).isDark(isSystemInDarkTheme())
 
             CincoPelaoTheme(darkTheme = isDarkTheme) {
                 AppScaffold(
                     darkTheme = isDarkTheme,
-                    onToggleTheme = { themeViewModel.setDarkTheme(!isDarkTheme) }
+                    onToggleTheme = {
+                        themeViewModel.setMode(if (isDarkTheme) ThemeMode.LIGHT else ThemeMode.DARK)
+                    }
                 )
             }
         }

@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -9,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.hilt.navigation.compose.hiltViewModel
+import io.github.mateorguez.cincopelao.data.prefs.ThemeSettings
 
 private val DarkColorScheme = darkColorScheme(
     primary = AzulFuerte,
@@ -47,10 +49,11 @@ fun CincoPelaoTheme(
     }
 }
 
-/** Tema de la app con el modo oscuro que haya elegido el usuario. Lo usa cada Activity. */
+/** Tema de la app con la apariencia que haya elegido el usuario. Lo usa cada Activity. */
 @Composable
 fun CincoPelaoAppTheme(content: @Composable () -> Unit) {
     val themeViewModel: ThemeViewModel = hiltViewModel()
-    val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
-    CincoPelaoTheme(darkTheme = isDarkTheme ?: false, content = content)
+    val settings by themeViewModel.settings.collectAsState()
+    val darkTheme = (settings ?: ThemeSettings()).isDark(isSystemInDarkTheme())
+    CincoPelaoTheme(darkTheme = darkTheme, content = content)
 }

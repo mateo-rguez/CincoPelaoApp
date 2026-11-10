@@ -12,18 +12,20 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Preferencia de modo oscuro. Se empieza a cargar al arrancar la app, así que al abrir
- * cualquier pantalla ya está disponible y no hay un fotograma en el tema equivocado.
+ * Ajustes de apariencia (modo y paleta). Se empiezan a cargar al arrancar la app, así que al abrir
+ * cualquier pantalla ya están disponibles y no hay un fotograma con los colores equivocados.
  */
 @Singleton
 class ThemeRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     @ApplicationScope scope: CoroutineScope
 ) {
-    /** null mientras se lee por primera vez. */
-    val isDarkTheme: StateFlow<Boolean?> = context.getDarkModeFlow()
-        .map<Boolean, Boolean?> { it }
+    /** null mientras se leen por primera vez. */
+    val settings: StateFlow<ThemeSettings?> = context.getThemeSettingsFlow()
+        .map<ThemeSettings, ThemeSettings?> { it }
         .stateIn(scope, SharingStarted.Eagerly, null)
 
-    suspend fun setDarkTheme(enabled: Boolean) = context.setDarkMode(enabled)
+    suspend fun setMode(mode: ThemeMode) = context.setThemeMode(mode)
+
+    suspend fun setPalette(palette: AppPalette) = context.setThemePalette(palette)
 }
