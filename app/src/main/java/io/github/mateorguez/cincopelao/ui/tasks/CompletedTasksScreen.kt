@@ -12,7 +12,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -120,7 +119,7 @@ fun CompletedTasksScreen(
                         onDelete = { deleteWithUndo(item.task, "Tarea y subtareas eliminadas") }
                     )
                 } else {
-                    TaskCardFrame(outerPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp), cornerRadius = 12.dp) {
+                    TaskCardFrame {
                         ArchivedTaskRow(
                             task = item.task,
                             subjectAbbrev = item.subjectAbbrev,
@@ -222,7 +221,7 @@ private fun ArchivedParentTaskBlock(
     onRestore: () -> Unit,
     onDelete: () -> Unit
 ) {
-    TaskCardFrame(outerPadding = PaddingValues(4.dp), cornerRadius = 10.dp, contentPadding = 12.dp) {
+    TaskCardFrame(contentPadding = 12.dp) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier

@@ -19,8 +19,13 @@ data class AppColors(
     /** Degradado de las tarjetas de asignatura. */
     val subjectCardStart: Color,
     val subjectCardEnd: Color,
-    /** Tono del borde y del degradado de las tarjetas de tareas (se aplica con transparencia). */
+    /** Tono de la sombra y del brillo del borde de las tarjetas de tareas (con transparencia). */
     val taskCardTint: Color,
+    /** Fondo de las tarjetas de tareas: un poco distinto del de la pantalla para que destaquen. */
+    val taskCard: Color,
+    /** Etiqueta de la fecha límite: vencida y para hoy o mañana (texto; el fondo es el mismo tono suave). */
+    val dueOverdue: Color,
+    val dueSoon: Color,
     /** Calendario: borde del día de hoy, fondo de las casillas de los días y borde del elegido. */
     val calendarToday: Color,
     val calendarDayBackground: Color,

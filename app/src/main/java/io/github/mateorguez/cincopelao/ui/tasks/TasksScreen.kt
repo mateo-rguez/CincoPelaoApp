@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -180,10 +179,7 @@ private fun TaskGroupSection(
                                 onArchive = { onArchive(task, subtasks) }
                             )
                             // Las subtareas se muestran dentro de su tarea madre
-                            task.parentTaskId == null -> TaskCardFrame(
-                                outerPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp),
-                                cornerRadius = 12.dp
-                            ) {
+                            task.parentTaskId == null -> TaskCardFrame {
                                 TaskRow(
                                     task = task,
                                     modifier = Modifier.padding(horizontal = 8.dp),

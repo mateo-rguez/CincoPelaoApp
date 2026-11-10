@@ -1,8 +1,10 @@
 package io.github.mateorguez.cincopelao.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import io.github.mateorguez.cincopelao.data.prefs.AppPalette
+import io.github.mateorguez.cincopelao.ui.tasks.DUE_CHIP_ALPHA
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.math.max
@@ -39,6 +41,11 @@ class PalettesTest {
             check(failures, "$name acento/fondo", c.app.accent, c.scheme.background)
             check(failures, "$name línea de tiempo (eventos)", Color.White, c.app.timelineEventContainer)
             check(failures, "$name línea de tiempo (tareas)", Color.White, c.app.timelineTaskContainer)
+            check(failures, "$name texto/tarjeta de tarea", c.scheme.onBackground, c.app.taskCard)
+            // Etiqueta de la fecha: texto del tono sobre ese mismo tono suave, encima de la tarjeta
+            for ((label, tone) in listOf("vencida" to c.app.dueOverdue, "pronto" to c.app.dueSoon)) {
+                check(failures, "$name fecha $label", tone, tone.copy(alpha = DUE_CHIP_ALPHA).compositeOver(c.app.taskCard))
+            }
             // Iconos de la barra inferior: elementos gráficos grandes, basta 3:1
             check(failures, "$name barra inferior", c.app.navBarUnselected, c.scheme.primary, min = 3.0)
         }

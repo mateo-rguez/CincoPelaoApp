@@ -52,14 +52,10 @@ fun TaskRow(
     onClick: () -> Unit,
     onArchive: () -> Unit
 ) {
-    val textColor by animateColorAsState(
-        targetValue = if (task.isCompleted) Color.Gray else MaterialTheme.colorScheme.onBackground
-    )
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .padding(vertical = 6.dp)
             .then(modifier)
             .clickable { onClick() }
             .animateContentSize(),
@@ -72,7 +68,7 @@ fun TaskRow(
             Column {
                 ScribbleStrikeThroughText(text = task.title, isChecked = task.isCompleted)
                 task.dueDate?.let {
-                    Text(text = dueDateLabel(it), style = MaterialTheme.typography.bodySmall, color = textColor)
+                    DueDateChip(dueDate = it, isCompleted = task.isCompleted, modifier = Modifier.padding(top = 4.dp))
                 }
             }
         }

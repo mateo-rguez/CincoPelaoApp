@@ -16,9 +16,14 @@ val PrimaryContainerLight = Color(0xFFEADDFF)
 
 val NavBarUnselected = Color(0xFFBEC0FF)
 
-// Tareas: degradado de fondo de las tarjetas en modo claro ---------------------------------------
+// Tareas: tarjetas y etiqueta de la fecha límite ------------------------------------------------
 
 val TaskCardTintLight = Color(0xFF001794)
+val TaskCardLight = Color(0xFFF1F2FB)
+val DueOverdueLight = Color(0xFF9F1D17)
+val DueOverdueDark = Color(0xFFFF9E96)
+val DueSoonLight = Color(0xFF884000)
+val DueSoonDark = Color(0xFFFFB74D)
 
 // Asignaturas: degradado de las tarjetas ---------------------------------------------------------
 

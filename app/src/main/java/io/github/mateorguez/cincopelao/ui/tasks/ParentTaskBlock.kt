@@ -7,11 +7,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +33,7 @@ fun ParentTaskBlock(
     showInfoSheet: (Task) -> Unit,
     onArchive: () -> Unit,
 ) {
-    TaskCardFrame(outerPadding = PaddingValues(4.dp), cornerRadius = 10.dp, contentPadding = 12.dp) {
+    TaskCardFrame(contentPadding = 12.dp) {
         // Cabecera: título + resumen
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -42,15 +42,20 @@ fun ParentTaskBlock(
                 .clickable { showInfoSheet(parentTask) }
                 .animateContentSize()
         ) {
-            Column(modifier = Modifier.weight(1f).height(48.dp)) {
+            Column(modifier = Modifier.weight(1f).heightIn(min = 48.dp)) {
                 Text(text = parentTask.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                val completed = subtasks.count { it.isCompleted }
-                val progress = "$completed de ${subtasks.size} completadas"
-                Text(
-                    text = parentTask.dueDate?.let { "${dueDateLabel(it)}, $progress" } ?: progress,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
+                Row(
+                    modifier = Modifier.padding(top = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    parentTask.dueDate?.let { DueDateChip(dueDate = it, isCompleted = parentTask.isCompleted) }
+                    Text(
+                        text = "${subtasks.count { it.isCompleted }} de ${subtasks.size} completadas",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
             }
 
             AnimatedVisibility(

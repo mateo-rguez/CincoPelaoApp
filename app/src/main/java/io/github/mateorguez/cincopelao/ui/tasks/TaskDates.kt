@@ -18,14 +18,28 @@ fun daysUntil(timestampMillis: Long, now: Long = System.currentTimeMillis()): In
     return Math.round((startOfDay(timestampMillis) - startOfDay(now)) / (1000.0 * 60 * 60 * 24)).toInt()
 }
 
-/** Texto corto para la fecha límite de una tarea: "Hoy", "Mañana", "En 3 días"... */
+/** Texto corto para la fecha límite de una tarea: "Hoy", "Mañana", "En 3 días", "Venció ayer"... */
 fun dueDateLabel(dueDate: Long, now: Long = System.currentTimeMillis()): String {
     val daysLeft = daysUntil(dueDate, now)
     return when {
-        daysLeft < 0 -> "Para hace ${-daysLeft} días"
+        daysLeft == -1 -> "Venció ayer"
+        daysLeft < 0 -> "Venció hace ${-daysLeft} días"
         daysLeft == 0 -> "Hoy"
         daysLeft == 1 -> "Mañana"
         else -> "En $daysLeft días"
+    }
+}
+
+/** Cuánto aprieta la fecha límite de una tarea; decide el color de su etiqueta. */
+enum class DueUrgency { OVERDUE, SOON, LATER }
+
+/** Vencida si ya pasó el día, pronto si es hoy o mañana y sin prisa en el resto de casos. */
+fun dueUrgency(dueDate: Long, now: Long = System.currentTimeMillis()): DueUrgency {
+    val daysLeft = daysUntil(dueDate, now)
+    return when {
+        daysLeft < 0 -> DueUrgency.OVERDUE
+        daysLeft <= 1 -> DueUrgency.SOON
+        else -> DueUrgency.LATER
     }
 }
 

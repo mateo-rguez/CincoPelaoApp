@@ -4,7 +4,6 @@ import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,49 +13,43 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/** Colores del borde degradado de las tarjetas de tareas. */
-@Composable
-fun taskCardBorderColors(): List<Color> =
-    MaterialTheme.appColors.taskCardTint.let { listOf(it.copy(alpha = 0.3f), it.copy(alpha = 0.05f)) }
+/** Margen alrededor de cada tarjeta: deja sitio a la sombra y separa una tarjeta de otra. */
+val TaskCardOuterPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
 
 /**
- * Marco "de cristal" de las tarjetas de tareas: una capa difuminada con borde degradado
- * detrás y, encima, el contenido con un borde fino.
+ * Tarjeta de tareas: fondo propio de la paleta, sombra suave teñida con su tono y un brillo
+ * fino en el borde que se desvanece en diagonal.
  */
 @Composable
 fun TaskCardFrame(
-    outerPadding: PaddingValues,
-    cornerRadius: Dp,
+    outerPadding: PaddingValues = TaskCardOuterPadding,
+    cornerRadius: Dp = 16.dp,
     contentPadding: Dp = 0.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val shape = RoundedCornerShape(cornerRadius)
-    Box {
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .padding(outerPadding)
-                .clip(shape)
-                .background(Color.White.copy(alpha = 0.05f))
-                .blur(16.dp)
-                .border(width = 1.dp, brush = Brush.linearGradient(colors = taskCardBorderColors()), shape = shape)
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(outerPadding)
-                .border(width = 1.dp, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), shape = shape)
-                .clip(shape)
-                .padding(contentPadding),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            content = content
-        )
-    }
+    val colors = MaterialTheme.appColors
+    val tint = colors.taskCardTint
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(outerPadding)
+            .shadow(elevation = 6.dp, shape = shape, ambientColor = tint.copy(alpha = 0.4f), spotColor = tint.copy(alpha = 0.5f))
+            .background(colors.taskCard, shape)
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(listOf(tint.copy(alpha = 0.25f), tint.copy(alpha = 0.03f))),
+                shape = shape
+            )
+            .clip(shape)
+            .padding(contentPadding),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        content = content
+    )
 }

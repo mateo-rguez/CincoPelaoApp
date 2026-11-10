@@ -51,7 +51,16 @@ class TaskDatesTest {
         assertEquals("Hoy", dueDateLabel(at(2026, 11, 10, 20), now))
         assertEquals("Mañana", dueDateLabel(at(2026, 11, 11), now))
         assertEquals("En 5 días", dueDateLabel(at(2026, 11, 15), now))
-        assertEquals("Para hace 2 días", dueDateLabel(at(2026, 11, 8), now))
+        assertEquals("Venció ayer", dueDateLabel(at(2026, 11, 9), now))
+        assertEquals("Venció hace 2 días", dueDateLabel(at(2026, 11, 8), now))
+    }
+
+    @Test
+    fun `urgencia de la fecha limite`() {
+        assertEquals(DueUrgency.OVERDUE, dueUrgency(at(2026, 11, 9, 23), now))
+        assertEquals(DueUrgency.SOON, dueUrgency(at(2026, 11, 10, 8), now)) // hoy, aunque la hora ya pasó
+        assertEquals(DueUrgency.SOON, dueUrgency(at(2026, 11, 11), now))
+        assertEquals(DueUrgency.LATER, dueUrgency(at(2026, 11, 12), now))
     }
 
     @Test
