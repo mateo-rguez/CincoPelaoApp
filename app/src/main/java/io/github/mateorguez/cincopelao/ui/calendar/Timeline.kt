@@ -25,8 +25,6 @@ import com.pushpal.jetlime.JetLimeDefaults
 import com.pushpal.jetlime.JetLimeEvent
 import com.pushpal.jetlime.JetLimeEventDefaults
 import com.pushpal.jetlime.JetLimeEventStyle
-import io.github.mateorguez.cincopelao.ui.theme.TimelineEventPoint
-import io.github.mateorguez.cincopelao.ui.theme.TimelineTaskPoint
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -167,7 +165,7 @@ fun EventsAndTasksTimeline(
     }
 }
 
-/** Punto de la línea de tiempo para las tareas (verde). */
+/** Punto de la línea de tiempo para las tareas (color de la paleta). */
 @Composable
 fun taskPointStyle(position: EventPosition): JetLimeEventStyle {
     // Estilo por defecto cambiando solo el color del punto
@@ -175,7 +173,7 @@ fun taskPointStyle(position: EventPosition): JetLimeEventStyle {
     return JetLimeEventDefaults.eventStyle(
         position = position,
         pointType = default.pointType,
-        pointColor = TimelineTaskPoint,
+        pointColor = MaterialTheme.appColors.timelineTaskPoint,
         pointFillColor = default.pointFillColor,
         pointRadius = default.pointRadius,
         pointAnimation = default.pointAnimation,
@@ -184,14 +182,14 @@ fun taskPointStyle(position: EventPosition): JetLimeEventStyle {
     )
 }
 
-/** Punto de la línea de tiempo para los eventos (azul). */
+/** Punto de la línea de tiempo para los eventos (color de la paleta). */
 @Composable
 fun eventPointStyle(position: EventPosition): JetLimeEventStyle {
     val default = JetLimeEventDefaults.eventStyle(position)
     return JetLimeEventDefaults.eventStyle(
         position = position,
         pointType = default.pointType,
-        pointColor = TimelineEventPoint,
+        pointColor = MaterialTheme.appColors.timelineEventPoint,
         pointFillColor = default.pointFillColor,
         pointRadius = default.pointRadius,
         pointAnimation = default.pointAnimation,

@@ -61,7 +61,7 @@ import io.github.mateorguez.cincopelao.ui.theme.TerminalText
 
 /** Color de iconos y datos destacados: legible tanto en tema claro como oscuro. */
 @Composable
-fun shareAccent(): Color = MaterialTheme.appColors.accent
+fun shareAccent(): Color = MaterialTheme.appColors.shareAccent
 
 /** Botón secundario con el acento legible (el primary del tema apenas se ve en modo oscuro). */
 @Composable

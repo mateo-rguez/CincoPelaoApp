@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.Color
 data class AppColors(
     /** Iconos, botones de texto y datos destacados sobre el fondo; legible en los dos modos. */
     val accent: Color,
+    /** Iconos y datos de las pantallas de compartir; por defecto, el acento. */
+    val shareAccent: Color = accent,
     /** Iconos de la barra inferior sin seleccionar (sobre `primary`). */
     val navBarUnselected: Color,
     /** Degradado de las tarjetas de asignatura. */
@@ -26,6 +28,9 @@ data class AppColors(
     /** Línea de tiempo del calendario: tarjetas de eventos y de tareas. */
     val timelineEventContainer: Color,
     val timelineTaskContainer: Color,
+    /** Puntos de la línea de tiempo (sobre el fondo): eventos y tareas. */
+    val timelineEventPoint: Color,
+    val timelineTaskPoint: Color,
     /** Brillo de la cabecera de una asignatura según su nota media (ya con transparencia). */
     val glowNoScore: Color,
     val glowPerfect: Color,
