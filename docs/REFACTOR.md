@@ -1,7 +1,7 @@
 # Refactor de CincoPelao
 
 Seguimiento del refactor de la app: plan por fases, lo hecho y lo que queda.
-Rama de trabajo: `rework`. Última actualización: 10 de noviembre de 2026 (fase 7: temas terminados).
+Rama de trabajo: `rework`. Última actualización: 10 de noviembre de 2026 (fase 7: pulir la interfaz, Tareas hecha).
 
 ## Punto de partida
 
@@ -27,9 +27,10 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 | 7 | Mejoras, una a una (lista abierta) | ⏳ |
 
 **Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
-aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. Ninguna en curso:
-al retomar, preguntar al autor por cuál seguir (candidatas: más paletas, tarea/evento en las
-tarjetas del calendario, pulir la interfaz). La fase 6 está probada por el autor con un Realme
+aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. En curso: **pulir la
+interfaz**, pantalla por pantalla con el autor; Tareas está terminada y la siguiente es
+**Asignaturas** (lista, luego detalle y estadísticas). En cada pantalla: capturas con la app en
+primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
 ## Hecho
@@ -187,8 +188,27 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   gustaron).
 - ☐ **Calendario: tarea o evento en cada tarjeta** de la línea de tiempo. Indicar en algún
   lugar de la tarjeta si es una tarea o un evento; ahora solo se distinguen por el color.
-- ☐ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
-  pantalla por pantalla con el autor (pedido el 10 de noviembre de 2026).
+- ⏳ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
+  pantalla por pantalla con el autor (pedido el 10 de noviembre de 2026). Orden acordado:
+  Tareas ✅ → Asignaturas (lista, detalle, estadísticas) → Calendario (aquí entra «tarea o
+  evento en cada tarjeta») → Horario, Notificaciones, Instancias → Compartir → menú y Apariencia.
+  - **Tareas** ✅:
+    - `8985f30` Tarjetas rellenas (`appColors.taskCard`) con sombra suave teñida por la paleta y
+      brillo en el borde; fecha límite como etiqueta con color según la urgencia (`dueUrgency`):
+      roja si venció, naranja hoy o mañana. «Venció ayer / hace N días» en vez de «Para hace N
+      días». Completadas usa la misma tarjeta; su emoji de vacío se queda como está (lo pidió el autor).
+    - `6b10402` Arreglo surgido al probar: en Grafito oscuro los botones del selector de fecha no
+      se veían. `colorScheme.primary` hacía de color de barras y de acento de los componentes de
+      Material; ahora las barras usan `appColors.bar`/`onBar` y, en oscuro, `primary` es un tono
+      legible (azul claro `#9AA6FF` en Clásico, el cian en Grafito) con texto oscuro. El autor
+      rechazó el blanco en Clásico oscuro (botones rellenos blancos, feos). El test de contraste
+      revisa los controles sobre diálogos (`surfaceContainerHigh`) y fondo.
+    - `b348105` Casilla redonda (`TaskCheckbox`), barra de progreso «2/5» en tareas con
+      subtareas, separadores suaves de ancho completo bajo la madre y entre subtareas (el autor
+      los quiere), cabeceras con pastilla de pendientes (`pendingCount`) e iconos a la derecha;
+      si el nombre no cabe se muestra la abreviatura (`groupTitle`).
+    - Sin tocar: la casilla de la ficha de una tarea (`TaskInfoSheet`) sigue siendo la cuadrada
+      de Material; el formulario de tarea no se ha revisado.
 - ☐ **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
   qué textos usan las fuentes propias (Delight) y cuáles la del sistema, que cambia según el
   fabricante, y unificarlo.
