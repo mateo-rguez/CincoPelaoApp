@@ -1,7 +1,7 @@
 # Refactor de CincoPelao
 
 Seguimiento del refactor de la app: plan por fases, lo hecho y lo que queda.
-Rama de trabajo: `rework`. Última actualización: 10 de noviembre de 2026 (fase 7: temas).
+Rama de trabajo: `rework`. Última actualización: 10 de noviembre de 2026 (fase 7: temas terminados).
 
 ## Punto de partida
 
@@ -27,9 +27,10 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 | 7 | Mejoras, una a una (lista abierta) | ⏳ |
 
 **Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
-aplica de una en una (ver «Fase 7 — Mejoras»). En curso: **colores y temas**. La fase 6 está
-probada por el autor con un Realme (Android 16) y un Samsung Galaxy A56 (Android 17): todas las
-pruebas de la lista pasan.
+aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. Ninguna en curso:
+al retomar, preguntar al autor por cuál seguir (candidatas: más paletas, tarea/evento en las
+tarjetas del calendario, pulir la interfaz). La fase 6 está probada por el autor con un Realme
+(Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
 ## Hecho
 
@@ -169,13 +170,14 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   - `04e2d3d` `AppColors` (`MaterialTheme.appColors`): colores con significado por paleta en vez de
     `if (oscuro) Blanco else primary` en cada pantalla; arreglados contrastes de Clásico oscuro.
   - `f635643` Paletas Bosque, Coral, Violeta y Grafito, con test de contraste (WCAG AA).
+    Comprueba el texto, las barras, el acento y las tarjetas de la línea de tiempo.
   - `d460653` Pantalla «Apariencia» (menú lateral) con miniaturas de cada paleta.
   - `bdc889a` Vuelve el interruptor de modo oscuro en el menú, junto a Apariencia (el autor lo
     prefiere como atajo).
   - Tras revisarlo el autor: Clásico oscuro vuelve al texto blanco (la compartición conserva su
     lila), los puntos de la línea de tiempo siguen a la paleta, y se quitan Bosque, Coral y
-    Violeta. Quedan **Clásico y Grafito**.
-  - Grafito: eventos en azul acero y tareas en verde azulado en la línea de tiempo, con tarjetas
+    Violeta (`322da0e`). Quedan **Clásico y Grafito**.
+  - `8ce8a95` Grafito: eventos en azul acero y tareas en verde azulado en la línea de tiempo, con tarjetas
     más claras en oscuro y puntos que no se confunden con la línea gris.
   - Para añadir una paleta: un valor en `AppPalette`, su nombre en `displayName` y dos
     `namedPalette(...)` (claro y oscuro) en `ui/theme/Palettes.kt`; el test de contraste la revisa.
