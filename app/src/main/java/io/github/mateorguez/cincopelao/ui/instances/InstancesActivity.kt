@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.instances
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,10 +37,10 @@ class InstancesActivity : ComponentActivity() {
                         TopAppBar(
                             title = { Text(text = "Instancias", fontFamily = DelightMedium) },
                             colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                                actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                                containerColor = MaterialTheme.appColors.bar,
+                                titleContentColor = MaterialTheme.appColors.onBar,
+                                navigationIconContentColor = MaterialTheme.appColors.onBar,
+                                actionIconContentColor = MaterialTheme.appColors.onBar
                             ),
                             navigationIcon = {
                                 IconButton(onClick = { finish() }) {

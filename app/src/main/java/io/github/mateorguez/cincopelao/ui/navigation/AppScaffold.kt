@@ -168,8 +168,8 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
                 if (selectedItem == BottomNavItem.Asignaturas) {
                     FloatingActionButton(
                         onClick = { context.startActivity(Intent(context, AddEditSubjectActivity::class.java)) },
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.appColors.bar,
+                        contentColor = MaterialTheme.appColors.onBar
                     ) {
                         Icon(Icons.Default.Add, contentDescription = "Añadir asignatura")
                     }
@@ -224,21 +224,21 @@ fun DrawerContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.appColors.bar)
         )
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.appColors.bar)
                 .padding(horizontal = 16.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
                 text = "Navegación",
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.appColors.onBar,
             )
         }
 
@@ -354,10 +354,10 @@ fun AppTopBar(
     TopAppBar(
         title = { Text(text = "Cinco Pelao", fontFamily = DelightMedium) },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary,
-            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = MaterialTheme.appColors.bar,
+            titleContentColor = MaterialTheme.appColors.onBar,
+            navigationIconContentColor = MaterialTheme.appColors.onBar,
+            actionIconContentColor = MaterialTheme.appColors.onBar
         ),
         navigationIcon = {
             IconButton(onClick = onMenuClick) {
@@ -413,7 +413,7 @@ fun AppBottomBar(
                 .fillMaxWidth()
                 .height(50.dp)
                 .align(Alignment.BottomCenter)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.appColors.bar)
         )
         AnimatedNavigationBar(
             modifier = Modifier
@@ -426,13 +426,13 @@ fun AppBottomBar(
                 bottomLeft = 0.dp,
                 bottomRight = 0.dp
             ),
-            barColor = MaterialTheme.colorScheme.primary,
-            ballColor = MaterialTheme.colorScheme.primary,
+            barColor = MaterialTheme.appColors.bar,
+            ballColor = MaterialTheme.appColors.bar,
             ballAnimation = Teleport(tween(duration, easing = LinearOutSlowInEasing)),
         ) {
             BottomNavItem.entries.forEach { item ->
                 val animatedColor by animateColorAsState(
-                    targetValue = if (selectedItem == item) MaterialTheme.colorScheme.onPrimary else MaterialTheme.appColors.navBarUnselected,
+                    targetValue = if (selectedItem == item) MaterialTheme.appColors.onBar else MaterialTheme.appColors.navBarUnselected,
                     animationSpec = tween(durationMillis = 300)
                 )
                 Box(

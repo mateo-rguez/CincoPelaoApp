@@ -36,7 +36,12 @@ class PalettesTest {
         forEachPalette { name, c ->
             check(failures, "$name texto/fondo", c.scheme.onBackground, c.scheme.background)
             check(failures, "$name texto/superficie", c.scheme.onSurface, c.scheme.surface)
-            check(failures, "$name barras", c.scheme.onPrimary, c.scheme.primary)
+            check(failures, "$name barras", c.app.onBar, c.app.bar)
+            // Botones de texto, día elegido del selector de fecha, casillas…: sobre los diálogos
+            // (surfaceContainerHigh) y sobre el fondo, y con su contenido encima legible
+            check(failures, "$name controles/diálogo", c.scheme.primary, c.scheme.surfaceContainerHigh)
+            check(failures, "$name controles/fondo", c.scheme.primary, c.scheme.background)
+            check(failures, "$name sobre controles", c.scheme.onPrimary, c.scheme.primary)
             check(failures, "$name contenedor", c.scheme.onPrimaryContainer, c.scheme.primaryContainer)
             check(failures, "$name acento/fondo", c.app.accent, c.scheme.background)
             check(failures, "$name línea de tiempo (eventos)", Color.White, c.app.timelineEventContainer)
@@ -47,7 +52,7 @@ class PalettesTest {
                 check(failures, "$name fecha $label", tone, tone.copy(alpha = DUE_CHIP_ALPHA).compositeOver(c.app.taskCard))
             }
             // Iconos de la barra inferior: elementos gráficos grandes, basta 3:1
-            check(failures, "$name barra inferior", c.app.navBarUnselected, c.scheme.primary, min = 3.0)
+            check(failures, "$name barra inferior", c.app.navBarUnselected, c.app.bar, min = 3.0)
         }
         assertTrue(failures.joinToString("\n"), failures.isEmpty())
     }

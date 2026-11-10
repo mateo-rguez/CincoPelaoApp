@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.Color
 
 val AzulFuerte = Color(0xFF2823BC)
 val AzulOscuro = Color(0xFF11122F)
+/** Botones y controles de Clásico oscuro: el azul de siempre, aclarado para que se lea sobre fondo oscuro. */
+val AzulClaroOscuro = Color(0xFF9AA6FF)
 val Blanco = Color(0xFFFFFFFF)
 val Negro = Color(0xFF000000)
 val SurfaceDark = Color(0xFF121212)

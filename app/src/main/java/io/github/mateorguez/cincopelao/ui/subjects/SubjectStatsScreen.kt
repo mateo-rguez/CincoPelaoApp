@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import io.github.mateorguez.cincopelao.domain.stats.Stats
 import io.github.mateorguez.cincopelao.domain.stats.GradedEvent
 import io.github.mateorguez.cincopelao.domain.stats.GradeCalculator
@@ -89,9 +90,9 @@ fun SubjectStatsScreen(
             TopAppBar(
                 title = { Text("Estadísticas - ${state.subject?.abbrev.orEmpty()}") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.appColors.bar,
+                    titleContentColor = MaterialTheme.appColors.onBar,
+                    navigationIconContentColor = MaterialTheme.appColors.onBar
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {

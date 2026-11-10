@@ -69,11 +69,11 @@ fun PalettePreviewCard(
             Modifier
                 .fillMaxWidth()
                 .height(22.dp)
-                .background(scheme.primary)
+                .background(app.bar)
                 .padding(horizontal = 8.dp),
             contentAlignment = Alignment.CenterStart
         ) {
-            Box(Modifier.width(36.dp).height(5.dp).clip(CircleShape).background(scheme.onPrimary))
+            Box(Modifier.width(36.dp).height(5.dp).clip(CircleShape).background(app.onBar))
         }
 
         Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -103,11 +103,11 @@ fun PalettePreviewCard(
             Modifier
                 .fillMaxWidth()
                 .height(18.dp)
-                .background(scheme.primary),
+                .background(app.bar),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(Modifier.size(6.dp).clip(CircleShape).background(scheme.onPrimary))
+            Box(Modifier.size(6.dp).clip(CircleShape).background(app.onBar))
             Box(Modifier.size(6.dp).clip(CircleShape).background(app.navBarUnselected))
             Box(Modifier.size(6.dp).clip(CircleShape).background(app.navBarUnselected))
         }

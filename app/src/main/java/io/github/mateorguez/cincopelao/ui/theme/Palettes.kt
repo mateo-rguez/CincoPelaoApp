@@ -35,8 +35,10 @@ private val classicLightScheme = lightColorScheme(
 )
 
 private val classicDarkScheme = darkColorScheme(
-    primary = AzulFuerte,
-    onPrimary = Blanco,
+    // Botones, casillas y selectores: un azul claro con texto oscuro encima (AzulFuerte casi no
+    // se ve sobre los diálogos oscuros). Las barras siguen en AzulFuerte: appColors.bar.
+    primary = AzulClaroOscuro,
+    onPrimary = AzulOscuro,
     background = AzulOscuro,
     onBackground = Blanco,
     surface = SurfaceDark,
@@ -45,6 +47,7 @@ private val classicDarkScheme = darkColorScheme(
 )
 
 internal val classicLightAppColors = AppColors(
+    bar = AzulFuerte,
     accent = AzulFuerte,
     navBarUnselected = NavBarUnselected,
     subjectCardStart = SubjectCardGradientStart,
@@ -68,6 +71,7 @@ internal val classicLightAppColors = AppColors(
 )
 
 private val classicDarkAppColors = AppColors(
+    bar = AzulFuerte,
     // Texto e iconos en blanco, como siempre (el autor lo prefiere al lila). La compartición
     // conserva su lila: AzulFuerte apenas contrasta con el fondo AzulOscuro.
     accent = Blanco,
@@ -98,9 +102,10 @@ private val classicDark = PaletteColors(classicDarkScheme, classicDarkAppColors)
 
 // Paletas con nombre ------------------------------------------------------------------------------
 //
-// Todas siguen el mismo patrón: `primary` es el color de las barras (con texto blanco encima),
-// `accent` el de iconos y botones de texto sobre el fondo, y las tarjetas de la línea de tiempo
-// llevan texto blanco, así que su fondo es oscuro en los dos modos.
+// Todas siguen el mismo patrón: el parámetro `primary` es el color de las barras (con texto
+// blanco encima), `accent` el de iconos y botones de texto sobre el fondo, y las tarjetas de la
+// línea de tiempo llevan texto blanco, así que su fondo es oscuro en los dos modos. El `primary`
+// de Material (botones, casillas, selectores) es el de las barras en claro y el acento en oscuro.
 
 /** Monta una paleta a partir de sus tonos principales; el resto se deduce igual en todas. */
 private fun namedPalette(
@@ -128,8 +133,8 @@ private fun namedPalette(
 ): PaletteColors {
     val base = if (dark) darkColorScheme() else lightColorScheme()
     val scheme = base.copy(
-        primary = primary,
-        onPrimary = Blanco,
+        primary = if (dark) accent else primary,
+        onPrimary = if (dark) Negro else Blanco,
         primaryContainer = primaryContainer,
         onPrimaryContainer = onPrimaryContainer,
         secondary = accent,
@@ -152,6 +157,7 @@ private fun namedPalette(
         outlineVariant = surfaceVariant,
     )
     val app = AppColors(
+        bar = primary,
         accent = accent,
         navBarUnselected = navBarUnselected,
         subjectCardStart = subjectCardStart,

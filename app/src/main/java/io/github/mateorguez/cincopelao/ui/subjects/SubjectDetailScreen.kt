@@ -114,10 +114,10 @@ fun SubjectTopBar(
     TopAppBar(
         title = { Text(text = title, fontFamily = DelightMedium) },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary,
-            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = MaterialTheme.appColors.bar,
+            titleContentColor = MaterialTheme.appColors.onBar,
+            navigationIconContentColor = MaterialTheme.appColors.onBar,
+            actionIconContentColor = MaterialTheme.appColors.onBar
         ),
         navigationIcon = {
             IconButton(onClick = onMenuClick) {

@@ -10,6 +10,13 @@ import androidx.compose.ui.graphics.Color
  */
 @Immutable
 data class AppColors(
+    /**
+     * Barras superiores, barra inferior y cabecera del menú, con su texto encima. No es el
+     * `primary` de Material: ese es el acento de botones, casillas y selectores, y en oscuro
+     * tiene que verse sobre los diálogos.
+     */
+    val bar: Color,
+    val onBar: Color = Color.White,
     /** Iconos, botones de texto y datos destacados sobre el fondo; legible en los dos modos. */
     val accent: Color,
     /** Iconos y datos de las pantallas de compartir; por defecto, el acento. */

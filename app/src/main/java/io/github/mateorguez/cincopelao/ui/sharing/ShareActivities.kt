@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.sharing
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -59,10 +60,10 @@ private fun ShareScaffold(title: String, onBack: () -> Unit, content: @Composabl
                 TopAppBar(
                     title = { Text(text = title, fontFamily = DelightMedium) },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.appColors.bar,
+                        titleContentColor = MaterialTheme.appColors.onBar,
+                        navigationIconContentColor = MaterialTheme.appColors.onBar,
+                        actionIconContentColor = MaterialTheme.appColors.onBar
                     ),
                     navigationIcon = {
                         IconButton(onClick = onBack) {

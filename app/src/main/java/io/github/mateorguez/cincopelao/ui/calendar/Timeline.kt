@@ -91,7 +91,7 @@ fun EventsAndTasksTimeline(
                                 text = event.name,
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = Color.White
                             )
 
                             Spacer(Modifier.height(2.dp))
@@ -145,7 +145,7 @@ fun EventsAndTasksTimeline(
                                 text = task.title,
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = Color.White
                             )
 
                             if (subject != null) {
