@@ -163,18 +163,26 @@ asignatura con subtareas, tareas generales, alguna tarea archivada y un horario.
 Lista abierta: se amplía cuando surge algo y cada mejora se hace por separado, con sus commits.
 Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
 
-- ⏳ **Colores y temas** (pedido por el autor el 8 de noviembre de 2026). Código hecho el 10 de
-  noviembre, falta que el autor revise las paletas en el móvil:
+- ✅ **Colores y temas** (pedido por el autor el 8 de noviembre de 2026, hecho el 10):
   - `67250ab` Modo Sistema / Claro / Oscuro y paleta en DataStore (`ThemeSettings`, con tests);
     el interruptor antiguo `dark_mode` se migra solo.
   - `04e2d3d` `AppColors` (`MaterialTheme.appColors`): colores con significado por paleta en vez de
     `if (oscuro) Blanco else primary` en cada pantalla; arreglados contrastes de Clásico oscuro.
   - `f635643` Paletas Bosque, Coral, Violeta y Grafito, con test de contraste (WCAG AA).
   - `d460653` Pantalla «Apariencia» (menú lateral) con miniaturas de cada paleta.
+  - `bdc889a` Vuelve el interruptor de modo oscuro en el menú, junto a Apariencia (el autor lo
+    prefiere como atajo).
+  - Tras revisarlo el autor: Clásico oscuro vuelve al texto blanco (la compartición conserva su
+    lila), los puntos de la línea de tiempo siguen a la paleta, y se quitan Bosque, Coral y
+    Violeta. Quedan **Clásico y Grafito**.
   - Para añadir una paleta: un valor en `AppPalette`, su nombre en `displayName` y dos
     `namedPalette(...)` (claro y oscuro) en `ui/theme/Palettes.kt`; el test de contraste la revisa.
   - Visto y sin tocar: los días de otros meses del calendario (`CalendarInactiveText`, gris fijo)
     se leen poco sobre fondos oscuros.
+- ☐ **Más paletas**: el autor dirá cuáles añadir (Bosque, Coral y Violeta se probaron y no
+  gustaron).
+- ☐ **Calendario: tarea o evento en cada tarjeta** de la línea de tiempo. Indicar en algún
+  lugar de la tarjeta si es una tarea o un evento; ahora solo se distinguen por el color.
 - ☐ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
   pantalla por pantalla con el autor (pedido el 10 de noviembre de 2026).
 - ☐ **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
