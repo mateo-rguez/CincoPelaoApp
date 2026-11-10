@@ -114,7 +114,7 @@ Recibir                                   Transmitir
   Cancelar no deshacía; "Completada el java.text.SimpleDateFormat@…"; carga de imágenes y PDF
   en el hilo principal.
 
-Tests: 120 (JUnit + Robolectric con Room y WorkManager de pruebas, y sockets TCP locales para la
+Tests: 130 (JUnit + Robolectric con Room y WorkManager de pruebas, y sockets TCP locales para la
 compartición) — `./gradlew testDebugUnitTest`.
 
 ## Pendiente
@@ -163,11 +163,18 @@ asignatura con subtareas, tareas generales, alguna tarea archivada y un horario.
 Lista abierta: se amplía cuando surge algo y cada mejora se hace por separado, con sus commits.
 Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
 
-- ⏳ **Colores y temas**: varias paletas con nombre, cada una con variante clara y oscura, y
-  modo Sistema / Claro / Oscuro, elegidos en una pantalla «Apariencia». Arreglar las
-  combinaciones poco agradables (como el azul del tema sobre el fondo oscuro) y quitar los
-  `if (oscuro) Blanco else primary` repartidos por las pantallas. Pedido por el autor el
-  8 de noviembre de 2026.
+- ⏳ **Colores y temas** (pedido por el autor el 8 de noviembre de 2026). Código hecho el 10 de
+  noviembre, falta que el autor revise las paletas en el móvil:
+  - `67250ab` Modo Sistema / Claro / Oscuro y paleta en DataStore (`ThemeSettings`, con tests);
+    el interruptor antiguo `dark_mode` se migra solo.
+  - `04e2d3d` `AppColors` (`MaterialTheme.appColors`): colores con significado por paleta en vez de
+    `if (oscuro) Blanco else primary` en cada pantalla; arreglados contrastes de Clásico oscuro.
+  - `f635643` Paletas Bosque, Coral, Violeta y Grafito, con test de contraste (WCAG AA).
+  - `d460653` Pantalla «Apariencia» (menú lateral) con miniaturas de cada paleta.
+  - Para añadir una paleta: un valor en `AppPalette`, su nombre en `displayName` y dos
+    `namedPalette(...)` (claro y oscuro) en `ui/theme/Palettes.kt`; el test de contraste la revisa.
+  - Visto y sin tocar: los días de otros meses del calendario (`CalendarInactiveText`, gris fijo)
+    se leen poco sobre fondos oscuros.
 - ☐ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
   pantalla por pantalla con el autor (pedido el 10 de noviembre de 2026).
 - ☐ **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
