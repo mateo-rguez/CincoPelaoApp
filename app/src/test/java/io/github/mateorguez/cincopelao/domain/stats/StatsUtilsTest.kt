@@ -142,4 +142,24 @@ class StatsUtilsTest {
         assertEquals(0f, stats.stdDeviation, delta)
         assertEquals(0f, stats.eventCompletedPerc, delta)
     }
+
+    // --- Etiquetas de regularidad y tendencia ---
+
+    @Test
+    fun `la regularidad se etiqueta por tramos de desviacion tipica`() {
+        assertEquals("Muy regular", StatsUtils.regularityLabel(0.9f))
+        assertEquals("Regular", StatsUtils.regularityLabel(1.5f))
+        assertEquals("Irregular", StatsUtils.regularityLabel(2.5f))
+        assertEquals("Caos", StatsUtils.regularityLabel(2.6f))
+    }
+
+    @Test
+    fun `la tendencia es estable cerca de cero y se gradua a cada lado`() {
+        assertEquals("Estable", StatsUtils.trendLabel(0.15f))
+        assertEquals("Estable", StatsUtils.trendLabel(-0.15f))
+        assertEquals("Creciente", StatsUtils.trendLabel(0.62f))
+        assertEquals("Decreciente", StatsUtils.trendLabel(-0.62f))
+        assertEquals("Muy creciente", StatsUtils.trendLabel(2.1f))
+        assertEquals("Muy decreciente", StatsUtils.trendLabel(-2.1f))
+    }
 }

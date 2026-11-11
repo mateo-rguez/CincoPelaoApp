@@ -1,24 +1,16 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
-import io.github.mateorguez.cincopelao.ui.theme.appColors
-import io.github.mateorguez.cincopelao.domain.stats.Stats
-import io.github.mateorguez.cincopelao.domain.stats.GradedEvent
-import io.github.mateorguez.cincopelao.domain.stats.GradeCalculator
 import android.graphics.Paint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,15 +21,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -50,17 +39,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -68,14 +52,16 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import io.github.mateorguez.cincopelao.data.local.entity.Event
-import io.github.mateorguez.cincopelao.domain.stats.StatsUtils.calculateStats
-import kotlin.math.max
+import io.github.mateorguez.cincopelao.domain.stats.GradeCalculator
+import io.github.mateorguez.cincopelao.domain.stats.GradedEvent
+import io.github.mateorguez.cincopelao.domain.stats.Stats
+import io.github.mateorguez.cincopelao.domain.stats.StatsUtils
+import io.github.mateorguez.cincopelao.ui.theme.StatusFail
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -183,6 +169,11 @@ fun SubjectStatsScreen(
     }
 }
 
+/**
+ * Evolución de las notas: una curva suave por cada tramo de eventos con nota (los pendientes la
+ * cortan) con un degradado debajo. Un punto bajo la nota mínima de su evento sale en rojo. Con un
+ * solo evento se dibuja una línea horizontal a su altura de lado a lado.
+ */
 @Composable
 fun LineChart(
     data: List<Float?>,
@@ -190,325 +181,125 @@ fun LineChart(
     modifier: Modifier = Modifier,
     labels: List<String> = emptyList()
 ) {
-
-    val animatedData = remember(data) {
-        if (data.size == 1) {
-            listOf(Animatable(0f))
-        } else {
-            data.map { Animatable(0f) }
-        }
-    }
-
+    // Cada nota sube desde 0 al entrar y al cambiar
+    val animated = remember(data) { data.map { Animatable(0f) } }
     LaunchedEffect(data) {
-        if (data.size == 1 && data[0] != null) {
-            animatedData[0].animateTo(
-                targetValue = data[0]!!,
-                animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
-            )
-        } else {
-            data.forEachIndexed { index, target ->
-                if (target != null) {
-                    launch {
-                        animatedData[index].animateTo(
-                            targetValue = target,
-                            animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
-                        )
-                    }
-                }
+        data.forEachIndexed { i, target ->
+            if (target != null) {
+                launch { animated[i].animateTo(target, tween(durationMillis = 1000, easing = FastOutSlowInEasing)) }
             }
         }
-    }
-
-    val animatedDataValues = data.mapIndexed { index, value ->
-        if (value == null) null else animatedData[index].value
     }
 
     val lineColor = MaterialTheme.colorScheme.primary
-    val pointColor = MaterialTheme.colorScheme.primary
+    val belowMinimumColor = StatusFail
     val gridColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f)
     val axisColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val labelColor = MaterialTheme.colorScheme.onSurfaceVariant.toArgb()
+    val density = LocalDensity.current
+    val yLabelPaint = remember(labelColor, density) {
+        Paint().apply {
+            color = labelColor
+            isAntiAlias = true
+            textSize = with(density) { 10.sp.toPx() }
+        }
+    }
+    val xLabelPaint = remember(labelColor, density) {
+        Paint().apply {
+            color = labelColor
+            isAntiAlias = true
+            textSize = with(density) { 12.sp.toPx() }
+            textAlign = Paint.Align.CENTER
+        }
+    }
 
     val maxValue = (data.filterNotNull().maxOrNull() ?: 10f).coerceAtLeast(10f)
-    val minValue = 0f
-    val yStep = 1f
-    val yLines = (minValue.toInt()..maxValue.toInt())
-
-    val labelColorArgb = MaterialTheme.colorScheme.onSurfaceVariant.toArgb()
+    val singleEvent = data.size == 1
 
     Canvas(modifier = modifier) {
-        val paddingLeft = 16.dp.toPx()
-        val paddingBottom = 48.dp.toPx()
-        val paddingTop = 12.dp.toPx()
-        val width = size.width - paddingLeft
-        val height = size.height - paddingBottom - paddingTop
-
+        val left = 16.dp.toPx()
+        val top = 12.dp.toPx()
+        val width = size.width - left
+        val height = size.height - 48.dp.toPx() - top
+        val bottom = top + height
         val pointGap = width / (data.size - 1).coerceAtLeast(1)
 
+        fun xOf(index: Int) = if (singleEvent) left + width / 2 else left + index * pointGap
+        fun yOf(value: Float) = bottom - value / maxValue * height
 
-        // CANVAS PARA CUANDO SOLO HAY UN PUNTUABLE
+        // Rejilla horizontal con las notas a la izquierda y vertical en cada evento
+        for (i in 0..maxValue.toInt()) {
+            val y = yOf(i.toFloat())
+            drawLine(gridColor, Offset(left, y), Offset(left + width, y), strokeWidth = 1f)
+            drawContext.canvas.nativeCanvas.drawText(i.toString(), 2.dp.toPx(), y + 4f, yLabelPaint)
+        }
+        if (!singleEvent) {
+            data.indices.forEach { i -> drawLine(gridColor, Offset(xOf(i), top), Offset(xOf(i), bottom), strokeWidth = 1f) }
+        }
+        drawLine(axisColor, Offset(left, top), Offset(left, bottom), strokeWidth = 3f)
+        drawLine(axisColor, Offset(left, bottom), Offset(left + width, bottom), strokeWidth = 3f)
 
-        if (
-            data.size == 1 &&
-            minScores.size == 1 &&
-            labels.size == 1 &&
-            data[0] != null
-        ) {
-            val animatedValue = animatedData[0].value
-            val y = paddingTop + height - (animatedValue - minValue) / (maxValue - minValue) * height
+        // Tramos de eventos seguidos con nota
+        val values = data.mapIndexed { i, v -> if (v == null) null else animated[i].value }
+        val segments: List<List<Offset>> = if (singleEvent) {
+            values[0]?.let { listOf(listOf(Offset(left, yOf(it)), Offset(left + width, yOf(it)))) }.orEmpty()
+        } else {
+            values.foldIndexed(mutableListOf(mutableListOf<Offset>())) { i, acc, v ->
+                if (v != null) acc.last().add(Offset(xOf(i), yOf(v)))
+                else if (acc.last().isNotEmpty()) acc.add(mutableListOf())
+                acc
+            }.filter { it.isNotEmpty() }
+        }
 
-            // Dibuja ejes y líneas horizontales igual que antes
-            drawLine(
-                color = axisColor,
-                start = Offset(paddingLeft, paddingTop),
-                end = Offset(paddingLeft, paddingTop + height),
-                strokeWidth = 3f
-            )
-            drawLine(
-                color = axisColor,
-                start = Offset(paddingLeft, paddingTop + height),
-                end = Offset(paddingLeft + width, paddingTop + height),
-                strokeWidth = 3f
-            )
+        val fill = Brush.verticalGradient(listOf(lineColor.copy(alpha = 0.3f), Color.Transparent), startY = top, endY = bottom)
+        segments.forEach { segment ->
+            val curve = smoothPath(segment)
+            drawPath(curve, lineColor, style = Stroke(width = 4f))
+            curve.lineTo(segment.last().x, bottom)
+            curve.lineTo(segment.first().x, bottom)
+            curve.close()
+            drawPath(curve, fill)
+        }
 
-            for (i in yLines) {
-                val yStepLine = paddingTop + height - (i - minValue) / (maxValue - minValue) * height
-
-                drawLine(
-                    color = gridColor,
-                    start = Offset(paddingLeft, yStepLine),
-                    end = Offset(paddingLeft + width, yStepLine),
-                    strokeWidth = 1f
-                )
-
-                drawContext.canvas.nativeCanvas.drawText(
-                    i.toString(),
-                    2.dp.toPx(),
-                    yStepLine + 4f,
-                    Paint().apply {
-                        color = labelColorArgb
-                        textSize = 10.sp.toPx()
-                    }
-                )
+        if (!singleEvent) {
+            values.forEachIndexed { i, v ->
+                if (v == null) return@forEachIndexed
+                val minimum = minScores.getOrNull(i)
+                val belowMinimum = minimum != null && v < minimum / 10
+                drawCircle(if (belowMinimum) belowMinimumColor else lineColor, radius = 8f, center = Offset(xOf(i), yOf(v)))
             }
+        }
 
-            // Dibuja la sombra degradada bajo la línea
-            val path = Path().apply {
-                moveTo(paddingLeft, y)
-                lineTo(paddingLeft + width, y)
-                lineTo(paddingLeft + width, paddingTop + height)
-                lineTo(paddingLeft, paddingTop + height)
-                close()
-            }
-
-            drawPath(
-                path = path,
-                brush = Brush.verticalGradient(
-                    colors = listOf(lineColor.copy(alpha = 0.3f), Color.Transparent),
-                    startY = paddingTop,
-                    endY = paddingTop + height
-                )
-            )
-
-            // Dibuja la línea animada principal
-            drawLine(
-                color = lineColor,
-                start = Offset(paddingLeft, y),
-                end = Offset(paddingLeft + width, y),
-                strokeWidth = 4f
-            )
-
-            // Etiqueta X
-            val x = paddingLeft + width / 2
-            val label = labels[0]
-            val labelY = paddingTop + height + 20.dp.toPx()
+        // Nombres de los eventos, girados para que quepan
+        val labelY = bottom + 20.dp.toPx()
+        labels.forEachIndexed { i, label ->
             drawContext.canvas.nativeCanvas.apply {
                 save()
-                rotate(-45f, x, labelY)
-                drawText(
-                    label,
-                    x,
-                    labelY,
-                    Paint().apply {
-                        color = labelColorArgb
-                        textSize = 12.sp.toPx()
-                        textAlign = Paint.Align.CENTER
-                    }
-                )
+                rotate(-45f, xOf(i), labelY)
+                drawText(label, xOf(i), labelY, xLabelPaint)
                 restore()
-            }
-
-            return@Canvas
-        }
-
-        //CANVAS PARA CUANDO HAY MAS DE UN PUNTUABLE
-
-        // Líneas horizontales de referencia + etiquetas Y
-        for (i in yLines) {
-            val y = paddingTop + height - (i - minValue) / (maxValue - minValue) * height
-
-            drawLine(
-                color = gridColor,
-                start = Offset(paddingLeft, y),
-                end = Offset(paddingLeft + width, y),
-                strokeWidth = 1f
-            )
-
-            // Etiquetas
-            drawContext.canvas.nativeCanvas.drawText(
-                i.toString(),
-                2.dp.toPx(),
-                y + 4f,
-                Paint().apply {
-                    color = labelColorArgb
-                    textSize = 10.sp.toPx()
-                }
-            )
-        }
-
-        // Lineas verticales
-        for (i in data.indices) {
-            val x = paddingLeft + i * pointGap
-
-            drawLine(
-                color = gridColor,
-                start = Offset(x, paddingTop),
-                end = Offset(x, paddingTop + height),
-                strokeWidth = 1f
-            )
-        }
-
-        // Ejes X e Y
-        drawLine(
-            color = axisColor,
-            start = Offset(paddingLeft, paddingTop),
-            end = Offset(paddingLeft, paddingTop + height),
-            strokeWidth = 3f
-        )
-        drawLine(
-            color = axisColor,
-            start = Offset(paddingLeft, paddingTop + height),
-            end = Offset(paddingLeft + width, paddingTop + height),
-            strokeWidth = 3f
-        )
-
-        val pointsSegments = mutableListOf<List<Offset>>()
-        var currentSegment = mutableListOf<Offset>()
-
-        animatedDataValues.forEachIndexed { index, value ->
-            val x = paddingLeft + pointGap * index
-
-            if (value != null) {
-                val y = paddingTop + height - (value - minValue) / (maxValue - minValue) * height
-                currentSegment.add(Offset(x, y))
-            } else {
-                if (currentSegment.isNotEmpty()) {
-                    pointsSegments.add(currentSegment)
-                    currentSegment = mutableListOf()
-                }
-            }
-        }
-
-        if (currentSegment.isNotEmpty()) {
-            pointsSegments.add(currentSegment)
-        }
-
-        // Línea principal
-        fun catmullRomToBezier(points: List<Offset>): Path {
-            val path = Path()
-            if (points.size < 2) return path
-
-            path.moveTo(points.first().x, points.first().y)
-
-            for (i in 0 until points.size - 1) {
-                val p0 = if (i == 0) points[i] else points[i - 1]
-                val p1 = points[i]
-                val p2 = points[i + 1]
-                val p3 = if (i + 2 < points.size) points[i + 2] else p2
-
-                val cp1 = Offset(
-                    p1.x + (p2.x - p0.x) / 6f,
-                    p1.y + (p2.y - p0.y) / 6f
-                )
-                val cp2 = Offset(
-                    p2.x - (p3.x - p1.x) / 6f,
-                    p2.y - (p3.y - p1.y) / 6f
-                )
-
-                path.cubicTo(cp1.x, cp1.y, cp2.x, cp2.y, p2.x, p2.y)
-            }
-
-            return path
-        }
-
-        pointsSegments.forEach { segment ->
-            val smoothPath = catmullRomToBezier(segment)
-            drawPath(
-                path = smoothPath,
-                color = lineColor,
-                style = Stroke(width = 4f)
-            )
-
-            // También podés dibujar la sombra si querés, por cada segmento
-            val shadowPath = smoothPath.apply {
-                lineTo(segment.last().x, paddingTop + height)
-                lineTo(segment.first().x, paddingTop + height)
-                close()
-            }
-
-            drawPath(
-                path = shadowPath,
-                brush = Brush.verticalGradient(
-                    colors = listOf(lineColor.copy(alpha = 0.3f), Color.Transparent),
-                    startY = paddingTop,
-                    endY = paddingTop + height
-                )
-            )
-        }
-
-        // Puntos con animación suave
-        animatedDataValues.forEachIndexed { index, value ->
-            if (value != null) {
-                val x = paddingLeft + pointGap * index
-                val y = paddingTop + height - (value - minValue) / (maxValue - minValue) * height
-
-                val circleColor = if (minScores.getOrNull(index) != null && value < minScores[index]!! / 10) {
-                    Color.Red
-                } else {
-                    pointColor
-                }
-
-                drawCircle(
-                    color = circleColor,
-                    radius = 8f,
-                    center = Offset(x, y)
-                )
-            }
-        }
-
-        // Etiquetas X rotadas
-        if (labels.isNotEmpty()) {
-            labels.forEachIndexed { index, label ->
-                val x = paddingLeft + pointGap * index
-                val y = paddingTop + height + 20.dp.toPx()
-                drawContext.canvas.nativeCanvas.apply {
-                    save()
-                    rotate(-45f, x, y)
-                    drawText(
-                        label,
-                        x,
-                        y,
-                        Paint().apply {
-                            color = labelColorArgb
-                            textSize = 12.sp.toPx()
-                            textAlign = Paint.Align.CENTER
-                        }
-                    )
-                    restore()
-                }
             }
         }
     }
+}
+
+/** Curva suave (Catmull-Rom pasada a Bézier) que pasa por todos los [points]. */
+private fun smoothPath(points: List<Offset>): Path {
+    val path = Path()
+    if (points.size < 2) return path
+    path.moveTo(points.first().x, points.first().y)
+    for (i in 0 until points.size - 1) {
+        val p0 = points[maxOf(i - 1, 0)]
+        val p1 = points[i]
+        val p2 = points[i + 1]
+        val p3 = points[minOf(i + 2, points.size - 1)]
+        path.cubicTo(
+            p1.x + (p2.x - p0.x) / 6f, p1.y + (p2.y - p0.y) / 6f,
+            p2.x - (p3.x - p1.x) / 6f, p2.y - (p3.y - p1.y) / 6f,
+            p2.x, p2.y
+        )
+    }
+    return path
 }
 
 @Composable
@@ -520,19 +311,8 @@ fun StatsTable(stats: Stats) {
             .padding(8.dp)
     ) {
 
-        val stdLabel = when {
-            stats.stdDeviation <= 0.9f -> "Muy regular"
-            stats.stdDeviation <= 1.5f -> "Regular"
-            stats.stdDeviation <= 2.5f -> "Irregular"
-            else -> "Caos"
-        }
-        val trendLabel = when {
-            stats.trend > 2.0f -> "Muy Creciente"
-            stats.trend > 0.15f -> "Creciente"
-            stats.trend < -2.0f -> "Muy Decreciente"
-            stats.trend < -0.15f -> "Decreciente"
-            else -> "Estable"
-        }
+        val stdLabel = StatsUtils.regularityLabel(stats.stdDeviation)
+        val trendLabel = StatsUtils.trendLabel(stats.trend)
 
         TableRow(label = "Número de eventos puntuables", value = stats.eventCount.toString())
         HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
@@ -706,7 +486,7 @@ fun GradeTargetCalculator(events: List<GradedEvent>) {
 
                 val textColor = when {
                     score != null -> MaterialTheme.colorScheme.onSurfaceVariant
-                    required != null && (required <= minScore || required > 10f) -> Color.Red
+                    required != null && (required <= minScore || required > 10f) -> StatusFail
                     else -> MaterialTheme.colorScheme.onSurface
                 }
 

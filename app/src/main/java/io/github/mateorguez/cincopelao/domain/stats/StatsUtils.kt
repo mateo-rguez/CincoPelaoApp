@@ -30,6 +30,23 @@ data class Stats(
 
 object StatsUtils {
 
+    /** Cómo de regulares son las notas según su desviación típica. */
+    fun regularityLabel(stdDeviation: Float): String = when {
+        stdDeviation <= 0.9f -> "Muy regular"
+        stdDeviation <= 1.5f -> "Regular"
+        stdDeviation <= 2.5f -> "Irregular"
+        else -> "Caos"
+    }
+
+    /** Hacia dónde van las notas según la pendiente de la recta de regresión. */
+    fun trendLabel(trend: Float): String = when {
+        trend > 2.0f -> "Muy creciente"
+        trend > 0.15f -> "Creciente"
+        trend < -2.0f -> "Muy decreciente"
+        trend < -0.15f -> "Decreciente"
+        else -> "Estable"
+    }
+
     fun calculateStats(events: List<Event>): Stats {
 
         val scores: List<Float?> = events
