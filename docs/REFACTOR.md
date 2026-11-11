@@ -209,6 +209,12 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       si el nombre no cabe se muestra la abreviatura (`groupTitle`).
     - Sin tocar: la casilla de la ficha de una tarea (`TaskInfoSheet`) sigue siendo la cuadrada
       de Material; el formulario de tarea no se ha revisado.
+- ☐ **Revisar que los temas estén limpios** (pedido por el autor el 11 de noviembre de 2026,
+  mejor al terminar «Pulir la interfaz»): que no queden apaños con colores fijos o condiciones
+  para una paleta o situación concreta (`if (oscuro) …`, colores sueltos en pantallas) y que
+  cada paleta defina por sí misma colores coherentes y bien contrastados en toda la app, de
+  modo que añadir una paleta nueva sea solo rellenar sus valores. Incluye, p. ej., los días de
+  otros meses del calendario (`CalendarInactiveText`).
 - ☐ **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
   qué textos usan las fuentes propias (Delight) y cuáles la del sistema, que cambia según el
   fabricante, y unificarlo.
