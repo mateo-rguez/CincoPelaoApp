@@ -1,5 +1,7 @@
 package io.github.mateorguez.cincopelao.ui.navigation
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
@@ -121,7 +123,8 @@ private fun NavGraphBuilder.tab(
     composable(item.route, enterTransition = enter, exitTransition = exit, popEnterTransition = popEnter, popExitTransition = popExit) {
         val activity = LocalContext.current as? Activity
         BackHandler { activity?.finish() }
-        content()
+        val instanceId by hiltViewModel<ActiveInstanceViewModel>().instanceId.collectAsStateWithLifecycle()
+        key(instanceId) { content() }
     }
 }
 
@@ -177,6 +180,9 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
             },
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
         ) { innerPadding ->
+            // Las listas usan los ids como clave y cada instancia tiene su propia BD con ids que
+            // empiezan en 1: sin esto, al cambiar de instancia la lista conservaba el scroll
+            // buscando el id que estaba arriba en la nueva, y aparecía desplazada hasta abajo.
             NavHost(
                 navController = navController,
                 startDestination = START_TAB.route,
