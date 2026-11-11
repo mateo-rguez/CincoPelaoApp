@@ -209,6 +209,15 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       si el nombre no cabe se muestra la abreviatura (`groupTitle`).
     - Sin tocar: la casilla de la ficha de una tarea (`TaskInfoSheet`) sigue siendo la cuadrada
       de Material; el formulario de tarea no se ha revisado.
+  - **Asignaturas** ⏳:
+    - `eaf0f83` Lista: tarjeta con sombra de Tareas, pastilla con abreviatura (o iniciales) y
+      una fila con dos etiquetas que alternan cada 5 s a la vez en todas: nota (media ↔ último
+      examen; nota final fija en color de acento si ya está todo hecho) y lo siguiente (próximo
+      evento ↔ tareas pendientes, o «Todo al día»). Datos en `subjectSummaries` (puro, con tests).
+    - `50fdc50` Arreglo: al cambiar de instancia la lista salía desplazada hasta abajo (claves
+      por id repetidas entre BD); las pestañas se recomponen desde cero al cambiar de instancia.
+    - Pendiente: probar otras formas de editar/eliminar (ahora pulsación larga que despliega una
+      barra; con una tarjeta desplegada, tocar otra la abre). Siguiente: detalle y estadísticas.
 - ☐ **Revisar que los temas estén limpios** (pedido por el autor el 11 de noviembre de 2026,
   mejor al terminar «Pulir la interfaz»): que no queden apaños con colores fijos o condiciones
   para una paleta o situación concreta (`if (oscuro) …`, colores sueltos en pantallas) y que
