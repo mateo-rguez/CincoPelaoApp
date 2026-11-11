@@ -1,6 +1,5 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +20,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,7 +31,7 @@ import kotlinx.coroutines.launch
 /** Cada cuánto alternan las etiquetas de las tarjetas (nota y lo siguiente que hacer). */
 private const val CHIP_ROTATION_MILLIS = 5_000L
 
-/** Pestaña de asignaturas. Una pulsación abre la asignatura; una pulsación larga muestra editar/eliminar. */
+/** Pestaña de asignaturas. Una pulsación abre la asignatura; el «⋮» de cada tarjeta, editar/eliminar. */
 @Composable
 fun SubjectsScreen(
     snackbarHostState: SnackbarHostState,
@@ -41,8 +39,6 @@ fun SubjectsScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    var expandedCardId by remember { mutableStateOf<Long?>(null) }
-
     // Un solo reloj para todas las tarjetas: sus etiquetas cambian a la vez
     var showAlternate by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -52,16 +48,7 @@ fun SubjectsScreen(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            // Tocar fuera de la tarjeta desplegada la pliega
-            .pointerInput(expandedCardId) {
-                if (expandedCardId != null) {
-                    detectTapGestures(onTap = { expandedCardId = null })
-                }
-            }
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         if (state.subjects.isEmpty()) {
             Text(
                 text = "Aún no hay asignaturas.\nPulsa + para añadir la primera.",
@@ -83,9 +70,6 @@ fun SubjectsScreen(
                     summary = summary,
                     titulation = state.titulation,
                     showAlternate = showAlternate,
-                    isExpanded = expandedCardId == subject.subjectId,
-                    onExpand = { expandedCardId = subject.subjectId },
-                    onCollapse = { expandedCardId = null },
                     onDelete = {
                         scope.launch {
                             val deleted = viewModel.delete(subject)
