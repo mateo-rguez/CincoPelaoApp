@@ -1,7 +1,7 @@
 # Refactor de CincoPelao
 
 Seguimiento del refactor de la app: plan por fases, lo hecho y lo que queda.
-Rama de trabajo: `rework`. Última actualización: 11 de noviembre de 2026 (fase 7: pulir la interfaz, Tareas y Asignaturas hechas).
+Rama de trabajo: `rework`. Última actualización: 11 de noviembre de 2026 (fase 7: pulir la interfaz, Tareas y Asignaturas hechas; Calendario en curso).
 
 ## Punto de partida
 
@@ -29,8 +29,9 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 **Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
 aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. En curso: **pulir la
 interfaz**, pantalla por pantalla con el autor; Tareas y Asignaturas (lista, detalle y
-estadísticas) están terminadas y la siguiente es el **Calendario**, donde entra también «tarea o
-evento en cada tarjeta». En cada pantalla: capturas con la app en
+estadísticas) están terminadas y ahora va el **Calendario**: la línea de tiempo nueva está hecha
+pero **sin probar en el móvil** (ver la nota de la firma en «Calendario»); después, puntos por
+tipo en la cuadrícula y hoja del día con tarjetas. En cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -187,8 +188,8 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     se leen poco sobre fondos oscuros.
 - ☐ **Más paletas**: el autor dirá cuáles añadir (Bosque, Coral y Violeta se probaron y no
   gustaron).
-- ☐ **Calendario: tarea o evento en cada tarjeta** de la línea de tiempo. Indicar en algún
-  lugar de la tarjeta si es una tarea o un evento; ahora solo se distinguen por el color.
+- ✅ **Calendario: tarea o evento en cada tarjeta**: hecho dentro de «Pulir la interfaz» (etiqueta
+  del tipo y marcador con forma).
 - ⏳ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
   pantalla por pantalla con el autor (pedido el 10 de noviembre de 2026). Orden acordado:
   Tareas ✅ → Asignaturas (lista, detalle, estadísticas) ✅ → Calendario (aquí entra «tarea o
@@ -243,6 +244,27 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
         pendientes huecos, línea en el 5, puntos suspensos (menos de 5 o bajo la mínima) en rojo.
       - `d5111f6` Altura final 270 dp (se probaron 300 y 240) y línea de un solo color: el degradado
         de la línea hacia los suspensos se probó y no gustó.
+  - **Calendario** ⏳ (11 de noviembre de 2026). El autor eligió: tarjetas más claras, cabeceras
+    relativas, puntos por tipo en la cuadrícula y hoja del día con tarjetas; además, rediseñar la
+    línea de tiempo entera (línea, puntos, fechas) con formas de Material 3.
+    - Línea de tiempo propia (`Timeline.kt`), **pendiente de probar en el móvil**: fuera JetLime (no
+      dejaba cambiar la forma de los puntos ni la colocación de las fechas). Disposición elegida
+      «fecha a la izquierda» (número, «JUE · NOV» y «Mañana» / «En 6 días»), línea vertical con un
+      marcador por elemento y la tarjeta a la derecha; el autor quiere probarla y, si no convence,
+      cambiar a «cabecera sobre la línea» o «agenda sin línea». Marcadores con
+      `androidx.graphics:graphics-shapes` (la base de `MaterialShapes`, sin actualizar Compose):
+      estallido = examen, cuadrado redondeado = entregable/proyecto/trabajo, galleta = otros
+      eventos, círculo con ✓ = tarea. Tarjetas con el fondo de Tareas (`TaskCardFrame`), etiqueta
+      de color con el tipo y la modalidad, nombre y «SIGLAS · asignatura» en una línea; fuera la
+      fecha repetida, «Modalidad:» y el blanco fijo. Lógica pura en `CalendarViewModel.kt`
+      (`TimelineDay`, `relativeDayLabel`, `marker`, `typeLabel`, `subjectLine`) con tests.
+    - Si gusta: quitar `timelineEventContainer` / `timelineTaskContainer` de las paletas (ya solo
+      los usan la vista previa de Apariencia y `PalettesTest`).
+    - ☐ Puntos por tipo en la cuadrícula (color de evento y de tarea) y días de otros meses legibles.
+    - ☐ Hoja del día con las mismas tarjetas (`TimelineCard`) y un vacío más amable.
+    - Nota: el móvil rechaza instalar desde un PC distinto (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`:
+      cada PC tiene su `~/.android/debug.keystore`). No desinstalar (se pierden los datos): copiar
+      la misma `debug.keystore` en los dos PCs o instalar desde el PC que firmó la versión instalada.
 - ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
   elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
 - ☐ **Rendimiento del scroll** (notado por el autor el 11 de noviembre de 2026): la app antigua
