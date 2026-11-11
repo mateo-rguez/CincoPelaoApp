@@ -18,14 +18,13 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -40,8 +39,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,14 +53,21 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.domain.stats.GradeCalculator
 import io.github.mateorguez.cincopelao.domain.stats.GradedEvent
+import io.github.mateorguez.cincopelao.domain.stats.Requirement
 import io.github.mateorguez.cincopelao.domain.stats.Stats
 import io.github.mateorguez.cincopelao.domain.stats.StatsUtils
+import io.github.mateorguez.cincopelao.domain.stats.TargetVerdict
+import io.github.mateorguez.cincopelao.domain.stats.requirement
+import io.github.mateorguez.cincopelao.domain.stats.targetVerdict
+import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
+import io.github.mateorguez.cincopelao.ui.theme.StatusDone
 import io.github.mateorguez.cincopelao.ui.theme.StatusFail
+import io.github.mateorguez.cincopelao.ui.theme.StatusFair
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 import kotlinx.coroutines.launch
 
@@ -414,106 +421,120 @@ fun TableRow(label: String, value: String) {
     }
 }
 
+/**
+ * Calculadora de nota objetivo: se elige la nota final que se quiere con un slider de medio en medio
+ * punto y debajo sale un resumen y lo que hace falta en cada evento pendiente, con un color según
+ * lo exigente que sea.
+ */
 @Composable
 fun GradeTargetCalculator(events: List<GradedEvent>) {
-    var targetGrade by remember { mutableStateOf(5f) }
-    val plan = remember(events, targetGrade) { GradeCalculator.requiredScores(events, targetGrade) }
-    val actualGrade = plan.currentGrade
-    val labels = events.map { it.name }
+    var target by rememberSaveable { mutableFloatStateOf(5f) }
+    val plan = remember(events, target) { GradeCalculator.requiredScores(events, target) }
+    val verdict = remember(events, target, plan) { targetVerdict(events, target, plan) }
 
-    Column(modifier = Modifier) {
-        Text("Nota actual: ${"%.2f".format(actualGrade)}", style = MaterialTheme.typography.bodyLarge)
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Nota objetivo",
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp, lineHeight = 24.sp),
+                fontFamily = DelightMedium,
+                modifier = Modifier.weight(1f)
+            )
+            Text("%.2f".format(target), style = MaterialTheme.typography.headlineSmall, fontFamily = DelightMedium)
+        }
+        // Un punto por cada medio punto de nota
+        Slider(value = target, onValueChange = { target = it }, valueRange = 0f..10f, steps = 19)
 
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Define tu nota objetivo:")
-        Slider(
-            value = targetGrade,
-            onValueChange = { targetGrade = it },
-            valueRange = 0f..10f,
-            steps = 19
+        Text(
+            text = verdictText(verdict, target),
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (verdict is TargetVerdict.Impossible) StatusFail else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
         )
-        Text("Nota objetivo: ${"%.2f".format(targetGrade)}", style = MaterialTheme.typography.bodyLarge)
 
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Notas necesarias en los eventos restantes:")
-
-        LazyColumn(
-            modifier = Modifier
-                .heightIn(max = 500.dp)
-                .fillMaxWidth()
-                .border(1.dp, MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small)
-                .padding(8.dp)
-        ) {
-            item {
-                // Cabecera de tabla
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Evento",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.weight(0.5f),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = "Estado / Requisito",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.weight(0.5f),
-                        textAlign = TextAlign.End,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-                HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f), thickness = 1.dp)
-            }
-
-            itemsIndexed(labels) { i, label ->
-                val score = events[i].score
-                val required = plan.required[i]
-                val minScore = (events[i].minScore ?: 0f) / 10f
-
-                val statusText = if (score == null) {
-                    when {
-                        required != null && required > 10f -> "(Imposible) ${"%.2f".format(required)}"
-                        required != null && required <= minScore -> "(Mínima) ${"%.2f".format(required)}"
-                        else -> "${"%.2f".format(required ?: 0f)}"
-                    }
-                } else {
-                    "(Completado) $score"
-                }
-
-                val textColor = when {
-                    score != null -> MaterialTheme.colorScheme.onSurfaceVariant
-                    required != null && (required <= minScore || required > 10f) -> StatusFail
-                    else -> MaterialTheme.colorScheme.onSurface
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(0.5f),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = statusText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(0.5f),
-                        textAlign = TextAlign.End,
-                        color = textColor
-                    )
-                }
-
-                HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f), thickness = 0.5.dp)
+        events.forEachIndexed { i, event ->
+            TargetRow(event, plan.required.getOrNull(i))
+            if (i < events.lastIndex) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.12f), thickness = 1.dp)
             }
         }
+    }
+}
 
+private fun verdictText(verdict: TargetVerdict, target: Float): String = when (verdict) {
+    is TargetVerdict.Needs -> {
+        val events = if (verdict.pending == 1) "el evento que queda" else "los ${verdict.pending} eventos que quedan"
+        "Para un %.2f necesitas un %.2f de media en %s.".format(target, verdict.average, events)
+    }
+    is TargetVerdict.Reached ->
+        if (verdict.minimums) "Ya llegas al %.2f: solo te falta sacar las mínimas.".format(target)
+        else "Ya llegas al %.2f con lo que llevas.".format(target)
+    is TargetVerdict.Impossible -> "No se puede llegar al %.2f: como mucho sacarías un %.2f.".format(target, verdict.maxReachable)
+    is TargetVerdict.NothingLeft -> "No queda nada por hacer: tu nota final es %.2f.".format(verdict.finalGrade)
+}
+
+/**
+ * Un evento en la calculadora: los hechos con su nota en gris (en rojo si no llegó a la mínima) y
+ * los pendientes con la nota que hace falta, coloreada, y una palabra que dice lo exigente que es.
+ */
+@Composable
+private fun TargetRow(event: GradedEvent, required: Float?) {
+    val minimum = (event.minScore ?: 0f) / 10f
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 44.dp)
+            .padding(vertical = 4.dp)
+    ) {
+        Text(
+            event.name,
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
+        )
+        val score = event.score
+        if (score != null) {
+            val belowMinimum = score < minimum
+            Icon(
+                Icons.Default.Check,
+                contentDescription = "Hecho",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                "%.2f".format(score),
+                style = MaterialTheme.typography.titleMedium,
+                fontFamily = DelightMedium,
+                color = if (belowMinimum) StatusFail else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        } else if (required != null) {
+            val level = requirement(required, event.minScore)
+            val (caption, color) = when (level) {
+                Requirement.MINIMUM -> (if (minimum > 0f) "Basta la mínima" else "Cualquier nota") to StatusDone
+                Requirement.REACHABLE -> "Asequible" to StatusDone
+                Requirement.DEMANDING -> "Exigente" to StatusFair
+                Requirement.IMPOSSIBLE -> "Imposible" to StatusFail
+            }
+            // La palabra a la izquierda de la nota, sobre la misma base; el par se centra en la fila
+            Row {
+                Text(
+                    caption,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = color,
+                    modifier = Modifier.alignByBaseline()
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    if (level == Requirement.MINIMUM && minimum == 0f) "—" else "%.2f".format(required),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = DelightMedium,
+                    color = color,
+                    modifier = Modifier.alignByBaseline()
+                )
+            }
+        }
     }
 }

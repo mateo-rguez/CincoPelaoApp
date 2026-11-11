@@ -60,4 +60,47 @@ class GradeCalculatorTest {
         assertEquals(7f, plan.required[0]!!, delta)
         assertEquals(3f, plan.required[1]!!, delta)
     }
+
+    // --- Exigencia de cada evento y resumen de la calculadora ---
+
+    @Test
+    fun `la exigencia va por tramos y la minima manda por debajo`() {
+        assertEquals(Requirement.MINIMUM, requirement(4f, minScore = 40f))
+        assertEquals(Requirement.MINIMUM, requirement(0f, minScore = null))
+        assertEquals(Requirement.REACHABLE, requirement(4.08f, minScore = 40f))
+        assertEquals(Requirement.REACHABLE, requirement(7f, minScore = null))
+        assertEquals(Requirement.DEMANDING, requirement(7.01f, minScore = null))
+        assertEquals(Requirement.DEMANDING, requirement(10f, minScore = null))
+        assertEquals(Requirement.IMPOSSIBLE, requirement(10.01f, minScore = null))
+    }
+
+    private val halfDone = listOf(GradedEvent("a", 8f, 50f, null), GradedEvent("b", null, 50f, 40f))
+
+    private fun verdict(events: List<GradedEvent>, target: Float) =
+        targetVerdict(events, target, GradeCalculator.requiredScores(events, target))
+
+    @Test
+    fun `el resumen da la media necesaria en lo que queda`() {
+        // Llevo 4 de 5 posibles; para un 7 me faltan 3 en el 50% -> un 6 de media en 1 evento
+        val v = verdict(halfDone, 7f) as TargetVerdict.Needs
+        assertEquals(6f, v.average, delta)
+        assertEquals(1, v.pending)
+    }
+
+    @Test
+    fun `si ya se llega el resumen avisa de las minimas pendientes`() {
+        assertEquals(TargetVerdict.Reached(minimums = true), verdict(halfDone, 4f))
+        assertEquals(TargetVerdict.Reached(minimums = false), verdict(listOf(GradedEvent("a", 8f, 50f, null), GradedEvent("b", null, 50f, null)), 3f))
+    }
+
+    @Test
+    fun `si no se llega ni con dieces el resumen da el maximo posible`() {
+        val v = verdict(listOf(GradedEvent("a", 2f, 50f, null), GradedEvent("b", null, 50f, null)), 8f) as TargetVerdict.Impossible
+        assertEquals(6f, v.maxReachable, delta)
+    }
+
+    @Test
+    fun `sin pendientes el resumen da la nota final`() {
+        assertEquals(TargetVerdict.NothingLeft(4f), verdict(listOf(GradedEvent("a", 8f, 50f, null)), 5f))
+    }
 }
