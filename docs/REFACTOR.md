@@ -209,7 +209,7 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       si el nombre no cabe se muestra la abreviatura (`groupTitle`).
     - Sin tocar: la casilla de la ficha de una tarea (`TaskInfoSheet`) sigue siendo la cuadrada
       de Material; el formulario de tarea no se ha revisado.
-  - **Asignaturas** ⏳:
+  - **Asignaturas** ✅:
     - `eaf0f83` Lista: tarjeta con sombra de Tareas, pastilla con abreviatura (o iniciales) y
       una fila con dos etiquetas que alternan cada 5 s a la vez en todas: nota (media ↔ último
       examen; nota final fija en color de acento si ya está todo hecho) y lo siguiente (próximo
@@ -225,7 +225,22 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       cuánto falta mientras no hay nota. Bajar desde vacío ya no pone 0,00.
     - La cabecera del detalle (número grande acumulado, brillo, frase con la media) se queda
       como está, por decisión del autor.
-    - Siguiente: estadísticas.
+    - Estadísticas (`SubjectStatsScreen`):
+      - `43ddf87` Limpieza: la gráfica tenía dos copias del dibujo; fuera `!!` y `Color.Red`;
+        etiquetas de regularidad y tendencia puras (`StatsUtils`).
+      - `3458d0b` Calculadora: slider de medio en medio punto (el autor lo prefiere a flechas por
+        sus puntos), frase de resumen (`targetVerdict`) y filas compactas con la nota necesaria
+        coloreada y una palabra en la misma línea (`requirement`: Asequible hasta 7, Exigente,
+        Imposible, Basta la mínima). Arreglado «(Completado) 8.379999».
+      - `71d95f7` Datos en bloques (Progreso, Nota final, Tus notas, Reparto) en lugar de 21
+        filas. Fuera eventos pendientes, % de eventos completados, mediana y rango; se conservan
+        nota ponderada y promedio (el autor los quiere aquí aunque estén en la cabecera). Casillas
+        en orden «con 5 en todo · si sigues así · máximo posible» (una sola si no queda nada).
+        Datos nuevos en `subjectInsights`. Títulos y separaciones comunes en toda la pantalla.
+      - `1202c28` Gráfica (`GradeChart.kt`): nombres en horizontal alternados en dos alturas (se
+        probaron girados y sin márgenes: el autor prefirió esto), nota sobre cada punto,
+        pendientes huecos, línea en el 5, degradado hacia los suspensos. Altura 300 dp (se probó
+        240 y no gustó).
 - ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
   elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
 - ☐ **Rendimiento del scroll** (notado por el autor el 11 de noviembre de 2026): la app antigua
@@ -245,7 +260,9 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   para una paleta o situación concreta (`if (oscuro) …`, colores sueltos en pantallas) y que
   cada paleta defina por sí misma colores coherentes y bien contrastados en toda la app, de
   modo que añadir una paleta nueva sea solo rellenar sus valores. Incluye, p. ej., los días de
-  otros meses del calendario (`CalendarInactiveText`).
+  otros meses del calendario (`CalendarInactiveText`) y los colores de estado de nota
+  (`StatusFail`, `StatusGood`…: etiquetas del detalle, Reparto, calculadora y gráfica), que hoy
+  son constantes fijas y no de cada paleta.
 - ☐ **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
   qué textos usan las fuentes propias (Delight) y cuáles la del sistema, que cambia según el
   fabricante, y unificarlo.
