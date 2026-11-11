@@ -9,6 +9,7 @@ import io.github.mateorguez.cincopelao.data.local.entity.Task
 import io.github.mateorguez.cincopelao.data.repository.EventRepository
 import io.github.mateorguez.cincopelao.data.repository.SubjectRepository
 import io.github.mateorguez.cincopelao.data.repository.TaskRepository
+import io.github.mateorguez.cincopelao.ui.subjects.subjectBadge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,29 +19,33 @@ import kotlinx.coroutines.flow.stateIn
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 fun Long.toLocalDate(zone: ZoneId = ZoneId.systemDefault()): LocalDate =
     Instant.ofEpochMilli(this).atZone(zone).toLocalDate()
 
-/** Elemento de la línea de tiempo: una cabecera de día, un evento o una tarea. */
-sealed class TimelineEntry {
-    data class HeaderItem(val date: LocalDate) : TimelineEntry()
-    data class EventItem(val event: Event, val subject: Subject?) : TimelineEntry()
-    data class TaskItem(val task: Task, val subject: Subject?) : TimelineEntry()
+/** Elemento de la línea de tiempo: un evento o una tarea, con su asignatura si la tiene. */
+sealed class TimelineItem {
+    abstract val subject: Subject?
+
+    data class EventItem(val event: Event, override val subject: Subject?) : TimelineItem()
+    data class TaskItem(val task: Task, override val subject: Subject?) : TimelineItem()
 
     /** Clave estable para la lista. */
     val key: String
         get() = when (this) {
-            is HeaderItem -> "header-$date"
             is EventItem -> "event-${event.eventId}"
             is TaskItem -> "task-${task.taskId}"
         }
 }
 
+/** Un día de la línea de tiempo con lo que hay en él. */
+data class TimelineDay(val date: LocalDate, val items: List<TimelineItem>)
+
 /**
- * Línea de tiempo desde [today]: eventos y tareas (con fecha) agrupados por día,
- * con una cabecera por día y en orden cronológico.
+ * Línea de tiempo desde [today]: eventos y tareas (con fecha) agrupados por día y en orden
+ * cronológico; dentro de un día, primero los eventos.
  */
 fun buildTimeline(
     events: List<Event>,
@@ -48,19 +53,48 @@ fun buildTimeline(
     subjects: List<Subject>,
     today: LocalDate,
     zone: ZoneId = ZoneId.systemDefault()
-): List<TimelineEntry> {
+): List<TimelineDay> {
     val subjectById = subjects.associateBy { it.subjectId }
-    val dated: List<Pair<LocalDate, TimelineEntry>> =
-        events.map { it.date.toLocalDate(zone) to TimelineEntry.EventItem(it, subjectById[it.subjectId]) } +
+    val dated: List<Pair<LocalDate, TimelineItem>> =
+        events.map { it.date.toLocalDate(zone) to TimelineItem.EventItem(it, subjectById[it.subjectId]) } +
             tasks.mapNotNull { task ->
-                task.dueDate?.let { it.toLocalDate(zone) to TimelineEntry.TaskItem(task, task.subjectId?.let(subjectById::get)) }
+                task.dueDate?.let { it.toLocalDate(zone) to TimelineItem.TaskItem(task, task.subjectId?.let(subjectById::get)) }
             }
     return dated
         .filter { (date, _) -> !date.isBefore(today) }
         .sortedBy { (date, _) -> date }
         .groupBy({ it.first }, { it.second })
-        .flatMap { (date, items) -> listOf(TimelineEntry.HeaderItem(date)) + items }
+        .map { (date, items) -> TimelineDay(date, items) }
 }
+
+/** Cuánto falta para un día: "Hoy", "Mañana" o "En 6 días". */
+fun relativeDayLabel(date: LocalDate, today: LocalDate): String =
+    when (val days = ChronoUnit.DAYS.between(today, date)) {
+        0L -> "Hoy"
+        1L -> "Mañana"
+        else -> "En $days días"
+    }
+
+/** Forma del marcador en la línea de tiempo: dice de un vistazo qué es cada cosa. */
+enum class TimelineMarker { EXAM, DELIVERABLE, OTHER_EVENT, TASK }
+
+fun TimelineItem.marker(): TimelineMarker = when (this) {
+    is TimelineItem.TaskItem -> TimelineMarker.TASK
+    is TimelineItem.EventItem -> when (event.type) {
+        "Examen" -> TimelineMarker.EXAM
+        "Entregable", "Proyecto", "Trabajo" -> TimelineMarker.DELIVERABLE
+        else -> TimelineMarker.OTHER_EVENT
+    }
+}
+
+/** Etiqueta del tipo en la tarjeta: "Examen · Teoría" para un evento, "Tarea" para una tarea. */
+fun TimelineItem.typeLabel(): String = when (this) {
+    is TimelineItem.TaskItem -> "Tarea"
+    is TimelineItem.EventItem -> listOfNotNull(event.type, event.modal?.takeIf { it.isNotBlank() }).joinToString(" · ")
+}
+
+/** Línea de la asignatura: "PSI · Programación de Sistemas Inteligentes"; null si no tiene. */
+fun TimelineItem.subjectLine(): String? = subject?.let { "${subjectBadge(it)} · ${it.name}" }
 
 data class CalendarUiState(
     val subjects: List<Subject> = emptyList(),
@@ -69,7 +103,7 @@ data class CalendarUiState(
     val tasks: List<Task> = emptyList(),
     /** Días con algún evento o tarea, para marcarlos en el calendario. */
     val highlightedDates: Set<LocalDate> = emptySet(),
-    val timeline: List<TimelineEntry> = emptyList()
+    val timeline: List<TimelineDay> = emptyList()
 ) {
     fun subject(id: Long?): Subject? = id?.let { subjects.find { s -> s.subjectId == it } }
     fun eventsOn(date: LocalDate): List<Event> = events.filter { it.date.toLocalDate() == date }

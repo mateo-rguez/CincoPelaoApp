@@ -115,7 +115,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
             }
         )
 
-        EventsAndTasksTimeline(uiState.timeline, modifier = Modifier.heightIn(max = 9999.dp))
+        EventsAndTasksTimeline(uiState.timeline, today = today, modifier = Modifier.padding(top = 24.dp))
     }
 }
 

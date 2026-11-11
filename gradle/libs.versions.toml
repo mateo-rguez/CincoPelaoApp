@@ -14,6 +14,7 @@ navigationCompose = "2.7.7"
 room = "2.7.2"
 datastore = "1.1.7"
 workRuntime = "2.10.3"
+graphicsShapes = "1.0.1"
 
 # DI
 hilt = "2.56.2"
@@ -26,7 +27,6 @@ desugarJdkLibs = "2.1.5"
 
 # UI de terceros
 kizitonwoseCalendar = "2.6.0"
-jetlime = "3.0.1"
 animatedNavigationBar = "1.0.0"
 
 # Tests
@@ -45,6 +45,7 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntime" }
+androidx-graphics-shapes = { group = "androidx.graphics", name = "graphics-shapes", version.ref = "graphicsShapes" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 # Compose (versiones gestionadas por el BOM)
@@ -76,7 +77,6 @@ desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", ver
 
 # UI de terceros
 kizitonwose-calendar-compose = { group = "com.kizitonwose.calendar", name = "compose", version.ref = "kizitonwoseCalendar" }
-jetlime = { group = "io.github.pushpalroy", name = "jetlime", version.ref = "jetlime" }
 exyte-animated-navigation-bar = { group = "com.exyte", name = "animated-navigation-bar", version.ref = "animatedNavigationBar" }
 
 # Tests

@@ -18,7 +18,7 @@ class TimelineTest {
     private val subject = Subject(subjectId = 1, name = "Cálculo")
 
     @Test
-    fun `agrupa por dia con cabecera, en orden y sin lo pasado`() {
+    fun `agrupa por dia, en orden y sin lo pasado`() {
         val events = listOf(
             Event(eventId = 1, subjectId = 1, name = "Final", type = "Examen", date = millis(today.plusDays(5))),
             Event(eventId = 2, subjectId = 1, name = "Viejo", type = "Examen", date = millis(today.minusDays(1)))
@@ -31,18 +31,40 @@ class TimelineTest {
 
         val timeline = buildTimeline(events, tasks, listOf(subject), today, zone)
 
-        assertEquals(
-            listOf("header-$today", "task-7", "header-${today.plusDays(5)}", "event-1", "task-9"),
-            timeline.map { it.key }
-        )
+        assertEquals(listOf(today, today.plusDays(5)), timeline.map { it.date })
+        assertEquals(listOf(listOf("task-7"), listOf("event-1", "task-9")), timeline.map { day -> day.items.map { it.key } })
     }
 
     @Test
     fun `un evento cuya asignatura no ha llegado aun no rompe nada`() {
         val events = listOf(Event(eventId = 1, subjectId = 99, name = "Final", type = "Examen", date = millis(today)))
 
-        val item = buildTimeline(events, emptyList(), emptyList(), today, zone)[1] as TimelineEntry.EventItem
+        val item = buildTimeline(events, emptyList(), emptyList(), today, zone).single().items.single()
 
         assertNull(item.subject)
+        assertNull(item.subjectLine())
+    }
+
+    @Test
+    fun `cuanto falta para cada dia`() {
+        assertEquals("Hoy", relativeDayLabel(today, today))
+        assertEquals("Mañana", relativeDayLabel(today.plusDays(1), today))
+        assertEquals("En 6 días", relativeDayLabel(today.plusDays(6), today))
+    }
+
+    @Test
+    fun `forma y etiqueta segun el tipo`() {
+        fun event(type: String, modal: String? = null) =
+            TimelineItem.EventItem(Event(subjectId = 1, name = "x", type = type, modal = modal, date = 0), subject)
+
+        assertEquals(TimelineMarker.EXAM, event("Examen").marker())
+        assertEquals(TimelineMarker.DELIVERABLE, event("Proyecto").marker())
+        assertEquals(TimelineMarker.OTHER_EVENT, event("Debate").marker())
+        assertEquals(TimelineMarker.TASK, TimelineItem.TaskItem(Task(title = "t"), null).marker())
+
+        assertEquals("Examen · Teoría", event("Examen", "Teoría").typeLabel())
+        assertEquals("Examen", event("Examen", " ").typeLabel())
+        assertEquals("Tarea", TimelineItem.TaskItem(Task(title = "t"), subject).typeLabel())
+        assertEquals("CÁ · Cálculo", event("Examen").subjectLine())
     }
 }
