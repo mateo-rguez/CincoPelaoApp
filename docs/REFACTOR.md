@@ -219,7 +219,15 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     - `3fff31e` Editar/eliminar en un menú «⋮» pequeño en la esquina (el autor lo eligió frente a
       pulsación larga con menú o deslizar); fuera la barra desplegable. Interlineado del nombre
       ajustado para que el hueco entre sus líneas sea el mismo que hasta el curso.
-    - Siguiente: detalle de la asignatura y estadísticas.
+    - `5b12387` Detalle: eventos en filas con separador (sin tarjetas, a propósito) y tres franjas
+      alineadas (nombre ↔ flechas de subir, etiquetas ↔ nota, estado ↔ flechas de bajar). Se
+      conservan las tres flechas ±1/±0,1/±0,01 (al autor le parecen muy cómodas). El estado dice
+      cuánto falta mientras no hay nota. Bajar desde vacío ya no pone 0,00.
+    - La cabecera del detalle (número grande acumulado, brillo, frase con la media) se queda
+      como está, por decisión del autor.
+    - Siguiente: estadísticas.
+- ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
+  elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
 - ☐ **Revisar que los temas estén limpios** (pedido por el autor el 11 de noviembre de 2026,
   mejor al terminar «Pulir la interfaz»): que no queden apaños con colores fijos o condiciones
   para una paleta o situación concreta (`if (oscuro) …`, colores sueltos en pantallas) y que
