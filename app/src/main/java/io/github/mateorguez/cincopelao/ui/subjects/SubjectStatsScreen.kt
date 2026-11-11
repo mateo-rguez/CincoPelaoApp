@@ -1,10 +1,5 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
-import android.graphics.Paint
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,7 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -44,16 +38,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.domain.stats.GradeCalculator
@@ -69,7 +57,6 @@ import io.github.mateorguez.cincopelao.ui.theme.StatusDone
 import io.github.mateorguez.cincopelao.ui.theme.StatusFail
 import io.github.mateorguez.cincopelao.ui.theme.StatusFair
 import io.github.mateorguez.cincopelao.ui.theme.appColors
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,7 +93,7 @@ fun SubjectStatsScreen(
         ) {
             StatsSectionHeader(Icons.AutoMirrored.Filled.ShowChart, "Evolución de notas", first = true)
 
-            LineChart(
+            GradeChart(
                 data = state.gradedEvents.map { it.score },
                 minScores = state.gradedEvents.map { it.minScore },
                 labels = state.gradedEvents.map { it.name },
@@ -115,7 +102,8 @@ fun SubjectStatsScreen(
                     .height(300.dp)
             )
 
-            StatsSectionHeader(Icons.Default.Lightbulb, "Datos")
+            // Menos aire que el resto de secciones: debajo de los nombres del eje ya queda hueco
+            StatsSectionHeader(Icons.Default.Lightbulb, "Datos", top = 20.dp)
 
             val stats = state.stats
             val insights = state.insights
@@ -134,10 +122,10 @@ fun SubjectStatsScreen(
  * lo anterior, salvo la primera, que va pegada a la barra.
  */
 @Composable
-private fun StatsSectionHeader(icon: ImageVector, text: String, first: Boolean = false) {
+private fun StatsSectionHeader(icon: ImageVector, text: String, first: Boolean = false, top: Dp = 36.dp) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(top = if (first) 4.dp else 36.dp, bottom = 16.dp)
+        modifier = Modifier.padding(top = if (first) 4.dp else top, bottom = 16.dp)
     ) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(10.dp))
@@ -148,139 +136,6 @@ private fun StatsSectionHeader(icon: ImageVector, text: String, first: Boolean =
             color = MaterialTheme.colorScheme.onBackground
         )
     }
-}
-
-/**
- * Evolución de las notas: una curva suave por cada tramo de eventos con nota (los pendientes la
- * cortan) con un degradado debajo. Un punto bajo la nota mínima de su evento sale en rojo. Con un
- * solo evento se dibuja una línea horizontal a su altura de lado a lado.
- */
-@Composable
-fun LineChart(
-    data: List<Float?>,
-    minScores: List<Float?>,
-    modifier: Modifier = Modifier,
-    labels: List<String> = emptyList()
-) {
-    // Cada nota sube desde 0 al entrar y al cambiar
-    val animated = remember(data) { data.map { Animatable(0f) } }
-    LaunchedEffect(data) {
-        data.forEachIndexed { i, target ->
-            if (target != null) {
-                launch { animated[i].animateTo(target, tween(durationMillis = 1000, easing = FastOutSlowInEasing)) }
-            }
-        }
-    }
-
-    val lineColor = MaterialTheme.colorScheme.primary
-    val belowMinimumColor = StatusFail
-    val gridColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f)
-    val axisColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val labelColor = MaterialTheme.colorScheme.onSurfaceVariant.toArgb()
-    val density = LocalDensity.current
-    val yLabelPaint = remember(labelColor, density) {
-        Paint().apply {
-            color = labelColor
-            isAntiAlias = true
-            textSize = with(density) { 10.sp.toPx() }
-        }
-    }
-    val xLabelPaint = remember(labelColor, density) {
-        Paint().apply {
-            color = labelColor
-            isAntiAlias = true
-            textSize = with(density) { 12.sp.toPx() }
-            textAlign = Paint.Align.CENTER
-        }
-    }
-
-    val maxValue = (data.filterNotNull().maxOrNull() ?: 10f).coerceAtLeast(10f)
-    val singleEvent = data.size == 1
-
-    Canvas(modifier = modifier) {
-        val left = 16.dp.toPx()
-        val top = 12.dp.toPx()
-        val width = size.width - left
-        val height = size.height - 48.dp.toPx() - top
-        val bottom = top + height
-        val pointGap = width / (data.size - 1).coerceAtLeast(1)
-
-        fun xOf(index: Int) = if (singleEvent) left + width / 2 else left + index * pointGap
-        fun yOf(value: Float) = bottom - value / maxValue * height
-
-        // Rejilla horizontal con las notas a la izquierda y vertical en cada evento
-        for (i in 0..maxValue.toInt()) {
-            val y = yOf(i.toFloat())
-            drawLine(gridColor, Offset(left, y), Offset(left + width, y), strokeWidth = 1f)
-            drawContext.canvas.nativeCanvas.drawText(i.toString(), 2.dp.toPx(), y + 4f, yLabelPaint)
-        }
-        if (!singleEvent) {
-            data.indices.forEach { i -> drawLine(gridColor, Offset(xOf(i), top), Offset(xOf(i), bottom), strokeWidth = 1f) }
-        }
-        drawLine(axisColor, Offset(left, top), Offset(left, bottom), strokeWidth = 3f)
-        drawLine(axisColor, Offset(left, bottom), Offset(left + width, bottom), strokeWidth = 3f)
-
-        // Tramos de eventos seguidos con nota
-        val values = data.mapIndexed { i, v -> if (v == null) null else animated[i].value }
-        val segments: List<List<Offset>> = if (singleEvent) {
-            values[0]?.let { listOf(listOf(Offset(left, yOf(it)), Offset(left + width, yOf(it)))) }.orEmpty()
-        } else {
-            values.foldIndexed(mutableListOf(mutableListOf<Offset>())) { i, acc, v ->
-                if (v != null) acc.last().add(Offset(xOf(i), yOf(v)))
-                else if (acc.last().isNotEmpty()) acc.add(mutableListOf())
-                acc
-            }.filter { it.isNotEmpty() }
-        }
-
-        val fill = Brush.verticalGradient(listOf(lineColor.copy(alpha = 0.3f), Color.Transparent), startY = top, endY = bottom)
-        segments.forEach { segment ->
-            val curve = smoothPath(segment)
-            drawPath(curve, lineColor, style = Stroke(width = 4f))
-            curve.lineTo(segment.last().x, bottom)
-            curve.lineTo(segment.first().x, bottom)
-            curve.close()
-            drawPath(curve, fill)
-        }
-
-        if (!singleEvent) {
-            values.forEachIndexed { i, v ->
-                if (v == null) return@forEachIndexed
-                val minimum = minScores.getOrNull(i)
-                val belowMinimum = minimum != null && v < minimum / 10
-                drawCircle(if (belowMinimum) belowMinimumColor else lineColor, radius = 8f, center = Offset(xOf(i), yOf(v)))
-            }
-        }
-
-        // Nombres de los eventos, girados para que quepan
-        val labelY = bottom + 20.dp.toPx()
-        labels.forEachIndexed { i, label ->
-            drawContext.canvas.nativeCanvas.apply {
-                save()
-                rotate(-45f, xOf(i), labelY)
-                drawText(label, xOf(i), labelY, xLabelPaint)
-                restore()
-            }
-        }
-    }
-}
-
-/** Curva suave (Catmull-Rom pasada a Bézier) que pasa por todos los [points]. */
-private fun smoothPath(points: List<Offset>): Path {
-    val path = Path()
-    if (points.size < 2) return path
-    path.moveTo(points.first().x, points.first().y)
-    for (i in 0 until points.size - 1) {
-        val p0 = points[maxOf(i - 1, 0)]
-        val p1 = points[i]
-        val p2 = points[i + 1]
-        val p3 = points[minOf(i + 2, points.size - 1)]
-        path.cubicTo(
-            p1.x + (p2.x - p0.x) / 6f, p1.y + (p2.y - p0.y) / 6f,
-            p2.x - (p3.x - p1.x) / 6f, p2.y - (p3.y - p1.y) / 6f,
-            p2.x, p2.y
-        )
-    }
-    return path
 }
 
 /**
