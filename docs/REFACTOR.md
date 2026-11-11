@@ -239,8 +239,9 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
         Datos nuevos en `subjectInsights`. Títulos y separaciones comunes en toda la pantalla.
       - `1202c28` Gráfica (`GradeChart.kt`): nombres en horizontal alternados en dos alturas (se
         probaron girados y sin márgenes: el autor prefirió esto), nota sobre cada punto,
-        pendientes huecos, línea en el 5, degradado hacia los suspensos. Altura 300 dp (se probó
-        240 y no gustó).
+        pendientes huecos, línea en el 5, puntos suspensos (menos de 5 o bajo la mínima) en rojo.
+      - `d5111f6` Altura final 270 dp (se probaron 300 y 240) y línea de un solo color: el degradado
+        de la línea hacia los suspensos se probó y no gustó.
 - ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
   elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
 - ☐ **Rendimiento del scroll** (notado por el autor el 11 de noviembre de 2026): la app antigua
