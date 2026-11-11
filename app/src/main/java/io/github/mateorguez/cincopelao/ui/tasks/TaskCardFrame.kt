@@ -31,6 +31,8 @@ fun TaskCardFrame(
     outerPadding: PaddingValues = TaskCardOuterPadding,
     cornerRadius: Dp = 16.dp,
     contentPadding: Dp = 0.dp,
+    /** Se aplica dentro del recorte de la tarjeta (p. ej. para hacerla pulsable). */
+    modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val shape = RoundedCornerShape(cornerRadius)
@@ -48,6 +50,7 @@ fun TaskCardFrame(
                 shape = shape
             )
             .clip(shape)
+            .then(modifier)
             .padding(contentPadding),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         content = content
