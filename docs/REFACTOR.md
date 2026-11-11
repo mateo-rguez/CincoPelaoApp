@@ -1,7 +1,7 @@
 # Refactor de CincoPelao
 
 Seguimiento del refactor de la app: plan por fases, lo hecho y lo que queda.
-Rama de trabajo: `rework`. Última actualización: 10 de noviembre de 2026 (fase 7: pulir la interfaz, Tareas hecha).
+Rama de trabajo: `rework`. Última actualización: 11 de noviembre de 2026 (fase 7: pulir la interfaz, Tareas y Asignaturas hechas).
 
 ## Punto de partida
 
@@ -28,8 +28,9 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 
 **Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
 aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. En curso: **pulir la
-interfaz**, pantalla por pantalla con el autor; Tareas está terminada y la siguiente es
-**Asignaturas** (lista, luego detalle y estadísticas). En cada pantalla: capturas con la app en
+interfaz**, pantalla por pantalla con el autor; Tareas y Asignaturas (lista, detalle y
+estadísticas) están terminadas y la siguiente es el **Calendario**, donde entra también «tarea o
+evento en cada tarjeta». En cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -190,7 +191,7 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   lugar de la tarjeta si es una tarea o un evento; ahora solo se distinguen por el color.
 - ⏳ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
   pantalla por pantalla con el autor (pedido el 10 de noviembre de 2026). Orden acordado:
-  Tareas ✅ → Asignaturas (lista, detalle, estadísticas) → Calendario (aquí entra «tarea o
+  Tareas ✅ → Asignaturas (lista, detalle, estadísticas) ✅ → Calendario (aquí entra «tarea o
   evento en cada tarjeta») → Horario, Notificaciones, Instancias → Compartir → menú y Apariencia.
   - **Tareas** ✅:
     - `8985f30` Tarjetas rellenas (`appColors.taskCard`) con sombra suave teñida por la paleta y
