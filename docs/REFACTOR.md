@@ -216,8 +216,10 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       evento ↔ tareas pendientes, o «Todo al día»). Datos en `subjectSummaries` (puro, con tests).
     - `50fdc50` Arreglo: al cambiar de instancia la lista salía desplazada hasta abajo (claves
       por id repetidas entre BD); las pestañas se recomponen desde cero al cambiar de instancia.
-    - Pendiente: probar otras formas de editar/eliminar (ahora pulsación larga que despliega una
-      barra; con una tarjeta desplegada, tocar otra la abre). Siguiente: detalle y estadísticas.
+    - `3fff31e` Editar/eliminar en un menú «⋮» pequeño en la esquina (el autor lo eligió frente a
+      pulsación larga con menú o deslizar); fuera la barra desplegable. Interlineado del nombre
+      ajustado para que el hueco entre sus líneas sea el mismo que hasta el curso.
+    - Siguiente: detalle de la asignatura y estadísticas.
 - ☐ **Revisar que los temas estén limpios** (pedido por el autor el 11 de noviembre de 2026,
   mejor al terminar «Pulir la interfaz»): que no queden apaños con colores fijos o condiciones
   para una paleta o situación concreta (`if (oscuro) …`, colores sueltos en pantallas) y que
