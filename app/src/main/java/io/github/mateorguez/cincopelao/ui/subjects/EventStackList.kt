@@ -169,7 +169,7 @@ fun EventStackList(
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight(),
-                        contentPadding = PaddingValues(top = 0.dp, bottom = 8.dp),
+                        contentPadding = PaddingValues(top = 0.dp, bottom = 16.dp),
                         verticalArrangement = Arrangement.Top
                     ) {
                         val puntuables = filteredEvents.filter { it.isPuntuable }
@@ -185,52 +185,25 @@ fun EventStackList(
                                 onDoneChange = { newDone -> onEventChanged(event.copy(noPuntuableDone = newDone)) }
                             )
 
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                            )
                         }
 
                         if (noPuntuables.isNotEmpty()) {
                             item {
-                                Column {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .background(MaterialTheme.colorScheme.background)
-                                            .padding(vertical = 8.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        val contentColor = MaterialTheme.appColors.accent
-
-                                        Text(
-                                            "No puntuables",
-                                            color = contentColor,
-                                            style = MaterialTheme.typography.titleMedium
-                                        )
-                                    }
-
-                                    HorizontalDivider(
-                                        thickness = 1.dp,
-                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                                    )
-                                }
+                                Text(
+                                    "No puntuables",
+                                    color = MaterialTheme.appColors.accent,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    modifier = Modifier.padding(start = 24.dp, top = 14.dp, bottom = 4.dp)
+                                )
                             }
 
                             itemsIndexed(noPuntuables, key = { _, event -> event.eventId }) { _, event ->
-                                Spacer(modifier = Modifier.height(8.dp))
-
                                 EventBox(
                                     event = event,
                                     subjectId = subjectId,
                                     onScoreChange = { newScore -> onEventChanged(event.copy(score = newScore)) },
                                     onEventUpdate = { newEvent -> onEventChanged(newEvent) },
                                     onDoneChange = { newDone -> onEventChanged(event.copy(noPuntuableDone = newDone)) }
-                                )
-
-                                HorizontalDivider(
-                                    thickness = 1.dp,
-                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                                 )
                             }
                         }

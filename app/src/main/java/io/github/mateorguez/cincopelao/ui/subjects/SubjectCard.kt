@@ -273,28 +273,3 @@ private fun RotatingChip(chips: List<ChipContent>, showAlternate: Boolean, modif
         InfoChip(chip.icon, chip.text, chip.tone)
     }
 }
-
-/** Etiqueta redondeada; con [tone] se tiñe de ese color, sin él es neutra. */
-@Composable
-private fun InfoChip(icon: ImageVector, text: String, tone: Color? = null) {
-    val onBackground = MaterialTheme.colorScheme.onBackground
-    val content = tone ?: onBackground.copy(alpha = 0.75f)
-    val background = tone?.copy(alpha = DUE_CHIP_ALPHA) ?: onBackground.copy(alpha = 0.07f)
-    Row(
-        modifier = Modifier
-            .background(background, RoundedCornerShape(50))
-            .padding(horizontal = 8.dp, vertical = 3.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Icon(imageVector = icon, contentDescription = null, tint = content, modifier = Modifier.size(14.dp))
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = if (tone != null) FontWeight.SemiBold else FontWeight.Normal,
-            color = content,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
