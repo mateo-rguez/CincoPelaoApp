@@ -228,6 +228,18 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     - Siguiente: estadísticas.
 - ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
   elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
+- ☐ **Rendimiento del scroll** (notado por el autor el 11 de noviembre de 2026): la app antigua
+  daba tirones al hacer scroll rápido arriba y abajo, sobre todo en el Realme (en el Samsung
+  bastante menos). Tras las primeras fases casi desapareció, pero con el pulido de la interfaz
+  quizá vuelve a notarse un poco. Medir antes de tocar nada, en todas las listas (Tareas,
+  Completadas, Asignaturas, eventos, calendario):
+  - comparar con una compilación **release** (la debug de Compose es bastante más lenta y no
+    sirve para juzgar) y, si hace falta, añadir un *baseline profile*;
+  - fotogramas lentos con `adb shell dumpsys gfxinfo io.github.mateorguez.cincopelao` tras
+    hacer scroll, o con Macrobenchmark si se quiere automatizar;
+  - sospechosos a revisar: sombras teñidas de `TaskCardFrame` (`shadow` + borde con degradado
+    en cada tarjeta), el reloj de 5 s que recompone todas las tarjetas de Asignaturas, y
+    claves/`contentType` en las `LazyColumn`.
 - ☐ **Revisar que los temas estén limpios** (pedido por el autor el 11 de noviembre de 2026,
   mejor al terminar «Pulir la interfaz»): que no queden apaños con colores fijos o condiciones
   para una paleta o situación concreta (`if (oscuro) …`, colores sueltos en pantallas) y que
