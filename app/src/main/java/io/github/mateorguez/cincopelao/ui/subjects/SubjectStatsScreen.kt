@@ -6,7 +6,6 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,6 +49,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
@@ -104,23 +104,7 @@ fun SubjectStatsScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ShowChart,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    "Evolución de notas",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
+            StatsSectionHeader(Icons.AutoMirrored.Filled.ShowChart, "Evolución de notas", first = true)
 
             LineChart(
                 data = state.gradedEvents.map { it.score },
@@ -131,48 +115,38 @@ fun SubjectStatsScreen(
                     .height(300.dp)
             )
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Lightbulb,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    "Datos",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
+            StatsSectionHeader(Icons.Default.Lightbulb, "Datos")
 
-            state.stats?.let { StatsTable(it) }
+            val stats = state.stats
+            val insights = state.insights
+            if (stats != null && insights != null) SubjectDataSection(stats, insights)
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Calculate,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    "Cálculos",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
+            StatsSectionHeader(Icons.Default.Calculate, "Cálculos")
 
             GradeTargetCalculator(state.gradedEvents)
+            Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+}
+
+/**
+ * Encabezado de una sección de la pantalla (icono y título). Todas llevan la misma separación con
+ * lo anterior, salvo la primera, que va pegada a la barra.
+ */
+@Composable
+private fun StatsSectionHeader(icon: ImageVector, text: String, first: Boolean = false) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(top = if (first) 4.dp else 36.dp, bottom = 16.dp)
+    ) {
+        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text,
+            style = MaterialTheme.typography.titleLarge,
+            fontFamily = DelightMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
 
@@ -309,118 +283,6 @@ private fun smoothPath(points: List<Offset>): Path {
     return path
 }
 
-@Composable
-fun StatsTable(stats: Stats) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small)
-            .padding(8.dp)
-    ) {
-
-        val stdLabel = StatsUtils.regularityLabel(stats.stdDeviation)
-        val trendLabel = StatsUtils.trendLabel(stats.trend)
-
-        TableRow(label = "Número de eventos puntuables", value = stats.eventCount.toString())
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Número de eventos completados", value = stats.eventCountDone.toString())
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Número de eventos pendientes", value = stats.eventCountLeft.toString())
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Nº de eventos bajo nota mínima", value = stats.eventCountTrunc.toString())
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "No puntuables hechos", value = "${stats.noPuntDoneCount} de ${stats.noPuntCount}")
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Nota ponderada actual", value = String.format("%.2f", stats.currentWeighted))
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        val averageValue = if (stats.average.isNaN()) {
-            "N/A"
-        } else {
-            String.format("%.2f", stats.average)
-        }
-
-        TableRow(label = "Promedio", value = averageValue)
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Nota mínima", value = String.format("%.2f", stats.minScore))
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Nota máxima", value = String.format("%.2f", stats.maxScore))
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Proyección con 5 en restantes", value = String.format("%.2f", stats.finalScoring5))
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Nota final máxima potencial", value = String.format("%.2f", stats.maxPotential))
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Tendencia (RLS)", value = "${String.format("%+.2f", stats.trend)} ($trendLabel)")
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Porcentaje de eventos completados", value = String.format("%.1f", stats.eventCompletedPerc) + "%")
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Porcentaje barrido de nota final", value = String.format("%.1f", stats.scoreCompletedPerc) + "%")
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        val stdValue = if (stats.stdDeviation.isNaN()) {
-            "N/A"
-        } else {
-            String.format("%.2f", stats.stdDeviation) + " ($stdLabel)"
-        }
-
-        TableRow(label = "Desviación típica", value = "$stdValue")
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Mediana", value = String.format("%.2f", stats.median))
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Rango", value = String.format("%.2f", stats.range))
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Suspensos", value = stats.eventCountSusp.toString())
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Suficientes", value = stats.eventCountSufi.toString())
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Aceptables", value = stats.eventCountAcep.toString())
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Notables", value = stats.eventCountNotable.toString())
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-
-        TableRow(label = "Sobresalientes", value = stats.eventCountSobre.toString())
-    }
-}
-
-@Composable
-fun TableRow(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
 /**
  * Calculadora de nota objetivo: se elige la nota final que se quiere con un slider de medio en medio
  * punto y debajo sale un resumen y lo que hace falta en cada evento pendiente, con un color según
@@ -433,13 +295,7 @@ fun GradeTargetCalculator(events: List<GradedEvent>) {
     val verdict = remember(events, target, plan) { targetVerdict(events, target, plan) }
 
     Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                "Nota objetivo",
-                style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp, lineHeight = 24.sp),
-                fontFamily = DelightMedium,
-                modifier = Modifier.weight(1f)
-            )
+        StatsGroupTitle("Nota objetivo", first = true) {
             Text("%.2f".format(target), style = MaterialTheme.typography.headlineSmall, fontFamily = DelightMedium)
         }
         // Un punto por cada medio punto de nota

@@ -12,6 +12,8 @@ import io.github.mateorguez.cincopelao.domain.stats.GradeCalculator
 import io.github.mateorguez.cincopelao.domain.stats.GradedEvent
 import io.github.mateorguez.cincopelao.domain.stats.Stats
 import io.github.mateorguez.cincopelao.domain.stats.StatsUtils
+import io.github.mateorguez.cincopelao.domain.stats.SubjectInsights
+import io.github.mateorguez.cincopelao.domain.stats.subjectInsights
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +33,9 @@ data class SubjectDetailUiState(
     val meanGrade: Float? = null,
     /** Eventos puntuables, para la gráfica y la calculadora. */
     val gradedEvents: List<GradedEvent> = emptyList(),
-    val stats: Stats? = null
+    val stats: Stats? = null,
+    /** Datos con nombre de evento y proyecciones, para la sección «Datos» de las estadísticas. */
+    val insights: SubjectInsights? = null
 ) {
     val hasGradedEvents: Boolean get() = gradedEvents.isNotEmpty()
 }
@@ -54,7 +58,8 @@ class SubjectViewModel @Inject constructor(
                 weightedGrade = GradeCalculator.weightedGrade(eventList),
                 meanGrade = GradeCalculator.meanGrade(eventList),
                 gradedEvents = GradeCalculator.gradedEvents(eventList),
-                stats = StatsUtils.calculateStats(eventList)
+                stats = StatsUtils.calculateStats(eventList),
+                insights = subjectInsights(GradeCalculator.gradedEvents(eventList))
             )
         }
             .flowOn(Dispatchers.Default)
