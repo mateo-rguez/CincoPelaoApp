@@ -99,7 +99,7 @@ fun SubjectStatsScreen(
                 labels = state.gradedEvents.map { it.name },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp)
+                    .height(270.dp)
             )
 
             // Menos aire que el resto de secciones: debajo de los nombres del eje ya queda hueco

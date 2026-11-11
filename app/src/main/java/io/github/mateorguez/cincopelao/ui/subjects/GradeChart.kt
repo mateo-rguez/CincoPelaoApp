@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
  *
  * - Una curva suave por cada tramo de eventos con nota (los pendientes la cortan), con un degradado
  *   debajo y la nota encima de cada punto. Un punto suspenso (menos de 5 o bajo la mínima de su
- *   evento) sale en rojo, y la línea pasa en degradado de su color al de los puntos vecinos.
+ *   evento) sale en rojo; la línea es siempre del color de la gráfica.
  * - Los eventos pendientes son círculos huecos sobre el eje, con el nombre más apagado.
  * - Una línea discontinua marca el 5.
  * - Los nombres van en horizontal; si no caben en una fila se alternan en dos alturas y, si ni así,
@@ -128,19 +128,16 @@ fun GradeChart(
 
         // Tramos de eventos seguidos con nota
         val values = data.mapIndexed { i, v -> if (v == null) null else animated[i].value }
-        // Cada punto con su color: rojo si suspende
+        // Color de cada punto: rojo si suspende
         fun colorOf(i: Int): Color {
             val score = data[i] ?: return lineColor
             return if (isFailing(score, minScores.getOrNull(i))) failColor else lineColor
         }
-        val segments: List<List<ChartNode>> = if (singleEvent) {
-            values[0]?.let {
-                val color = colorOf(0)
-                listOf(listOf(ChartNode(Offset(left, yOf(it)), color), ChartNode(Offset(left + width, yOf(it)), color)))
-            }.orEmpty()
+        val segments: List<List<Offset>> = if (singleEvent) {
+            values[0]?.let { listOf(listOf(Offset(left, yOf(it)), Offset(left + width, yOf(it)))) }.orEmpty()
         } else {
-            values.foldIndexed(mutableListOf(mutableListOf<ChartNode>())) { i, acc, v ->
-                if (v != null) acc.last().add(ChartNode(Offset(xOf(i), yOf(v)), colorOf(i)))
+            values.foldIndexed(mutableListOf(mutableListOf<Offset>())) { i, acc, v ->
+                if (v != null) acc.last().add(Offset(xOf(i), yOf(v)))
                 else if (acc.last().isNotEmpty()) acc.add(mutableListOf())
                 acc
             }.filter { it.isNotEmpty() }
@@ -148,24 +145,12 @@ fun GradeChart(
 
         val fill = Brush.verticalGradient(listOf(lineColor.copy(alpha = 0.3f), Color.Transparent), startY = top, endY = bottom)
         segments.forEach { segment ->
-            val points = segment.map { it.offset }
-            val area = smoothPath(points)
-            area.lineTo(points.last().x, bottom)
-            area.lineTo(points.first().x, bottom)
-            area.close()
-            drawPath(area, fill)
-            // La línea, tramo a tramo, pasando del color de un punto al del siguiente
-            for (k in 0 until points.size - 1) {
-                val from = segment[k]
-                val to = segment[k + 1]
-                val piece = smoothPiece(points, k)
-                if (from.color == to.color) {
-                    drawPath(piece, from.color, style = Stroke(width = 4f))
-                } else {
-                    val brush = Brush.horizontalGradient(listOf(from.color, to.color), startX = from.offset.x, endX = to.offset.x)
-                    drawPath(piece, brush, style = Stroke(width = 4f))
-                }
-            }
+            val curve = smoothPath(segment)
+            drawPath(curve, lineColor, style = Stroke(width = 4f))
+            curve.lineTo(segment.last().x, bottom)
+            curve.lineTo(segment.first().x, bottom)
+            curve.close()
+            drawPath(curve, fill)
         }
 
         // Puntos con su nota encima; los pendientes, huecos sobre el eje
@@ -217,9 +202,6 @@ internal fun ellipsizeToWidth(text: String, room: Float, measure: (String) -> Fl
     return text.take(end).trimEnd() + "…"
 }
 
-/** Un punto de la línea y su color. */
-private data class ChartNode(val offset: Offset, val color: Color)
-
 /** Suspende una nota si no llega al 5 o a la mínima de su evento ([minScore], de 0 a 100). Pura. */
 internal fun isFailing(score: Float, minScore: Float?): Boolean =
     score < 5f || (minScore != null && score < minScore / 10f)
@@ -229,26 +211,16 @@ private fun smoothPath(points: List<Offset>): Path {
     val path = Path()
     if (points.size < 2) return path
     path.moveTo(points.first().x, points.first().y)
-    for (i in 0 until points.size - 1) addPiece(path, points, i)
-    return path
-}
-
-/** Solo el tramo de la curva suave entre [points][i] y [points][i + 1]. */
-private fun smoothPiece(points: List<Offset>, i: Int): Path =
-    Path().apply {
-        moveTo(points[i].x, points[i].y)
-        addPiece(this, points, i)
+    for (i in 0 until points.size - 1) {
+        val p0 = points[maxOf(i - 1, 0)]
+        val p1 = points[i]
+        val p2 = points[i + 1]
+        val p3 = points[minOf(i + 2, points.size - 1)]
+        path.cubicTo(
+            p1.x + (p2.x - p0.x) / 6f, p1.y + (p2.y - p0.y) / 6f,
+            p2.x - (p3.x - p1.x) / 6f, p2.y - (p3.y - p1.y) / 6f,
+            p2.x, p2.y
+        )
     }
-
-/** Añade a [path] la curva de [points][i] a [points][i + 1], con el giro que marcan sus vecinos. */
-private fun addPiece(path: Path, points: List<Offset>, i: Int) {
-    val p0 = points[maxOf(i - 1, 0)]
-    val p1 = points[i]
-    val p2 = points[i + 1]
-    val p3 = points[minOf(i + 2, points.size - 1)]
-    path.cubicTo(
-        p1.x + (p2.x - p0.x) / 6f, p1.y + (p2.y - p0.y) / 6f,
-        p2.x - (p3.x - p1.x) / 6f, p2.y - (p3.y - p1.y) / 6f,
-        p2.x, p2.y
-    )
+    return path
 }
