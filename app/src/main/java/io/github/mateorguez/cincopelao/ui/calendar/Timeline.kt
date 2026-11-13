@@ -15,9 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,38 +23,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.asComposePath
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.graphics.shapes.CornerRounding
-import androidx.graphics.shapes.RoundedPolygon
-import androidx.graphics.shapes.rectangle
-import androidx.graphics.shapes.star
-import androidx.graphics.shapes.toPath
+import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.ui.subjects.InfoChip
 import io.github.mateorguez.cincopelao.ui.tasks.TaskCardFrame
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
-import java.util.Locale
 
-// Línea de tiempo de próximos eventos y tareas: la fecha a la izquierda, una línea vertical con
-// un marcador por elemento (su forma dice qué es) y la tarjeta a la derecha.
+// Línea de tiempo de próximos eventos y tareas, como un árbol: un tronco común pasa por el punto
+// de cada día (con su fecha y cuánto falta) y de él sale una rama curva, del mismo color, que
+// llega hasta el borde de la tarjeta de cada elemento.
+//
+// Letra: la fecha del día a 18 (es lo que manda), el nombre de cada elemento a 16 y lo
+// secundario de la tarjeta (etiqueta y asignatura) a 12.
 
-private val DateColumnWidth = 68.dp
-private val RailWidth = 28.dp
-private val MarkerSize = 20.dp
-/** Distancia del borde superior de la tarjeta al marcador, para que quede a la altura de la etiqueta. */
-private val MarkerTop = 15.dp
+/** Posición del tronco desde el borde izquierdo. */
+private val TrunkX = 10.dp
+/** Radio de la curva con la que cada rama sale del tronco. */
+private val BranchRadius = 12.dp
+/** Ancho de la vía: la rama sigue recta desde la curva hasta aquí, donde empieza la tarjeta. */
+private val RailWidth = 40.dp
+private val HeaderDotSize = 14.dp
+private val HeaderHeight = 40.dp
+/** Hueco entre la fecha de un día y su primera tarjeta. */
+private val HeaderGap = 8.dp
+/** Altura de la rama desde el borde superior de la tarjeta: la de la etiqueta del tipo. */
+private val BranchY = 25.dp
 private val CardGap = 12.dp
 
 @Composable
@@ -76,25 +75,20 @@ fun EventsAndTasksTimeline(
         )
         return
     }
+    // Opaco: donde la rama se solapa con el tronco no se nota la diferencia
+    val lineColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f)
+        .compositeOver(MaterialTheme.colorScheme.background)
     Column(modifier) {
         days.forEachIndexed { dayIndex, day ->
             key(day.date) {
-                // La altura intrínseca deja que la columna de tarjetas ocupe todo el día aunque la
-                // fecha sea más alta, así la línea no se corta.
-                Row(Modifier.height(IntrinsicSize.Min)) {
-                    DayLabel(date = day.date, today = today, modifier = Modifier.width(DateColumnWidth).padding(top = 6.dp))
-                    Column(Modifier.weight(1f).fillMaxHeight()) {
-                        day.items.forEachIndexed { index, item ->
-                            val isLastOfDay = index == day.items.lastIndex
-                            key(item.key) {
-                                TimelineRow(
-                                    item = item,
-                                    isFirst = dayIndex == 0 && index == 0,
-                                    isLast = dayIndex == days.lastIndex && isLastOfDay,
-                                    modifier = if (isLastOfDay) Modifier.weight(1f) else Modifier
-                                )
-                            }
-                        }
+                DayHeader(date = day.date, today = today, lineColor = lineColor, isFirst = dayIndex == 0)
+                day.items.forEachIndexed { index, item ->
+                    key(item.key) {
+                        TimelineRow(
+                            item = item,
+                            lineColor = lineColor,
+                            isLast = dayIndex == days.lastIndex && index == day.items.lastIndex
+                        )
                     }
                 }
             }
@@ -102,69 +96,96 @@ fun EventsAndTasksTimeline(
     }
 }
 
-/** Número del día, día de la semana con el mes y cuánto falta. */
+/** Tramo vertical de la línea en el centro de la vía, de [startY] a [endY] (null = hasta el borde). */
+private fun Modifier.railLine(color: Color, startY: Dp?, endY: Dp?): Modifier = drawBehind {
+    val x = size.width / 2
+    drawLine(
+        color = color,
+        start = Offset(x, startY?.toPx() ?: 0f),
+        end = Offset(x, endY?.toPx() ?: size.height),
+        strokeWidth = 2.5.dp.toPx()
+    )
+}
+
+/** Cabecera de un día: su punto en el tronco, "Martes 17 nov" y cuánto falta. */
 @Composable
-private fun DayLabel(date: LocalDate, today: LocalDate, modifier: Modifier = Modifier) {
-    val locale = Locale.getDefault()
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+private fun DayHeader(date: LocalDate, today: LocalDate, lineColor: Color, isFirst: Boolean) {
+    Row(
+        modifier = Modifier.fillMaxWidth().height(HeaderHeight),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .width(TrunkX * 2)
+                .fillMaxHeight()
+                // El tronco es común: entra desde arriba salvo en el primer día
+                .railLine(lineColor, startY = if (isFirst) HeaderHeight / 2 else null, endY = null),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(Modifier.size(HeaderDotSize).background(MaterialTheme.colorScheme.onBackground, CircleShape))
+        }
+        // El texto empieza donde las tarjetas: el día queda por encima de sus elementos
         Text(
-            text = date.dayOfMonth.toString(),
-            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = DelightMedium),
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onBackground
+            text = dayHeaderLabel(date),
+            style = HeaderStyle(),
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(start = RailWidth - TrunkX * 2)
         )
         Text(
-            text = "${date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale)} · ${date.format(DateTimeFormatter.ofPattern("MMM", locale))}"
-                .replace(".", "").uppercase(locale),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1
-        )
-        Text(
-            text = relativeDayLabel(date, today),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.SemiBold,
+            text = " · ${relativeDayLabel(date, today)}",
+            style = HeaderStyle(),
             color = MaterialTheme.appColors.accent,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
     }
+    // Hueco hasta la primera tarjeta, con el tronco pasando por él
+    Box(Modifier.width(TrunkX * 2).height(HeaderGap).railLine(lineColor, startY = null, endY = null))
 }
 
-/** Un elemento: el tramo de línea con su marcador y la tarjeta. */
+/** Letra de la fecha de un día: algo mayor que el nombre de los elementos, para que mande. */
 @Composable
-private fun TimelineRow(item: TimelineItem, isFirst: Boolean, isLast: Boolean, modifier: Modifier = Modifier) {
+private fun HeaderStyle() = MaterialTheme.typography.titleMedium.copy(
+    fontSize = 18.sp,
+    lineHeight = 24.sp,
+    fontWeight = FontWeight.Bold
+)
+
+/** Un elemento: el tramo de tronco, la rama curva hasta el borde de su tarjeta y la tarjeta. */
+@Composable
+private fun TimelineRow(item: TimelineItem, lineColor: Color, isLast: Boolean) {
     val color = item.markerColor()
-    val lineColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.15f)
-    Row(modifier.height(IntrinsicSize.Min)) {
+    Row(Modifier.height(IntrinsicSize.Min)) {
         Box(
             modifier = Modifier
                 .width(RailWidth)
                 .fillMaxHeight()
                 .drawBehind {
-                    // La línea empieza en el primer marcador y acaba en el último
-                    val markerCenter = (MarkerTop + MarkerSize / 2).toPx()
-                    val x = size.width / 2
-                    drawLine(
-                        color = lineColor,
-                        start = Offset(x, if (isFirst) markerCenter else 0f),
-                        end = Offset(x, if (isLast) markerCenter else size.height),
-                        strokeWidth = 2.dp.toPx()
-                    )
-                },
-            contentAlignment = Alignment.TopCenter
-        ) {
-            TimelineMarkerIcon(item.marker(), color, Modifier.padding(top = MarkerTop))
-        }
+                    val stroke = 2.5.dp.toPx()
+                    val x = TrunkX.toPx()
+                    val y = BranchY.toPx()
+                    val r = BranchRadius.toPx()
+                    // El tronco sigue hacia abajo salvo en el último elemento, donde acaba en su rama
+                    drawLine(lineColor, Offset(x, 0f), Offset(x, if (isLast) y - r else size.height), stroke)
+                    val branch = Path().apply {
+                        moveTo(x, y - r)
+                        // Cuarto de curva (aprox. de círculo) y recta hasta el borde de la tarjeta
+                        cubicTo(x, y - r * 0.45f, x + r * 0.45f, y, x + r, y)
+                        lineTo(size.width, y)
+                    }
+                    drawPath(branch, lineColor, style = Stroke(width = stroke, cap = StrokeCap.Butt))
+                }
+        )
         TimelineCard(item, color, Modifier.weight(1f).padding(bottom = CardGap))
     }
 }
 
-/** Color de un elemento: el de los eventos o el de las tareas de la paleta. */
+/** Color de un elemento según su tipo: exámenes, otros eventos o tareas, de la paleta. */
 @Composable
-fun TimelineItem.markerColor(): Color = when (this) {
-    is TimelineItem.EventItem -> MaterialTheme.appColors.timelineEventPoint
-    is TimelineItem.TaskItem -> MaterialTheme.appColors.timelineTaskPoint
+fun TimelineItem.markerColor(): Color = when (marker()) {
+    TimelineMarker.EXAM -> MaterialTheme.appColors.timelineExamPoint
+    TimelineMarker.DELIVERABLE, TimelineMarker.OTHER_EVENT -> MaterialTheme.appColors.timelineEventPoint
+    TimelineMarker.TASK -> MaterialTheme.appColors.timelineTaskPoint
 }
 
 /** Tarjeta de un evento o una tarea: etiqueta del tipo, nombre y asignatura. */
@@ -179,7 +200,7 @@ fun TimelineCard(item: TimelineItem, color: Color, modifier: Modifier = Modifier
                         is TimelineItem.EventItem -> item.event.name
                         is TimelineItem.TaskItem -> item.task.title
                     },
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -194,57 +215,5 @@ fun TimelineCard(item: TimelineItem, color: Color, modifier: Modifier = Modifier
                 }
             }
         }
-    }
-}
-
-/** Marcador con la forma de su tipo; las tareas llevan además un ✓. */
-@Composable
-fun TimelineMarkerIcon(marker: TimelineMarker, color: Color, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .size(MarkerSize)
-            .background(color, marker.shape),
-        contentAlignment = Alignment.Center
-    ) {
-        if (marker == TimelineMarker.TASK) {
-            Icon(
-                imageVector = Icons.Rounded.Check,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.background,
-                modifier = Modifier.size(14.dp)
-            )
-        }
-    }
-}
-
-// Formas de Material 3 (las de MaterialShapes), hechas con graphics-shapes ------------------
-
-private val ExamShape: Shape = PolygonShape(
-    RoundedPolygon.star(numVerticesPerRadius = 10, innerRadius = 0.72f, rounding = CornerRounding(0.12f))
-)
-private val DeliverableShape: Shape = PolygonShape(
-    RoundedPolygon.rectangle(width = 2f, height = 2f, rounding = CornerRounding(0.55f))
-)
-private val OtherEventShape: Shape = PolygonShape(
-    RoundedPolygon.star(numVerticesPerRadius = 6, innerRadius = 0.78f, rounding = CornerRounding(0.4f))
-)
-
-private val TimelineMarker.shape: Shape
-    get() = when (this) {
-        TimelineMarker.EXAM -> ExamShape
-        TimelineMarker.DELIVERABLE -> DeliverableShape
-        TimelineMarker.OTHER_EVENT -> OtherEventShape
-        TimelineMarker.TASK -> CircleShape
-    }
-
-/** Un [RoundedPolygon] como `Shape` de Compose, escalado al tamaño de lo que recorta. */
-private class PolygonShape(polygon: RoundedPolygon) : Shape {
-    private val unitPath = polygon.normalized().toPath()
-
-    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
-        val path = android.graphics.Path(unitPath).apply {
-            transform(android.graphics.Matrix().apply { setScale(size.width, size.height) })
-        }
-        return Outline.Generic(path.asComposePath())
     }
 }
