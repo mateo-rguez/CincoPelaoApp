@@ -40,7 +40,8 @@ data class AppColors(
     /** Línea de tiempo del calendario: tarjetas de eventos y de tareas. */
     val timelineEventContainer: Color,
     val timelineTaskContainer: Color,
-    /** Puntos de la línea de tiempo (sobre el fondo): eventos y tareas. */
+    /** Marcadores de la línea de tiempo (sobre el fondo): exámenes, otros eventos y tareas. */
+    val timelineExamPoint: Color,
     val timelineEventPoint: Color,
     val timelineTaskPoint: Color,
     /** Brillo de la cabecera de una asignatura según su nota media (ya con transparencia). */

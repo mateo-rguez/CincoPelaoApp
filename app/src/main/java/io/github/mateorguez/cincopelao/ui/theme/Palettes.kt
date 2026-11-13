@@ -61,6 +61,7 @@ internal val classicLightAppColors = AppColors(
     calendarSelectedBorder = Color.Black,
     timelineEventContainer = TimelineEventContainerLight,
     timelineTaskContainer = TimelineTaskContainerLight,
+    timelineExamPoint = TimelineExamPoint,
     timelineEventPoint = TimelineEventPoint,
     timelineTaskPoint = TimelineTaskPoint,
     glowNoScore = AzulFuerte.copy(alpha = 0.5f),
@@ -88,6 +89,7 @@ private val classicDarkAppColors = AppColors(
     calendarSelectedBorder = Color.Cyan,
     timelineEventContainer = TimelineEventContainerDark,
     timelineTaskContainer = TimelineTaskContainerDark,
+    timelineExamPoint = TimelineExamPoint,
     timelineEventPoint = TimelineEventPoint,
     timelineTaskPoint = TimelineTaskPoint,
     glowNoScore = AzulFuerte.copy(alpha = 0.3f),
@@ -128,6 +130,7 @@ private fun namedPalette(
     subjectCardEnd: Color,
     timelineEvent: Color,
     timelineTask: Color,
+    timelineExamPoint: Color,
     timelineEventPoint: Color,
     timelineTaskPoint: Color,
 ): PaletteColors {
@@ -171,6 +174,7 @@ private fun namedPalette(
         calendarSelectedBorder = onPrimaryContainer,
         timelineEventContainer = timelineEvent,
         timelineTaskContainer = timelineTask,
+        timelineExamPoint = timelineExamPoint,
         timelineEventPoint = timelineEventPoint,
         timelineTaskPoint = timelineTaskPoint,
         glowNoScore = primary.copy(alpha = if (dark) 0.3f else 0.5f),
@@ -193,7 +197,7 @@ private val graphiteLight = namedPalette(
     subjectCardStart = Color(0xFFDCE3E6), subjectCardEnd = Color(0xFFB8E4EA),
     // Eventos en azul acero y tareas en verde azulado: dos tonos que se distinguen de un vistazo
     timelineEvent = Color(0xFF3F5A8A), timelineTask = Color(0xFF00796B),
-    timelineEventPoint = Color(0xFF3F5A8A), timelineTaskPoint = Color(0xFF00897B),
+    timelineExamPoint = Color(0xFFA3416B), timelineEventPoint = Color(0xFF3F5A8A), timelineTaskPoint = Color(0xFF00897B),
 )
 private val graphiteDark = namedPalette(
     dark = true,
@@ -205,5 +209,5 @@ private val graphiteDark = namedPalette(
     subjectCardStart = Color(0xFF37474F), subjectCardEnd = Color(0xFF1F4A50),
     // Tarjetas más claras que el fondo y puntos de su mismo tono, distintos de la línea gris
     timelineEvent = Color(0xFF3A5285), timelineTask = Color(0xFF00695C),
-    timelineEventPoint = Color(0xFF8FAEF0), timelineTaskPoint = Color(0xFF4DD0B8),
+    timelineExamPoint = Color(0xFFF2A7C3), timelineEventPoint = Color(0xFF8FAEF0), timelineTaskPoint = Color(0xFF4DD0B8),
 )

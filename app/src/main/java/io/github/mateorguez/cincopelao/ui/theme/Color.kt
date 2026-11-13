@@ -57,6 +57,7 @@ val TimelineEventContainerDark = Color(0xFF1D206B)
 val TimelineEventContainerLight = Color(0xFF6057EA)
 val TimelineTaskContainerDark = Color(0xFF1A3A2B)
 val TimelineTaskContainerLight = Color(0xFF5A6F14) // antes 7C981D: el texto blanco apenas se leía
+val TimelineExamPoint = Color(0xFFE91E63)  // rosa: los exámenes destacan sobre el resto
 val TimelineEventPoint = Color(0xFF2196F3) // azul, como las tarjetas de eventos
 val TimelineTaskPoint = Color(0xFF4CAF50)  // verde, como las tarjetas de tareas
 
