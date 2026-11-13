@@ -29,9 +29,8 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 **Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
 aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. En curso: **pulir la
 interfaz**, pantalla por pantalla con el autor; Tareas y Asignaturas (lista, detalle y
-estadísticas) están terminadas y ahora va el **Calendario**: la línea de tiempo nueva está hecha
-pero **sin probar en el móvil** (ver la nota de la firma en «Calendario»); después, puntos por
-tipo en la cuadrícula y hoja del día con tarjetas. En cada pantalla: capturas con la app en
+estadísticas) están terminadas y ahora va el **Calendario**: la línea de tiempo está hecha y
+probada; quedan los puntos por tipo en la cuadrícula y la hoja del día con tarjetas. En cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -247,19 +246,25 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   - **Calendario** ⏳ (11 de noviembre de 2026). El autor eligió: tarjetas más claras, cabeceras
     relativas, puntos por tipo en la cuadrícula y hoja del día con tarjetas; además, rediseñar la
     línea de tiempo entera (línea, puntos, fechas) con formas de Material 3.
-    - Línea de tiempo propia (`Timeline.kt`), **pendiente de probar en el móvil**: fuera JetLime (no
-      dejaba cambiar la forma de los puntos ni la colocación de las fechas). Disposición elegida
-      «fecha a la izquierda» (número, «JUE · NOV» y «Mañana» / «En 6 días»), línea vertical con un
-      marcador por elemento y la tarjeta a la derecha; el autor quiere probarla y, si no convence,
-      cambiar a «cabecera sobre la línea» o «agenda sin línea». Marcadores con
-      `androidx.graphics:graphics-shapes` (la base de `MaterialShapes`, sin actualizar Compose):
-      estallido = examen, cuadrado redondeado = entregable/proyecto/trabajo, galleta = otros
-      eventos, círculo con ✓ = tarea. Tarjetas con el fondo de Tareas (`TaskCardFrame`), etiqueta
-      de color con el tipo y la modalidad, nombre y «SIGLAS · asignatura» en una línea; fuera la
-      fecha repetida, «Modalidad:» y el blanco fijo. Lógica pura en `CalendarViewModel.kt`
-      (`TimelineDay`, `relativeDayLabel`, `marker`, `typeLabel`, `subjectLine`) con tests.
-    - Si gusta: quitar `timelineEventContainer` / `timelineTaskContainer` de las paletas (ya solo
-      los usan la vista previa de Apariencia y `PalettesTest`).
+    - ✅ Línea de tiempo propia (`Timeline.kt`), probada en el móvil y ajustada con el autor
+      (13 de noviembre): `8edf293` color de los exámenes, `530e7dc` fechas relativas y
+      cabecera, `90f1ec3` el árbol. Fuera JetLime (no dejaba cambiar los puntos ni la colocación de las
+      fechas). Es un árbol: un tronco común, opaco, pasa por un punto en cada día con la fecha
+      a 18 en negrita («Martes 17 nov · En 4 días», `dayHeaderLabel` y `relativeDayLabel`) y de
+      él sale una rama curva, del mismo color, hasta el borde de la tarjeta de cada elemento.
+      Tarjetas con el fondo de Tareas (`TaskCardFrame`): etiqueta de color con el tipo y la
+      modalidad, nombre a 16 y «SIGLAS · asignatura» a 12. Los exámenes tienen color propio
+      (`timelineExamPoint`, rosa en las dos paletas). Las fechas lejanas van en semanas («En 3
+      sem.») desde 14 días y en meses desde 60. Lógica pura en `CalendarViewModel.kt`
+      (`TimelineDay`, `relativeDayLabel`, `dayHeaderLabel`, `marker`, `typeLabel`,
+      `subjectLine`) con tests.
+    - Probado y descartado por el autor, para no repetirlo: la fecha en una columna a la
+      izquierda de la línea; un árbol separado por día; marcadores con forma en cada elemento
+      (estallido, pentágono, galleta, aro; con `androidx.graphics:graphics-shapes`) y también
+      en el punto de cada día girando despacio; ramas teñidas con el color del elemento; la
+      cabecera en mayúsculas; tarjetas con el fondo teñido según el tipo y el título arriba.
+    - ☐ Quitar `timelineEventContainer` / `timelineTaskContainer` de las paletas: ya solo los
+      usan la vista previa de Apariencia y `PalettesTest`.
     - ☐ Puntos por tipo en la cuadrícula (color de evento y de tarea) y días de otros meses legibles.
     - ☐ Hoja del día con las mismas tarjetas (`TimelineCard`) y un vacío más amable.
     - Nota: el móvil rechaza instalar desde un PC distinto (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`:
