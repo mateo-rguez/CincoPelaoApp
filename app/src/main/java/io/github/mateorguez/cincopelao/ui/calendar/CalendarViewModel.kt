@@ -19,7 +19,9 @@ import kotlinx.coroutines.flow.stateIn
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
+import java.util.Locale
 import javax.inject.Inject
 
 fun Long.toLocalDate(zone: ZoneId = ZoneId.systemDefault()): LocalDate =
@@ -67,15 +69,30 @@ fun buildTimeline(
         .map { (date, items) -> TimelineDay(date, items) }
 }
 
-/** Cuánto falta para un día: "Hoy", "Mañana" o "En 6 días". */
+/**
+ * Cuánto falta para un día: "Hoy", "Mañana", "En 6 días" hasta dos semanas, luego en semanas
+ * ("En 3 sem.") hasta dos meses y después en meses ("En 3 meses"), redondeando.
+ */
 fun relativeDayLabel(date: LocalDate, today: LocalDate): String =
     when (val days = ChronoUnit.DAYS.between(today, date)) {
         0L -> "Hoy"
         1L -> "Mañana"
-        else -> "En $days días"
+        in 2L..13L -> "En $days días"
+        in 14L..59L -> "En ${Math.round(days / 7.0)} sem."
+        else -> {
+            // Desde 60 días siempre salen al menos 2 meses
+            val months = Math.round(days / 30.44)
+            "En $months meses"
+        }
     }
 
-/** Forma del marcador en la línea de tiempo: dice de un vistazo qué es cada cosa. */
+/** Cabecera de un día en la línea de tiempo: "Martes 17 nov". */
+fun dayHeaderLabel(date: LocalDate, locale: Locale = Locale.getDefault()): String =
+    "${date.dayOfWeek.getDisplayName(TextStyle.FULL, locale)} ${date.dayOfMonth} ${date.month.getDisplayName(TextStyle.SHORT, locale)}"
+        .replace(".", "")
+        .replaceFirstChar { it.titlecase(locale) }
+
+/** Tipo de un elemento de la línea de tiempo: decide el color de su etiqueta. */
 enum class TimelineMarker { EXAM, DELIVERABLE, OTHER_EVENT, TASK }
 
 fun TimelineItem.marker(): TimelineMarker = when (this) {

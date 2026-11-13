@@ -8,6 +8,7 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 import java.time.LocalDate
 import java.time.ZoneId
+import java.util.Locale
 
 class TimelineTest {
 
@@ -50,6 +51,19 @@ class TimelineTest {
         assertEquals("Hoy", relativeDayLabel(today, today))
         assertEquals("Mañana", relativeDayLabel(today.plusDays(1), today))
         assertEquals("En 6 días", relativeDayLabel(today.plusDays(6), today))
+        assertEquals("En 13 días", relativeDayLabel(today.plusDays(13), today))
+        assertEquals("En 2 sem.", relativeDayLabel(today.plusDays(14), today))
+        assertEquals("En 3 sem.", relativeDayLabel(today.plusDays(20), today))
+        assertEquals("En 8 sem.", relativeDayLabel(today.plusDays(56), today))
+        assertEquals("En 2 meses", relativeDayLabel(today.plusDays(60), today))
+        assertEquals("En 4 meses", relativeDayLabel(today.plusDays(120), today))
+    }
+
+    @Test
+    fun `cabecera de cada dia`() {
+        val es = Locale.forLanguageTag("es-ES")
+        assertEquals("Martes 10 nov", dayHeaderLabel(today, es))
+        assertEquals("Miércoles 2 sept", dayHeaderLabel(LocalDate.of(2026, 9, 2), es))
     }
 
     @Test
