@@ -1,6 +1,21 @@
 package io.github.mateorguez.cincopelao.ui.calendar
 
 import io.github.mateorguez.cincopelao.ui.theme.appColors
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.runtime.key
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,11 +49,8 @@ import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.OutDateStyle
 import com.kizitonwose.calendar.core.daysOfWeek
-import io.github.mateorguez.cincopelao.ui.theme.CalendarInactiveText
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlinx.coroutines.launch
 
 /** Pestaña de calendario: mes con los días marcados y, debajo, la línea de tiempo de lo próximo. */
@@ -59,7 +71,8 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
     selection?.takeIf { isSheetVisible }?.let { day ->
         DayDetailsSheet(
             date = day.date,
-            state = uiState,
+            today = today,
+            items = uiState.itemsOn(day.date),
             onDismiss = { isSheetVisible = false }
         )
     }
@@ -108,9 +121,10 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
                     todayColor = appColors.calendarToday,
                     itemBackgroundColor = appColors.calendarDayBackground,
                     selectedItemColor = appColors.calendarSelectedBorder,
-                    inactiveTextColor = CalendarInactiveText,
+                    // Los días de otros meses, atenuados pero legibles sobre cualquier fondo
+                    inactiveTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
                     normalTextColor = MaterialTheme.colorScheme.onBackground,
-                    highlighted = day.date in uiState.highlightedDates,
+                    dots = uiState.itemsByDate[day.date]?.let { gridDots(it) },
                 )
             }
         )
@@ -119,67 +133,88 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
     }
 }
 
-/** Hoja inferior con los eventos y tareas de un día. */
+/** Hoja inferior con los eventos y tareas de un día, en filas separadas por líneas finas. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DayDetailsSheet(date: LocalDate, state: CalendarUiState, onDismiss: () -> Unit) {
-    val sectionColor = MaterialTheme.appColors.accent
-    val events = remember(date, state.events) { state.eventsOn(date) }
-    val tasks = remember(date, state.tasks) { state.tasksOn(date) }
-
+private fun DayDetailsSheet(date: LocalDate, today: LocalDate, items: List<TimelineItem>, onDismiss: () -> Unit) {
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 400.dp)
-                .padding(horizontal = 20.dp, vertical = 24.dp)
+                .heightIn(min = 320.dp)
+                .padding(horizontal = 24.dp)
+                .padding(top = 8.dp, bottom = 32.dp)
         ) {
-            Text(text = "Detalles del día", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-
-            Spacer(Modifier.height(4.dp))
-
             Text(
-                text = date.format(DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy", Locale.getDefault()))
-                    .replaceFirstChar { it.uppercaseChar() },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = buildAnnotatedString {
+                    append(dayHeaderLabel(date))
+                    withStyle(SpanStyle(color = MaterialTheme.appColors.accent)) {
+                        append(" · ${relativeDayLabel(date, today)}")
+                    }
+                },
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
+            Spacer(Modifier.height(16.dp))
 
-            Spacer(Modifier.height(20.dp))
-
-            if (events.isNotEmpty()) {
-                Text(text = "Eventos", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = sectionColor)
-                Spacer(Modifier.height(8.dp))
-                events.forEach { event ->
+            if (items.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(top = 40.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "🌤️", fontSize = 40.sp)
+                    Spacer(Modifier.height(12.dp))
                     Text(
-                        text = "${state.subject(event.subjectId)?.name ?: "Asignatura"}: ${event.name}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                        text = "Día libre",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = "No hay eventos ni tareas para este día.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Spacer(Modifier.height(16.dp))
-            }
-
-            if (tasks.isNotEmpty()) {
-                Text(text = "Tareas", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = sectionColor)
-                Spacer(Modifier.height(8.dp))
-                tasks.forEach { task ->
-                    Text(
-                        text = "${state.subject(task.subjectId)?.name?.plus(": ").orEmpty()}${task.title}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
+            } else {
+                items.forEachIndexed { index, item ->
+                    key(item.key) {
+                        if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                        DayItemRow(item)
+                    }
                 }
             }
+        }
+    }
+}
 
-            if (events.isEmpty() && tasks.isEmpty()) {
-                Text(
-                    text = "No hay eventos ni tareas para este día.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-            }
+/** Una fila de la hoja: punto del color del tipo, nombre y "Examen · Teoría · PSI". */
+@Composable
+private fun DayItemRow(item: TimelineItem) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+        // Centrado con la primera línea (el nombre)
+        Box(Modifier.height(24.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(10.dp).background(item.markerColor(), CircleShape))
+        }
+        Spacer(Modifier.width(14.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                text = when (item) {
+                    is TimelineItem.EventItem -> item.event.name
+                    is TimelineItem.TaskItem -> item.task.title
+                },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = item.shortLine(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }

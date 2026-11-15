@@ -182,7 +182,11 @@ private fun TimelineRow(item: TimelineItem, lineColor: Color, isLast: Boolean) {
 
 /** Color de un elemento según su tipo: exámenes, otros eventos o tareas, de la paleta. */
 @Composable
-fun TimelineItem.markerColor(): Color = when (marker()) {
+fun TimelineItem.markerColor(): Color = marker().color()
+
+/** Color de cada tipo: el mismo en la línea de tiempo, la cuadrícula y la hoja del día. */
+@Composable
+fun TimelineMarker.color(): Color = when (this) {
     TimelineMarker.EXAM -> MaterialTheme.appColors.timelineExamPoint
     TimelineMarker.DELIVERABLE, TimelineMarker.OTHER_EVENT -> MaterialTheme.appColors.timelineEventPoint
     TimelineMarker.TASK -> MaterialTheme.appColors.timelineTaskPoint

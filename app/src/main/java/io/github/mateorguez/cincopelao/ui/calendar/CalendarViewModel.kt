@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
+import kotlin.math.abs
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -46,45 +47,64 @@ sealed class TimelineItem {
 data class TimelineDay(val date: LocalDate, val items: List<TimelineItem>)
 
 /**
- * Línea de tiempo desde [today]: eventos y tareas (con fecha) agrupados por día y en orden
- * cronológico; dentro de un día, primero los eventos.
+ * Todo lo que hay cada día, también lo pasado: eventos y tareas con fecha, y dentro de un día
+ * primero los eventos. De aquí salen la línea de tiempo, los puntos de la cuadrícula y la hoja
+ * de cada día.
  */
-fun buildTimeline(
+fun itemsByDate(
     events: List<Event>,
     tasks: List<Task>,
     subjects: List<Subject>,
-    today: LocalDate,
     zone: ZoneId = ZoneId.systemDefault()
-): List<TimelineDay> {
+): Map<LocalDate, List<TimelineItem>> {
     val subjectById = subjects.associateBy { it.subjectId }
     val dated: List<Pair<LocalDate, TimelineItem>> =
         events.map { it.date.toLocalDate(zone) to TimelineItem.EventItem(it, subjectById[it.subjectId]) } +
             tasks.mapNotNull { task ->
                 task.dueDate?.let { it.toLocalDate(zone) to TimelineItem.TaskItem(task, task.subjectId?.let(subjectById::get)) }
             }
-    return dated
-        .filter { (date, _) -> !date.isBefore(today) }
-        .sortedBy { (date, _) -> date }
-        .groupBy({ it.first }, { it.second })
-        .map { (date, items) -> TimelineDay(date, items) }
+    return dated.groupBy({ it.first }, { it.second })
 }
+
+/** Línea de tiempo desde [today]: los días con algo, en orden cronológico. */
+fun buildTimeline(byDate: Map<LocalDate, List<TimelineItem>>, today: LocalDate): List<TimelineDay> =
+    byDate
+        .filterKeys { !it.isBefore(today) }
+        .toSortedMap()
+        .map { (date, items) -> TimelineDay(date, items) }
+
+fun buildTimeline(
+    events: List<Event>,
+    tasks: List<Task>,
+    subjects: List<Subject>,
+    today: LocalDate,
+    zone: ZoneId = ZoneId.systemDefault()
+): List<TimelineDay> = buildTimeline(itemsByDate(events, tasks, subjects, zone), today)
+
+/** Puntos de un día en la cuadrícula: uno por elemento, hasta [max]; [more] si no caben todos. */
+data class GridDots(val markers: List<TimelineMarker>, val more: Boolean)
+
+fun gridDots(items: List<TimelineItem>, max: Int = 4): GridDots =
+    GridDots(items.take(max).map { it.marker() }, more = items.size > max)
 
 /**
  * Cuánto falta para un día: "Hoy", "Mañana", "En 6 días" hasta dos semanas, luego en semanas
- * ("En 3 sem.") hasta dos meses y después en meses ("En 3 meses"), redondeando.
+ * ("En 3 sem.") hasta dos meses y después en meses ("En 3 meses"), redondeando. Para un día
+ * pasado (se abre desde la cuadrícula), lo mismo hacia atrás: "Ayer", "Hace 6 días"…
  */
-fun relativeDayLabel(date: LocalDate, today: LocalDate): String =
-    when (val days = ChronoUnit.DAYS.between(today, date)) {
-        0L -> "Hoy"
-        1L -> "Mañana"
-        in 2L..13L -> "En $days días"
-        in 14L..59L -> "En ${Math.round(days / 7.0)} sem."
-        else -> {
-            // Desde 60 días siempre salen al menos 2 meses
-            val months = Math.round(days / 30.44)
-            "En $months meses"
-        }
+fun relativeDayLabel(date: LocalDate, today: LocalDate): String {
+    val days = ChronoUnit.DAYS.between(today, date)
+    val distance = abs(days)
+    val amount = when (distance) {
+        0L -> return "Hoy"
+        1L -> return if (days > 0) "Mañana" else "Ayer"
+        in 2L..13L -> "$distance días"
+        in 14L..59L -> "${Math.round(distance / 7.0)} sem."
+        // Desde 60 días siempre salen al menos 2 meses
+        else -> "${Math.round(distance / 30.44)} meses"
     }
+    return if (days > 0) "En $amount" else "Hace $amount"
+}
 
 /** Cabecera de un día en la línea de tiempo: "Martes 17 nov". */
 fun dayHeaderLabel(date: LocalDate, locale: Locale = Locale.getDefault()): String =
@@ -113,18 +133,15 @@ fun TimelineItem.typeLabel(): String = when (this) {
 /** Línea de la asignatura: "PSI · Programación de Sistemas Inteligentes"; null si no tiene. */
 fun TimelineItem.subjectLine(): String? = subject?.let { "${subjectBadge(it)} · ${it.name}" }
 
+/** Línea corta para la hoja del día: "Examen · Teoría · PSI", "Tarea" si no tiene asignatura. */
+fun TimelineItem.shortLine(): String = listOfNotNull(typeLabel(), subject?.let(::subjectBadge)).joinToString(" · ")
+
 data class CalendarUiState(
-    val subjects: List<Subject> = emptyList(),
-    val events: List<Event> = emptyList(),
-    /** Tareas pendientes (ni completadas ni archivadas). */
-    val tasks: List<Task> = emptyList(),
-    /** Días con algún evento o tarea, para marcarlos en el calendario. */
-    val highlightedDates: Set<LocalDate> = emptySet(),
+    /** Eventos y tareas pendientes (ni completadas ni archivadas) de cada día. */
+    val itemsByDate: Map<LocalDate, List<TimelineItem>> = emptyMap(),
     val timeline: List<TimelineDay> = emptyList()
 ) {
-    fun subject(id: Long?): Subject? = id?.let { subjects.find { s -> s.subjectId == it } }
-    fun eventsOn(date: LocalDate): List<Event> = events.filter { it.date.toLocalDate() == date }
-    fun tasksOn(date: LocalDate): List<Task> = tasks.filter { it.dueDate?.toLocalDate() == date }
+    fun itemsOn(date: LocalDate): List<TimelineItem> = itemsByDate[date].orEmpty()
 }
 
 @HiltViewModel
@@ -138,14 +155,8 @@ class CalendarViewModel @Inject constructor(
     val uiState: StateFlow<CalendarUiState> =
         combine(subjects.subjects, events.events, tasks.tasks) { subjectList, eventList, taskList ->
             val pending = taskList.filter { !it.isCompleted && !it.archived }
-            CalendarUiState(
-                subjects = subjectList,
-                events = eventList,
-                tasks = pending,
-                highlightedDates = eventList.map { it.date.toLocalDate() }.toSet() +
-                    pending.mapNotNull { it.dueDate?.toLocalDate() },
-                timeline = buildTimeline(eventList, pending, subjectList, LocalDate.now())
-            )
+            val byDate = itemsByDate(eventList, pending, subjectList)
+            CalendarUiState(itemsByDate = byDate, timeline = buildTimeline(byDate, LocalDate.now()))
         }
             .flowOn(Dispatchers.Default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CalendarUiState())

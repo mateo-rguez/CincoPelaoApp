@@ -52,7 +52,6 @@ val StatusExcellent = Color(0xFF1976D2)
 // Calendario -------------------------------------------------------------------------------------
 
 val CalendarSelectedDayDark = Color(0xFF3A3767)
-val CalendarInactiveText = Color(0xFF666666)
 val TimelineEventContainerDark = Color(0xFF1D206B)
 val TimelineEventContainerLight = Color(0xFF6057EA)
 val TimelineTaskContainerDark = Color(0xFF1A3A2B)

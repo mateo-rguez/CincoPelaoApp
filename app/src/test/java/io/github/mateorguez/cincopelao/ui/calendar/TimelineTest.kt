@@ -18,6 +18,9 @@ class TimelineTest {
 
     private val subject = Subject(subjectId = 1, name = "Cálculo")
 
+    private fun eventItem(type: String, modal: String? = null) =
+        TimelineItem.EventItem(Event(subjectId = 1, name = "x", type = type, modal = modal, date = 0), subject)
+
     @Test
     fun `agrupa por dia, en orden y sin lo pasado`() {
         val events = listOf(
@@ -57,6 +60,42 @@ class TimelineTest {
         assertEquals("En 8 sem.", relativeDayLabel(today.plusDays(56), today))
         assertEquals("En 2 meses", relativeDayLabel(today.plusDays(60), today))
         assertEquals("En 4 meses", relativeDayLabel(today.plusDays(120), today))
+    }
+
+    @Test
+    fun `cuanto hace de un dia pasado`() {
+        assertEquals("Ayer", relativeDayLabel(today.minusDays(1), today))
+        assertEquals("Hace 6 días", relativeDayLabel(today.minusDays(6), today))
+        assertEquals("Hace 3 sem.", relativeDayLabel(today.minusDays(20), today))
+        assertEquals("Hace 2 meses", relativeDayLabel(today.minusDays(60), today))
+    }
+
+    @Test
+    fun `cada dia guarda tambien lo pasado, con los eventos primero`() {
+        val events = listOf(Event(eventId = 2, subjectId = 1, name = "Viejo", type = "Examen", date = millis(today.minusDays(1))))
+        val tasks = listOf(Task(taskId = 7, title = "Ayer", dueDate = millis(today.minusDays(1), hour = 8)))
+
+        val byDate = itemsByDate(events, tasks, listOf(subject), zone)
+
+        assertEquals(listOf("event-2", "task-7"), byDate.getValue(today.minusDays(1)).map { it.key })
+        assertEquals(emptyList<TimelineDay>(), buildTimeline(byDate, today))
+    }
+
+    @Test
+    fun `puntos de la cuadricula, uno por elemento y mas si no caben`() {
+        val exam = eventItem("Examen")
+        val task = TimelineItem.TaskItem(Task(title = "t"), null)
+
+        assertEquals(GridDots(listOf(TimelineMarker.EXAM, TimelineMarker.TASK), more = false), gridDots(listOf(exam, task)))
+        val five = gridDots(List(5) { task })
+        assertEquals(4, five.markers.size)
+        assertEquals(true, five.more)
+    }
+
+    @Test
+    fun `linea corta de la hoja del dia`() {
+        assertEquals("Examen · Teoría · CÁ", eventItem("Examen", "Teoría").shortLine())
+        assertEquals("Tarea", TimelineItem.TaskItem(Task(title = "t"), null).shortLine())
     }
 
     @Test

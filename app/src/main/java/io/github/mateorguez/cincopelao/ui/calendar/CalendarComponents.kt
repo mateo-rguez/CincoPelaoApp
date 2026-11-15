@@ -12,6 +12,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -193,7 +194,7 @@ fun Day(
     selectedItemColor: Color = Color.Green,
     inactiveTextColor: Color = Color.Gray,
     normalTextColor: Color = Color.White,
-    highlighted: Boolean = false,
+    dots: GridDots? = null,
 ) {
     val isToday = day.date == today
 
@@ -212,17 +213,8 @@ fun Day(
             .clickable(enabled = day.position == DayPosition.MonthDate, onClick = { onClick(day) }),
     ) {
 
-        if (highlighted && day.position == DayPosition.MonthDate) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 4.dp)
-                    .size(4.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        shape = CircleShape
-                    )
-            )
+        if (dots != null && day.position == DayPosition.MonthDate) {
+            DayDots(dots, Modifier.align(Alignment.BottomCenter).padding(bottom = 5.dp))
         }
 
         val textColor = when (day.position) {
@@ -239,6 +231,29 @@ fun Day(
             fontSize = 14.sp,
             fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
         )
+    }
+}
+
+/** Un punto del color de su tipo por cada evento o tarea del día y "+" si hay más. */
+@Composable
+private fun DayDots(dots: GridDots, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        dots.markers.forEach { marker ->
+            Box(Modifier.size(5.dp).background(marker.color(), CircleShape))
+        }
+        if (dots.more) {
+            Text(
+                text = "+",
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 10.sp,
+                lineHeight = 10.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
