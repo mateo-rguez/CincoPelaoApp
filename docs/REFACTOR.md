@@ -30,7 +30,8 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. En curso: **pulir la
 interfaz**, pantalla por pantalla con el autor; Tareas y Asignaturas (lista, detalle y
 estadísticas) están terminadas y ahora va el **Calendario**: la línea de tiempo está hecha y
-probada; quedan los puntos por tipo en la cuadrícula y la hoja del día con tarjetas. En cada pantalla: capturas con la app en
+probada, y la cuadrícula y la hoja del día también (calendario propio, sin librería); solo
+queda quitar de las paletas los colores de las tarjetas antiguas. En cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -265,8 +266,17 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       cabecera en mayúsculas; tarjetas con el fondo teñido según el tipo y el título arriba.
     - ☐ Quitar `timelineEventContainer` / `timelineTaskContainer` de las paletas: ya solo los
       usan la vista previa de Apariencia y `PalettesTest`.
-    - ☐ Puntos por tipo en la cuadrícula (color de evento y de tarea) y días de otros meses legibles.
-    - ☐ Hoja del día con las mismas tarjetas (`TimelineCard`) y un vacío más amable.
+    - ✅ `bfce1a6` Cuadrícula con un punto del color de su tipo por cada elemento del día (hasta
+      4 y «+»; el autor lo prefirió a un punto por tipo, a una barra o a teñir la celda) y días
+      de otros meses con el texto de la paleta atenuado (fuera `CalendarInactiveText`). Todo
+      sale de `itemsByDate` (también lo pasado).
+    - ✅ `bfce1a6` Hoja del día en filas con separador, no tarjetas (lo eligió el autor): punto de
+      color, nombre y «Entregable · Prácticas · SMM» (`shortLine`); título como en la línea de
+      tiempo, con «Ayer» / «Hace 9 días» para días pasados, y «Día libre» si no hay nada.
+    - ✅ `86e2356` Calendario propio con `HorizontalPager` (fuera la librería de Kizitonwose):
+      celdas redondeadas, hoy con borde de acento, día elegido con relleno suave. Siempre 6
+      semanas (el autor no quería que cambiase de alto); el relleno se reparte: un mes de 5
+      semanas añade una al final y uno de 4, una antes y otra después (`monthGridDays`).
     - Nota: el móvil rechaza instalar desde un PC distinto (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`:
       cada PC tiene su `~/.android/debug.keystore`). No desinstalar (se pierden los datos): copiar
       la misma `debug.keystore` en los dos PCs o instalar desde el PC que firmó la versión instalada.
