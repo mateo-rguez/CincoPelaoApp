@@ -44,6 +44,18 @@ class PalettesTest {
             check(failures, "$name sobre controles", c.scheme.onPrimary, c.scheme.primary)
             check(failures, "$name contenedor", c.scheme.onPrimaryContainer, c.scheme.primaryContainer)
             check(failures, "$name acento/fondo", c.app.accent, c.scheme.background)
+            // Colores de cada tipo en el calendario: la etiqueta de la tarjeta de la línea de
+            // tiempo (texto del tono sobre ese tono suave) y los puntos (gráficos, 3:1) sobre el
+            // fondo y sobre la casilla de un día
+            for ((label, tone) in listOf(
+                "examen" to c.app.timelineExamPoint,
+                "evento" to c.app.timelineEventPoint,
+                "tarea" to c.app.timelineTaskPoint
+            )) {
+                check(failures, "$name etiqueta $label", tone, tone.copy(alpha = DUE_CHIP_ALPHA).compositeOver(c.app.taskCard))
+                check(failures, "$name punto $label/fondo", tone, c.scheme.background, min = 3.0)
+                check(failures, "$name punto $label/día", tone, c.app.calendarDayBackground, min = 3.0)
+            }
             check(failures, "$name texto/tarjeta de tarea", c.scheme.onBackground, c.app.taskCard)
             // Etiqueta de la fecha: texto del tono sobre ese mismo tono suave, encima de la tarjeta
             for ((label, tone) in listOf("vencida" to c.app.dueOverdue, "pronto" to c.app.dueSoon)) {

@@ -52,9 +52,17 @@ val StatusExcellent = Color(0xFF1976D2)
 // Calendario -------------------------------------------------------------------------------------
 
 val CalendarSelectedDayDark = Color(0xFF3A3767)
-val TimelineExamPoint = Color(0xFFE91E63)  // rosa: los exámenes destacan sobre el resto
-val TimelineEventPoint = Color(0xFF2196F3) // azul, como las tarjetas de eventos
-val TimelineTaskPoint = Color(0xFF4CAF50)  // verde, como las tarjetas de tareas
+// Tipos del calendario en Clásico: exámenes en rosa, otros eventos en azul y tareas en verde.
+// En claro, tonos oscuros y en oscuro, claros, para que la etiqueta y los puntos se lean
+// (los comprueba PalettesTest).
+val TimelineExamPointLight = Color(0xFFAD1457)
+val TimelineEventPointLight = Color(0xFF1458B0)
+val TimelineTaskPointLight = Color(0xFF216A27)
+val TimelineExamPointDark = Color(0xFFF48FB1)
+val TimelineEventPointDark = Color(0xFF90CAF9)
+val TimelineTaskPointDark = Color(0xFFA5D6A7)
+/** Casilla de un día del calendario en Clásico claro: lavanda muy suave, del tono de la app. */
+val CalendarDayLight = Color(0xFFECEDF8)
 
 // Compartición: consola técnica (siempre oscura, como un terminal) y estados
 val TerminalBackground = Color(0xFF0D1117)
