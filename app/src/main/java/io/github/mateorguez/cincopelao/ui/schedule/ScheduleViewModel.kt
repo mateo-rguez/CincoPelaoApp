@@ -10,8 +10,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
+import io.github.mateorguez.cincopelao.data.prefs.clearScheduleState
 import io.github.mateorguez.cincopelao.data.prefs.getScheduleState
 import io.github.mateorguez.cincopelao.data.prefs.saveScheduleState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
@@ -28,6 +30,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 sealed interface ScheduleUiState {
@@ -110,12 +114,37 @@ class ScheduleViewModel @Inject constructor(
                 _messages.send("No se pudo cargar el archivo")
                 return@launch
             }
+            // El archivo anterior ya no hace falta leerlo (si es el mismo, el permiso se conserva)
+            if (currentUri != uri.toString()) releasePermission(currentUri)
             currentUri = uri.toString()
             loadedKey = instances.currentInstanceId.value to currentUri
             _uiState.value = ScheduleUiState.Loaded(bitmap, 1f, Offset.Zero, ++version)
             saveScheduleState(context, instances.currentInstanceId.value, currentUri, 1f, Offset.Zero)
         } catch (e: Exception) {
             _messages.send("Error al cargar archivo: ${e.message}")
+        }
+    }
+
+    /**
+     * Quita el horario de la instancia activa: deja de mostrarse, se suelta el permiso de lectura
+     * del archivo y se borra la copia que llega al recibirlo de otro móvil. El archivo original
+     * del móvil no se toca.
+     */
+    fun remove() = viewModelScope.launch {
+        val instanceId = instances.currentInstanceId.value
+        releasePermission(currentUri)
+        currentUri = null
+        loadedKey = instanceId to null
+        _uiState.value = ScheduleUiState.Empty
+        withContext(Dispatchers.IO) { File(context.filesDir, "SCHEDULE_$instanceId").deleteRecursively() }
+        clearScheduleState(context, instanceId)
+    }
+
+    /** Los archivos recibidos (file://) no tienen permiso que soltar: el fallo se ignora. */
+    private fun releasePermission(uri: String?) {
+        uri ?: return
+        runCatching {
+            context.contentResolver.releasePersistableUriPermission(Uri.parse(uri), Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
     }
 
