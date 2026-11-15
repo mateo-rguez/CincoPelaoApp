@@ -29,8 +29,8 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 **Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
 aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. En curso: **pulir la
 interfaz**, pantalla por pantalla con el autor; Tareas y Asignaturas (lista, detalle y
-estadísticas), Calendario y Horario están terminadas y la siguiente es **Notificaciones**
-(luego Instancias). En cada pantalla: capturas con la app en
+estadísticas), Calendario, Horario y Notificaciones están terminadas y la siguiente es
+**Instancias** (luego Compartir, y al final el menú y Apariencia). En cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -291,6 +291,15 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       tarjeta (Cambiar archivo / Quitar horario) y esta en la confirmación: el autor no quería un
       menú desplegable normal. `FloatingActionButtonMenu` de Material 3 llega en la 1.4 (tenemos
       la 1.3): si se actualizan las librerías, valorar usarlo. Antes no se podía quitar el horario.
+
+  - **Notificaciones** ✅ (15 de noviembre de 2026):
+    - `ec0a6c4` Frase resumen en una tarjeta con campana y días/horas resaltados
+      (`reminderSummaryParts`); días como pastillas en rejilla de 4 columnas (1, 2, 3, 5, 7, 14 y
+      «+ Otro»), que el autor eligió frente a filas o una línea de tiempo; franja con un slider de
+      dos tiradores y las horas en grande (fuera el `TimePickerDialog` antiguo); guardado al
+      momento, sin botón. Franja por defecto 8:00–24:00 (solo instalaciones nuevas). Tamaños
+      ajustados con el autor: primero se quedó corto y luego grande; pastillas de 40 dp y horas
+      en `headlineSmall` le encajan.
 
 - ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
   elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
