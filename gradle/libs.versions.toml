@@ -25,7 +25,6 @@ coroutines = "1.8.0"
 desugarJdkLibs = "2.1.5"
 
 # UI de terceros
-kizitonwoseCalendar = "2.6.0"
 animatedNavigationBar = "1.0.0"
 
 # Tests
@@ -74,7 +73,6 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 
 # UI de terceros
-kizitonwose-calendar-compose = { group = "com.kizitonwose.calendar", name = "compose", version.ref = "kizitonwoseCalendar" }
 exyte-animated-navigation-bar = { group = "com.exyte", name = "animated-navigation-bar", version.ref = "animatedNavigationBar" }
 
 # Tests

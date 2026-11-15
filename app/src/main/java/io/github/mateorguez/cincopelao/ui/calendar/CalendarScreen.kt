@@ -1,78 +1,76 @@
 package io.github.mateorguez.cincopelao.ui.calendar
 
-import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.key
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.kizitonwose.calendar.compose.HorizontalCalendar
-import com.kizitonwose.calendar.compose.rememberCalendarState
-import com.kizitonwose.calendar.core.CalendarDay
-import com.kizitonwose.calendar.core.OutDateStyle
-import com.kizitonwose.calendar.core.daysOfWeek
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlinx.coroutines.launch
 
 /** Pestaña de calendario: mes con los días marcados y, debajo, la línea de tiempo de lo próximo. */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val appColors = MaterialTheme.appColors
 
-    val currentMonth = remember { YearMonth.now() }
-    val startMonth = remember { currentMonth.minusMonths(500) }
-    val endMonth = remember { currentMonth.plusMonths(500) }
-    var selection by remember { mutableStateOf<CalendarDay?>(null) }
-    val daysOfWeek = remember { daysOfWeek() }
     val today = remember { LocalDate.now() }
+    val currentMonth = remember { YearMonth.from(today) }
+    val firstDay = remember { firstDayOfWeek() }
+    val weekDays = remember(firstDay) { weekDays(firstDay) }
+    var selection by remember { mutableStateOf<LocalDate?>(null) }
     var isSheetVisible by remember { mutableStateOf(false) }
 
-    selection?.takeIf { isSheetVisible }?.let { day ->
+    val pagerState = rememberPagerState(initialPage = CurrentMonthPage) { MonthPageCount }
+    val coroutineScope = rememberCoroutineScope()
+    // Cambia a mitad del deslizamiento, así el nombre del mes acompaña al gesto
+    val visibleMonth = monthForPage(pagerState.currentPage, currentMonth)
+    LaunchedEffect(pagerState.settledPage) { selection = null }
+
+    selection?.takeIf { isSheetVisible }?.let { date ->
         DayDetailsSheet(
-            date = day.date,
+            date = date,
             today = today,
-            items = uiState.itemsOn(day.date),
+            items = uiState.itemsOn(date),
             onDismiss = { isSheetVisible = false }
         )
     }
@@ -83,51 +81,37 @@ fun CalendarScreen(viewModel: CalendarViewModel = hiltViewModel()) {
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        val state = rememberCalendarState(
-            startMonth = startMonth,
-            endMonth = endMonth,
-            firstVisibleMonth = currentMonth,
-            firstDayOfWeek = daysOfWeek.first(),
-            outDateStyle = OutDateStyle.EndOfGrid,
-        )
-        val coroutineScope = rememberCoroutineScope()
-        val visibleMonth by remember { derivedStateOf { state.firstVisibleMonth } }
-        LaunchedEffect(visibleMonth) { selection = null }
-
         CalendarHeader(
-            calendarState = state,
+            month = visibleMonth,
             onPreviousClick = {
-                coroutineScope.launch { state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.minusMonths(1)) }
+                coroutineScope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
             },
             onNextClick = {
-                coroutineScope.launch { state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.plusMonths(1)) }
+                coroutineScope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
             }
         )
 
-        MonthHeader(daysOfWeek = daysOfWeek)
+        WeekDaysHeader(weekDays)
 
-        HorizontalCalendar(
-            modifier = Modifier.wrapContentWidth(),
-            state = state,
-            dayContent = { day ->
-                Day(
-                    day = day,
-                    today = today,
-                    isSelected = selection?.date == day.date,
-                    onClick = {
-                        selection = day
-                        isSheetVisible = true
-                    },
-                    todayColor = appColors.calendarToday,
-                    itemBackgroundColor = appColors.calendarDayBackground,
-                    selectedItemColor = appColors.calendarSelectedBorder,
-                    // Los días de otros meses, atenuados pero legibles sobre cualquier fondo
-                    inactiveTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
-                    normalTextColor = MaterialTheme.colorScheme.onBackground,
-                    dots = uiState.itemsByDate[day.date]?.let { gridDots(it) },
-                )
-            }
-        )
+        // Todos los meses tienen 6 semanas: el calendario no cambia de alto
+        HorizontalPager(
+            state = pagerState,
+            pageSpacing = 16.dp,
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier.fillMaxWidth()
+        ) { page ->
+            MonthGrid(
+                month = monthForPage(page, currentMonth),
+                firstDay = firstDay,
+                today = today,
+                selected = selection,
+                itemsByDate = uiState.itemsByDate,
+                onDayClick = { date ->
+                    selection = date
+                    isSheetVisible = true
+                }
+            )
+        }
 
         EventsAndTasksTimeline(uiState.timeline, today = today, modifier = Modifier.padding(top = 24.dp))
     }

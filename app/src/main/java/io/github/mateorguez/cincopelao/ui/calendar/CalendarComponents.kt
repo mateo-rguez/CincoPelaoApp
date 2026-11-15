@@ -1,7 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.calendar
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -14,13 +13,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,118 +30,68 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kizitonwose.calendar.compose.CalendarLayoutInfo
-import com.kizitonwose.calendar.compose.CalendarState
-import com.kizitonwose.calendar.core.CalendarDay
-import com.kizitonwose.calendar.core.CalendarMonth
-import com.kizitonwose.calendar.core.DayPosition
-import com.kizitonwose.calendar.core.daysOfWeek
-import com.kizitonwose.calendar.core.previousMonth
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
-import kotlinx.coroutines.flow.filterNotNull
 
-// Piezas del calendario mensual: cabecera con el mes, días de la semana y cada día.
+// Piezas del calendario mensual: cabecera con el mes, días de la semana y la cuadrícula de días.
 
-@OptIn(ExperimentalAnimationApi::class)
+/** Hueco entre las celdas de la cuadrícula, en las dos direcciones. */
+private val CellGap = 4.dp
+private val CellShape = RoundedCornerShape(8.dp)
+
+/** Mes visible entre dos flechas; al cambiar, el nombre entra por el lado hacia el que se va. */
 @Composable
-fun CalendarHeader(
-    calendarState: CalendarState,
-    onPreviousClick: () -> Unit,
-    onNextClick: () -> Unit
-) {
-    val visibleMonth = rememberFirstMostVisibleMonth(calendarState, viewportPercent = 50f).yearMonth
-
-    var currentHeaderMonth by remember { mutableStateOf(visibleMonth) }
-    var previousMonth by remember { mutableStateOf(visibleMonth) }
-
-    // Detecta cambio manual (swipe) y actualiza estado
-    LaunchedEffect(visibleMonth) {
-        if (visibleMonth != currentHeaderMonth) {
-            previousMonth = currentHeaderMonth
-            currentHeaderMonth = visibleMonth
-        }
-    }
-
-    val direction = if (currentHeaderMonth > previousMonth) 1 else -1
-
-    val monthTitle = currentHeaderMonth.format(
-        DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
-    ).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-
+fun CalendarHeader(month: YearMonth, onPreviousClick: () -> Unit, onNextClick: () -> Unit) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = {
-            val prev = currentHeaderMonth.minusMonths(1)
-            previousMonth = currentHeaderMonth
-            currentHeaderMonth = prev
-            onPreviousClick()
-        }) {
+        IconButton(onClick = onPreviousClick) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Mes anterior",
                 tint = MaterialTheme.colorScheme.onBackground
             )
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-
+        Spacer(Modifier.weight(1f))
         AnimatedContent(
-            targetState = monthTitle,
+            targetState = month,
             transitionSpec = {
-                val animSpec = tween<IntOffset>(300)
-                if (direction > 0) {
-                    slideInHorizontally(animSpec) { it } + fadeIn() togetherWith
-                            slideOutHorizontally(animSpec) { -it } + fadeOut()
-                } else {
-                    slideInHorizontally(animSpec) { -it } + fadeIn() togetherWith
-                            slideOutHorizontally(animSpec) { it } + fadeOut()
-                }.using(SizeTransform(clip = false))
-            }
-        ) { title ->
+                val spec = tween<IntOffset>(300)
+                val forward = targetState > initialState
+                (slideInHorizontally(spec) { if (forward) it else -it } + fadeIn() togetherWith
+                    slideOutHorizontally(spec) { if (forward) -it else it } + fadeOut())
+                    .using(SizeTransform(clip = false))
+            },
+            label = "mes"
+        ) { shown ->
             Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontFamily = DelightMedium
-                ),
+                text = shown.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault()))
+                    .replaceFirstChar { it.titlecase(Locale.getDefault()) },
+                style = MaterialTheme.typography.titleLarge.copy(fontFamily = DelightMedium),
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.SemiBold,
             )
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        IconButton(onClick = {
-            val next = currentHeaderMonth.plusMonths(1)
-            previousMonth = currentHeaderMonth
-            currentHeaderMonth = next
-            onNextClick()
-        }) {
+        Spacer(Modifier.weight(1f))
+        IconButton(onClick = onNextClick) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = "Mes siguiente",
@@ -152,85 +101,106 @@ fun CalendarHeader(
     }
 }
 
-
+/** Iniciales de los días de la semana ("LUN", "MAR"…), alineadas con las columnas. */
 @Composable
-fun MonthHeader(
-    modifier: Modifier = Modifier,
-    daysOfWeek: List<DayOfWeek> = emptyList()
-) {
+fun WeekDaysHeader(days: List<DayOfWeek>, modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp, bottom = 5.dp)
+        modifier = modifier.fillMaxWidth().padding(top = 10.dp, bottom = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(CellGap)
     ) {
-        for (dayOfWeek in daysOfWeek) {
+        days.forEach { day ->
             Text(
-                modifier = Modifier
-                    .weight(1f)
-                    .wrapContentHeight(),
+                text = day.getDisplayName(TextStyle.SHORT, Locale.getDefault()).replace(".", "").uppercase(),
+                modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center,
                 fontSize = 11.sp,
                 lineHeight = 14.sp,
                 color = MaterialTheme.colorScheme.onBackground,
-                text = dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, Locale.getDefault()).uppercase(),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontFamily = DelightRegular,
-                    fontWeight = FontWeight.Medium
-                ),
+                style = MaterialTheme.typography.labelMedium.copy(fontFamily = DelightRegular, fontWeight = FontWeight.Medium),
                 maxLines = 1
             )
         }
     }
 }
 
+/** Cuadrícula de un mes: 6 semanas, con los días de los meses vecinos atenuados. */
 @Composable
-fun Day(
-    day: CalendarDay,
+fun MonthGrid(
+    month: YearMonth,
+    firstDay: DayOfWeek,
     today: LocalDate,
-    isSelected: Boolean = false,
-    onClick: (CalendarDay) -> Unit = {},
-    itemBackgroundColor: Color = Color.DarkGray,
-    todayColor: Color = Color.Cyan,
-    selectedItemColor: Color = Color.Green,
-    inactiveTextColor: Color = Color.Gray,
-    normalTextColor: Color = Color.White,
-    dots: GridDots? = null,
+    selected: LocalDate?,
+    itemsByDate: Map<LocalDate, List<TimelineItem>>,
+    onDayClick: (LocalDate) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val isToday = day.date == today
+    val days = remember(month, firstDay) { monthGridDays(month, firstDay) }
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(CellGap)) {
+        days.chunked(7).forEach { week ->
+            Row(horizontalArrangement = Arrangement.spacedBy(CellGap)) {
+                week.forEach { date ->
+                    val inMonth = YearMonth.from(date) == month
+                    DayCell(
+                        date = date,
+                        inMonth = inMonth,
+                        isToday = date == today,
+                        isSelected = inMonth && date == selected,
+                        dots = if (inMonth) itemsByDate[date]?.let { gridDots(it) } else null,
+                        onClick = { onDayClick(date) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
 
-    val borderModifier = when {
-        isSelected -> Modifier.border(2.dp, selectedItemColor, shape = RoundedCornerShape(4.dp))
-        isToday -> Modifier.border(2.dp, todayColor, shape = RoundedCornerShape(4.dp))
+/**
+ * Un día: casilla redondeada con el número arriba y los puntos abajo. Hoy lleva un borde del
+ * acento; el día elegido, un relleno suave y un borde fino. Los días de otros meses, atenuados y
+ * sin pulsar.
+ */
+@Composable
+private fun DayCell(
+    date: LocalDate,
+    inMonth: Boolean,
+    isToday: Boolean,
+    isSelected: Boolean,
+    dots: GridDots?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val appColors = MaterialTheme.appColors
+    val onBackground = MaterialTheme.colorScheme.onBackground
+    val base = appColors.calendarDayBackground
+    val background = when {
+        isSelected -> appColors.calendarSelectedBorder.copy(alpha = 0.22f).compositeOver(base)
+        inMonth -> base
+        else -> base.copy(alpha = 0.5f)
+    }
+    val border = when {
+        isToday && inMonth -> Modifier.border(2.dp, appColors.calendarToday, CellShape)
+        isSelected -> Modifier.border(1.dp, appColors.calendarSelectedBorder, CellShape)
         else -> Modifier
     }
-
     Box(
-        modifier = Modifier
+        modifier = modifier
             .aspectRatio(1f)
-            .then(borderModifier)
-            .padding(1.dp)
-            .background(color = itemBackgroundColor)
-            .clickable(enabled = day.position == DayPosition.MonthDate, onClick = { onClick(day) }),
+            .clip(CellShape)
+            .background(background)
+            .then(border)
+            .clickable(enabled = inMonth, onClick = onClick)
     ) {
-
-        if (dots != null && day.position == DayPosition.MonthDate) {
-            DayDots(dots, Modifier.align(Alignment.BottomCenter).padding(bottom = 5.dp))
-        }
-
-        val textColor = when (day.position) {
-            DayPosition.MonthDate -> normalTextColor
-            DayPosition.InDate, DayPosition.OutDate -> inactiveTextColor
-        }
-
         Text(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(4.dp),
-            text = day.date.dayOfMonth.toString(),
-            color = textColor,
+            text = date.dayOfMonth.toString(),
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 5.dp),
+            color = if (inMonth) onBackground else onBackground.copy(alpha = 0.45f),
             fontSize = 14.sp,
-            fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
+            fontWeight = if (isToday || isSelected) FontWeight.Bold else FontWeight.Normal,
         )
+        if (dots != null) {
+            DayDots(dots, Modifier.align(Alignment.BottomCenter).padding(bottom = 7.dp))
+        }
     }
 }
 
@@ -254,36 +224,5 @@ private fun DayDots(dots: GridDots, modifier: Modifier = Modifier) {
                 fontWeight = FontWeight.Bold
             )
         }
-    }
-}
-
-// Utilidades del calendario de Kizitonwose ------------------------------
-
-@Composable
-fun rememberFirstMostVisibleMonth(
-    state: CalendarState,
-    viewportPercent: Float = 50f,
-): CalendarMonth {
-    val visibleMonth = remember(state) { mutableStateOf(state.firstVisibleMonth) }
-    LaunchedEffect(state) {
-        snapshotFlow { state.layoutInfo.firstMostVisibleMonth(viewportPercent) }
-            .filterNotNull()
-            .collect { month -> visibleMonth.value = month }
-    }
-    return visibleMonth.value
-}
-
-private fun CalendarLayoutInfo.firstMostVisibleMonth(viewportPercent: Float = 50f): CalendarMonth? {
-    return if (visibleMonthsInfo.isEmpty()) {
-        null
-    } else {
-        val viewportSize = (viewportEndOffset + viewportStartOffset) * viewportPercent / 100f
-        visibleMonthsInfo.firstOrNull { itemInfo ->
-            if (itemInfo.offset < 0) {
-                itemInfo.offset + itemInfo.size >= viewportSize
-            } else {
-                itemInfo.size - itemInfo.offset >= viewportSize
-            }
-        }?.month
     }
 }

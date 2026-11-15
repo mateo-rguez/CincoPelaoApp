@@ -89,7 +89,6 @@ dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // UI de terceros
-    implementation(libs.kizitonwose.calendar.compose) // Calendario
     implementation(libs.exyte.animated.navigation.bar) // Barra inferior
 
     // Tests
