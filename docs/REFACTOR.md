@@ -29,8 +29,8 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 **Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
 aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. En curso: **pulir la
 interfaz**, pantalla por pantalla con el autor; Tareas y Asignaturas (lista, detalle y
-estadísticas) y Calendario están terminadas y la siguiente es el **Horario** (luego
-Notificaciones e Instancias). En cada pantalla: capturas con la app en
+estadísticas), Calendario y Horario están terminadas y la siguiente es **Notificaciones**
+(luego Instancias). En cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -282,6 +282,16 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     - Nota: el móvil rechaza instalar desde un PC distinto (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`:
       cada PC tiene su `~/.android/debug.keystore`). No desinstalar (se pierden los datos): copiar
       la misma `debug.keystore` en los dos PCs o instalar desde el PC que firmó la versión instalada.
+  - **Horario** ✅ (15 de noviembre de 2026), probado con una instancia de prueba con y sin
+    horario (borrada después):
+    - `e6fccc8` Zoom: el desplazamiento sigue al dedo 1:1 (antes se dividía por el zoom y a 10×
+      iba al 25 %, el autor lo notaba lento y tosco); pellizco hacia los dedos y doble toque
+      animado hacia el punto tocado; sin arrastrar más allá de los bordes (`ZoomMath.kt`, con
+      tests). Vacío centrado con el reloj en un círculo suave. Botón «⋮» que se transforma en una
+      tarjeta (Cambiar archivo / Quitar horario) y esta en la confirmación: el autor no quería un
+      menú desplegable normal. `FloatingActionButtonMenu` de Material 3 llega en la 1.4 (tenemos
+      la 1.3): si se actualizan las librerías, valorar usarlo. Antes no se podía quitar el horario.
+
 - ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
   elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
 - ☐ **Rendimiento del scroll** (notado por el autor el 11 de noviembre de 2026): la app antigua
