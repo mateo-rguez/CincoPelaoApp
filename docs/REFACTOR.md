@@ -29,9 +29,8 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 **Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
 aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. En curso: **pulir la
 interfaz**, pantalla por pantalla con el autor; Tareas y Asignaturas (lista, detalle y
-estadísticas) están terminadas y ahora va el **Calendario**: la línea de tiempo está hecha y
-probada, y la cuadrícula y la hoja del día también (calendario propio, sin librería); solo
-queda quitar de las paletas los colores de las tarjetas antiguas. En cada pantalla: capturas con la app en
+estadísticas) y Calendario están terminadas y la siguiente es el **Horario** (luego
+Notificaciones e Instancias). En cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -244,7 +243,7 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
         pendientes huecos, línea en el 5, puntos suspensos (menos de 5 o bajo la mínima) en rojo.
       - `d5111f6` Altura final 270 dp (se probaron 300 y 240) y línea de un solo color: el degradado
         de la línea hacia los suspensos se probó y no gustó.
-  - **Calendario** ⏳ (11 de noviembre de 2026). El autor eligió: tarjetas más claras, cabeceras
+  - **Calendario** ✅ (11–15 de noviembre de 2026). El autor eligió: tarjetas más claras, cabeceras
     relativas, puntos por tipo en la cuadrícula y hoja del día con tarjetas; además, rediseñar la
     línea de tiempo entera (línea, puntos, fechas) con formas de Material 3.
     - ✅ Línea de tiempo propia (`Timeline.kt`), probada en el móvil y ajustada con el autor
@@ -264,8 +263,11 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       (estallido, pentágono, galleta, aro; con `androidx.graphics:graphics-shapes`) y también
       en el punto de cada día girando despacio; ramas teñidas con el color del elemento; la
       cabecera en mayúsculas; tarjetas con el fondo teñido según el tipo y el título arriba.
-    - ☐ Quitar `timelineEventContainer` / `timelineTaskContainer` de las paletas: ya solo los
-      usan la vista previa de Apariencia y `PalettesTest`.
+    - ✅ `9f4fffa` Fuera `timelineEventContainer` / `timelineTaskContainer` (fondos de las
+      tarjetas de JetLime); la miniatura de Apariencia usa el color de las tareas.
+    - ✅ `26fda6e` Contraste de los tipos: el test comprueba ahora la etiqueta de cada tipo sobre
+      la tarjeta (4,5:1) y los puntos sobre el fondo y la casilla (3:1). Clásico tiene tonos
+      propios en claro y en oscuro, y su casilla ya no es `Color.Cyan`/`Blue`/`Black`.
     - ✅ `bfce1a6` Cuadrícula con un punto del color de su tipo por cada elemento del día (hasta
       4 y «+»; el autor lo prefirió a un punto por tipo, a una barra o a teñir la celda) y días
       de otros meses con el texto de la paleta atenuado (fuera `CalendarInactiveText`). Todo
@@ -298,10 +300,19 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   mejor al terminar «Pulir la interfaz»): que no queden apaños con colores fijos o condiciones
   para una paleta o situación concreta (`if (oscuro) …`, colores sueltos en pantallas) y que
   cada paleta defina por sí misma colores coherentes y bien contrastados en toda la app, de
-  modo que añadir una paleta nueva sea solo rellenar sus valores. Incluye, p. ej., los días de
-  otros meses del calendario (`CalendarInactiveText`) y los colores de estado de nota
-  (`StatusFail`, `StatusGood`…: etiquetas del detalle, Reparto, calculadora y gráfica), que hoy
-  son constantes fijas y no de cada paleta.
+  modo que añadir una paleta nueva sea solo rellenar sus valores. Objetivo del autor (15 de
+  noviembre): ningún cambio puntual con combinaciones de colores fuera de las paletas; una
+  paleta nueva = apuntar sus colores en cada variable, sin tocar nada más. Pendiente de revisar:
+  - Los colores de estado de nota (`StatusFail`, `StatusGood`…: etiquetas del detalle,
+    Reparto, calculadora y gráfica), que hoy son constantes fijas y no de cada paleta.
+  - Clásico se escribe a mano (`classicLightAppColors` / `classicDarkAppColors`) y no con
+    `namedPalette` como Grafito; dentro de `namedPalette` quedan `if (dark)` (tarjeta de
+    tareas, fechas, brillos).
+  - Variables que se derivan de colores generales del esquema (en Grafito, la casilla del
+    calendario sale de `secondaryContainer`, `accent` y `onPrimaryContainer`): decidir cuáles
+    deben ser propias para que retocar una pantalla no mueva otra.
+  - Hecho por el camino: los días de otros meses del calendario ya no usan `CalendarInactiveText`
+    (`bfce1a6`) y los tipos del calendario son propios de cada paleta y modo (`26fda6e`).
 - ☐ **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
   qué textos usan las fuentes propias (Delight) y cuáles la del sistema, que cambia según el
   fabricante, y unificarlo.
