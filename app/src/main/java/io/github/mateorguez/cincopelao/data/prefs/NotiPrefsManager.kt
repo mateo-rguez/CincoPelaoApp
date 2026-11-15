@@ -31,7 +31,7 @@ class NotiPrefsManager @Inject constructor(@ApplicationContext context: Context)
     // --- Valores por defecto ---
     private fun getDefaultDays(): List<Int> = listOf(7, 3, 1)
     private fun getDefaultStartHour() = 8
-    private fun getDefaultEndHour() = 22
+    private fun getDefaultEndHour() = 24 // hasta medianoche
 
     // --- Obtener datos de eventos ---
     val eventDaysFlow: Flow<List<Int>> = context.dataStore.data.map { prefs ->
