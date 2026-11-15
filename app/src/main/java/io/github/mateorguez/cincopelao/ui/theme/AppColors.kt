@@ -37,10 +37,10 @@ data class AppColors(
     val calendarToday: Color,
     val calendarDayBackground: Color,
     val calendarSelectedBorder: Color,
-    /** Línea de tiempo del calendario: tarjetas de eventos y de tareas. */
-    val timelineEventContainer: Color,
-    val timelineTaskContainer: Color,
-    /** Marcadores de la línea de tiempo (sobre el fondo): exámenes, otros eventos y tareas. */
+    /**
+     * Colores de cada tipo en el calendario (etiquetas de la línea de tiempo y puntos de la
+     * cuadrícula y de la hoja del día): exámenes, otros eventos y tareas.
+     */
     val timelineExamPoint: Color,
     val timelineEventPoint: Color,
     val timelineTaskPoint: Color,

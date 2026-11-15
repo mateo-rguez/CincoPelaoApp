@@ -44,8 +44,6 @@ class PalettesTest {
             check(failures, "$name sobre controles", c.scheme.onPrimary, c.scheme.primary)
             check(failures, "$name contenedor", c.scheme.onPrimaryContainer, c.scheme.primaryContainer)
             check(failures, "$name acento/fondo", c.app.accent, c.scheme.background)
-            check(failures, "$name línea de tiempo (eventos)", Color.White, c.app.timelineEventContainer)
-            check(failures, "$name línea de tiempo (tareas)", Color.White, c.app.timelineTaskContainer)
             check(failures, "$name texto/tarjeta de tarea", c.scheme.onBackground, c.app.taskCard)
             // Etiqueta de la fecha: texto del tono sobre ese mismo tono suave, encima de la tarjeta
             for ((label, tone) in listOf("vencida" to c.app.dueOverdue, "pronto" to c.app.dueSoon)) {

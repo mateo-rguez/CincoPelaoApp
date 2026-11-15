@@ -91,8 +91,9 @@ fun PalettePreviewCard(
                 Spacer(Modifier.width(6.dp))
                 Box(Modifier.weight(1f).height(5.dp).clip(CircleShape).background(scheme.onBackground.copy(alpha = 0.7f)))
             }
+            // Otra con el color de las tareas en el calendario
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(9.dp).clip(RoundedCornerShape(2.dp)).background(app.timelineTaskContainer))
+                Box(Modifier.size(9.dp).clip(RoundedCornerShape(2.dp)).background(app.timelineTaskPoint))
                 Spacer(Modifier.width(6.dp))
                 Box(Modifier.fillMaxWidth(0.6f).height(5.dp).clip(CircleShape).background(scheme.onBackground.copy(alpha = 0.4f)))
             }
