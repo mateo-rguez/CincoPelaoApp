@@ -46,15 +46,9 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material.icons.filled.DataArray
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
@@ -75,9 +69,6 @@ import com.exyte.animatednavbar.animation.indendshape.shapeCornerRadius
 import com.exyte.animatednavbar.utils.noRippleClickable
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.ui.calendar.CalendarScreen
-import io.github.mateorguez.cincopelao.ui.appearance.AppearanceActivity
-import io.github.mateorguez.cincopelao.ui.instances.InstancesActivity
-import io.github.mateorguez.cincopelao.ui.notifications.NotificationsActivity
 import io.github.mateorguez.cincopelao.ui.schedule.ScheduleScreen
 import io.github.mateorguez.cincopelao.ui.sharing.ReceiveActivity
 import io.github.mateorguez.cincopelao.ui.sharing.ShareModeScreen
@@ -146,7 +137,7 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DrawerContent(
+            AppDrawer(
                 onToggleTheme = onToggleTheme,
                 darkTheme = darkTheme,
                 onItemSelected = navController::navigateToTab,
@@ -218,142 +209,6 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun DrawerContent(
-    onToggleTheme: () -> Unit,
-    darkTheme: Boolean,
-    onItemSelected: (BottomNavItem) -> Unit,
-    closeDrawer: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .width(320.dp)
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-                .background(MaterialTheme.appColors.bar)
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .background(MaterialTheme.appColors.bar)
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                text = "Navegación",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.appColors.onBar,
-            )
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        BottomNavItem.entries.forEach { item ->
-            TextButton(onClick = {
-                onItemSelected(item)
-                closeDrawer()
-            }, modifier = Modifier.padding(start = 8.dp)) {
-                Icon(item.icon, contentDescription = item.label, tint = MaterialTheme.colorScheme.onPrimaryContainer)
-                Spacer(Modifier.width(8.dp))
-                Text(item.label, color = MaterialTheme.colorScheme.onPrimaryContainer)
-            }
-        }
-
-        Spacer(Modifier.height(24.dp))
-
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f),
-            thickness = 1.dp,
-            modifier = Modifier.padding(8.dp)
-        )
-
-        Spacer(Modifier.height(24.dp))
-
-        // Atajo: fija Claro u Oscuro. El modo «Sistema» y las paletas están en Apariencia.
-        Row(
-            modifier = Modifier
-                .padding(start = 19.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.DarkMode,
-                contentDescription = "Modo Oscuro",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Modo Oscuro",
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = darkTheme,
-                onCheckedChange = { onToggleTheme() },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                    checkedTrackColor = MaterialTheme.colorScheme.primary,
-                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                ), modifier = Modifier.padding(end = 19.dp)
-            )
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        val context = LocalContext.current
-        TextButton(
-            onClick = {
-                closeDrawer()
-                context.startActivity(Intent(context, AppearanceActivity::class.java))
-            },
-            modifier = Modifier
-                .padding(start = 8.dp)
-        ) {
-            Icon(Icons.Default.Palette, contentDescription = "Apariencia", tint = MaterialTheme.colorScheme.onPrimaryContainer)
-            Spacer(Modifier.width(8.dp))
-            Text("Apariencia", color = MaterialTheme.colorScheme.onPrimaryContainer)
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        TextButton(
-            onClick = {
-                closeDrawer() // al volver, el menú ya no está abierto
-                context.startActivity(Intent(context, InstancesActivity::class.java))
-            },
-            modifier = Modifier
-                .padding(start = 8.dp)
-        ) {
-            Icon(Icons.Default.DataArray, contentDescription = "Instancias", tint = MaterialTheme.colorScheme.onPrimaryContainer)
-            Spacer(Modifier.width(8.dp))
-            Text("Instancias", color = MaterialTheme.colorScheme.onPrimaryContainer)
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        TextButton(
-            onClick = {
-                closeDrawer()
-                context.startActivity(Intent(context, NotificationsActivity::class.java))
-            },
-            modifier = Modifier
-                .padding(start = 8.dp)
-        ) {
-            Icon(Icons.Default.Notifications, contentDescription = "Notificaciones", tint = MaterialTheme.colorScheme.onPrimaryContainer)
-            Spacer(Modifier.width(8.dp))
-            Text("Notificaciones", color = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     }
 }
