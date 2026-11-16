@@ -19,7 +19,9 @@ import javax.inject.Inject
 data class SubjectsUiState(
     val subjects: List<SubjectSummary> = emptyList(),
     /** Titulación de la instancia activa, que se muestra junto al curso. */
-    val titulation: String? = null
+    val titulation: String? = null,
+    /** false hasta la primera lectura: evita que asome el aviso de «no hay asignaturas» al abrir. */
+    val loaded: Boolean = false
 )
 
 @HiltViewModel
@@ -33,7 +35,7 @@ class SubjectsViewModel @Inject constructor(
     val uiState: StateFlow<SubjectsUiState> = combine(
         subjects.subjects, events.events, tasks.tasks, instances.currentInstance
     ) { list, allEvents, allTasks, instance ->
-        SubjectsUiState(subjectSummaries(list, allEvents, allTasks), instance?.titulation)
+        SubjectsUiState(subjectSummaries(list, allEvents, allTasks), instance?.titulation, loaded = true)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SubjectsUiState())
 
     /** Borra la asignatura con sus eventos y tareas; devuelve lo borrado para poder deshacerlo. */

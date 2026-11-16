@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -96,11 +95,7 @@ fun ReceiveScreen(
                     singleLine = true,
                     isError = state.displayNameBytes > BleAdvert.MAX_NAME_BYTES,
                     supportingText = {
-                        Text(
-                            "${state.displayNameBytes}/${BleAdvert.MAX_NAME_BYTES} bytes (lo que cabe en un anuncio BLE)",
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 11.sp
-                        )
+                        Text(displayNameCounter(state.displayName))
                     },
                     modifier = Modifier.fillMaxWidth()
                 )

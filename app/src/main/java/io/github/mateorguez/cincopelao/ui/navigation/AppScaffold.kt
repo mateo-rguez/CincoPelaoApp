@@ -140,6 +140,8 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
     val selectedItem = BottomNavItem.entries.find { it.route == currentRoute } ?: START_TAB
 
     var showCompletedTasks by remember { mutableStateOf(false) }
+    // Sin asignaturas, la pantalla vacía ya tiene su botón de añadir: el «＋» sobra
+    var subjectsEmpty by remember { mutableStateOf(false) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -168,7 +170,7 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
                 )
             },
             floatingActionButton = {
-                if (selectedItem == BottomNavItem.Asignaturas) {
+                if (selectedItem == BottomNavItem.Asignaturas && !subjectsEmpty) {
                     FloatingActionButton(
                         onClick = { context.startActivity(Intent(context, AddEditSubjectActivity::class.java)) },
                         containerColor = MaterialTheme.appColors.bar,
@@ -188,7 +190,14 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
                 startDestination = START_TAB.route,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                tab(BottomNavItem.Asignaturas) { SubjectsScreen(snackbarHostState) }
+                tab(BottomNavItem.Asignaturas) {
+                    SubjectsScreen(
+                        snackbarHostState = snackbarHostState,
+                        onAddSubject = { context.startActivity(Intent(context, AddEditSubjectActivity::class.java)) },
+                        onOpenSharing = { navController.navigateToTab(BottomNavItem.ShareMode) },
+                        onEmptyChange = { subjectsEmpty = it }
+                    )
+                }
 
                 tab(BottomNavItem.Tareas) { TaskScreenManager(showCompletedTasks, snackbarHostState) }
 

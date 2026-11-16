@@ -60,6 +60,17 @@ data class ReceiveUiState(
 }
 
 /**
+ * Contador bajo el nombre visible: «5/12 caracteres». El límite real son bytes (lo que cabe en el
+ * anuncio BLE), así que si hay letras que ocupan más (tildes, ñ) se avisa de que cuentan doble.
+ */
+internal fun displayNameCounter(name: String): String {
+    val trimmed = name.trim()
+    val bytes = trimmed.toByteArray().size
+    val base = "$bytes/${BleAdvert.MAX_NAME_BYTES} caracteres"
+    return if (bytes > trimmed.length) "$base · las tildes y la ñ cuentan doble" else base
+}
+
+/**
  * Recibir: crea un grupo Wi‑Fi Direct, abre el socket, se anuncia por BLE y espera al emisor.
  * Los datos recibidos son de esta sesión y de nadie más (antes se acumulaban en un singleton y
  * se importaba siempre el primer mensaje).
