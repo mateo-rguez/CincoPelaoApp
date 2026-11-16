@@ -31,7 +31,8 @@ aplica de una en una (ver «Fase 7 — Mejoras»). Hechas: **colores y temas** y
 interfaz**, pantalla por pantalla con el autor: Tareas y Asignaturas (lista, detalle y
 estadísticas), Calendario, Horario, Notificaciones, Instancias, Compartir y el menú están
 terminadas (Apariencia se queda como está). Queda aparte la pantalla de crear/editar asignatura,
-cuando convenga; el resto de la lista sigue pendiente. Método usado en cada pantalla: capturas con la app en
+cuando convenga; el resto de la lista sigue pendiente (candidatas: crear/editar asignatura y
+revisar la hora de las notificaciones). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -118,7 +119,7 @@ Recibir                                   Transmitir
   Cancelar no deshacía; "Completada el java.text.SimpleDateFormat@…"; carga de imágenes y PDF
   en el hilo principal.
 
-Tests: 130 (JUnit + Robolectric con Room y WorkManager de pruebas, y sockets TCP locales para la
+Tests: 185, todos en verde a 16 de noviembre de 2026 (JUnit + Robolectric con Room y WorkManager de pruebas, y sockets TCP locales para la
 compartición) — `./gradlew testDebugUnitTest`.
 
 ## Pendiente
@@ -193,7 +194,8 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
 - ✅ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
   pantalla por pantalla con el autor (pedido el 10 de noviembre de 2026). Orden acordado:
   Tareas ✅ → Asignaturas (lista, detalle, estadísticas) ✅ → Calendario (aquí entra «tarea o
-  evento en cada tarjeta») → Horario, Notificaciones, Instancias → Compartir → menú y Apariencia.
+  evento en cada tarjeta») ✅ → Horario, Notificaciones, Instancias ✅ → Compartir ✅ → menú y
+  Apariencia ✅.
   - **Tareas** ✅:
     - `8985f30` Tarjetas rellenas (`appColors.taskCard`) con sombra suave teñida por la paleta y
       brillo en el borde; fecha límite como etiqueta con color según la urgencia (`dueUrgency`):
