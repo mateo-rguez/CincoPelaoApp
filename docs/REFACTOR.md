@@ -1,7 +1,7 @@
 # Refactor de CincoPelao
 
 Seguimiento del refactor de la app: plan por fases, lo hecho y lo que queda.
-Rama de trabajo: `rework`. Última actualización: 11 de noviembre de 2026 (fase 7: pulir la interfaz, Tareas y Asignaturas hechas; Calendario en curso).
+Rama de trabajo: `rework`. Última actualización: 16 de noviembre de 2026 (fase 7: «Pulir la interfaz» terminada).
 
 ## Punto de partida
 
@@ -27,10 +27,11 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 | 7 | Mejoras, una a una (lista abierta) | ⏳ |
 
 **Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
-aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. En curso: **pulir la
-interfaz**, pantalla por pantalla con el autor; Tareas y Asignaturas (lista, detalle y
-estadísticas), Calendario, Horario, Notificaciones, Instancias y Compartir están terminadas;
-quedan **el menú y Apariencia**, y la pantalla de crear/editar asignatura cuando convenga. En cada pantalla: capturas con la app en
+aplica de una en una (ver «Fase 7 — Mejoras»). Hechas: **colores y temas** y **pulir la
+interfaz**, pantalla por pantalla con el autor: Tareas y Asignaturas (lista, detalle y
+estadísticas), Calendario, Horario, Notificaciones, Instancias, Compartir y el menú están
+terminadas (Apariencia se queda como está). Queda aparte la pantalla de crear/editar asignatura,
+cuando convenga; el resto de la lista sigue pendiente. Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -189,7 +190,7 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   gustaron).
 - ✅ **Calendario: tarea o evento en cada tarjeta**: hecho dentro de «Pulir la interfaz» (etiqueta
   del tipo y marcador con forma).
-- ⏳ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
+- ✅ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
   pantalla por pantalla con el autor (pedido el 10 de noviembre de 2026). Orden acordado:
   Tareas ✅ → Asignaturas (lista, detalle, estadísticas) ✅ → Calendario (aquí entra «tarea o
   evento en cada tarjeta») → Horario, Notificaciones, Instancias → Compartir → menú y Apariencia.
@@ -325,6 +326,15 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       igual de anchos, sin el «+» flotante; sin parpadeo del aviso al cargar. Recibir: contador
       del nombre en «caracteres» (las tildes y la ñ cuentan doble). El autor prefirió no
       renombrar las pestañas «ShareMode» y «Materias».
+  - **Menú y Apariencia** ✅ (16 de noviembre de 2026):
+    - `e679270` Menú lateral en su archivo (`AppDrawer.kt`): título «Menú», las cinco pestañas y,
+      tras un divisor, Modo oscuro, Apariencia, Instancias y Notificaciones, todas con la misma
+      fila (48 dp, icono 22 dp, texto 15 sp; se probó a 56 dp y le pareció grande). Pie con
+      «Cinco Pelao · versión X» y el logo de GitHub con `mateo-rguez`, sin arroba ni enlace.
+      Se probó a quitar las pestañas (están en la barra inferior), con «Autogestión académica»
+      y «Hecho por @…» enlazado: el autor prefirió esto.
+    - Apariencia se queda como está (decisión del autor). Siguen sin tocar el icono `[ ]` de
+      Instancias y el pulgar negro del interruptor.
 
 - ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
   elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
