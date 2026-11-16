@@ -29,9 +29,8 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 **Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
 aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. En curso: **pulir la
 interfaz**, pantalla por pantalla con el autor; Tareas y Asignaturas (lista, detalle y
-estadísticas), Calendario, Horario, Notificaciones e Instancias están terminadas y la siguiente
-es **Compartir** (y al final el menú y Apariencia; la pantalla de crear/editar asignatura, cuando
-convenga). En cada pantalla: capturas con la app en
+estadísticas), Calendario, Horario, Notificaciones, Instancias y Compartir están terminadas;
+quedan **el menú y Apariencia**, y la pantalla de crear/editar asignatura cuando convenga. En cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -315,6 +314,17 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       autor quería que se descubriera). Al confirmar se pide el desbloqueo del móvil
       (`DeviceAuth.kt`, `BiometricPrompt` del sistema, sin dependencias). El autor eligió
       tarjetas con resumen frente a filas con divisores.
+  - **Compartir** ✅ (16 de noviembre de 2026): Transmitir y Recibir ya estaban modernizadas
+    (fase 6), así que se pulió la pestaña previa y, de paso, los vacíos:
+    - `8da4fb5` `EmptyState` común (`ui/common`) para el Horario sin horario, Asignaturas sin
+      asignaturas y la pestaña de compartir: círculo suave con la ilustración, título, texto y
+      acciones; ondas opcionales. Compartir: logo con ondas, qué se comparte y «No hace falta
+      conexión a internet» (el autor no quería nombrar Bluetooth ni Wi‑Fi Direct aquí), tarjeta
+      con Transmitir/Recibir explicadas y «Tus notas y tu progreso no se envían». Asignaturas
+      vacía: «Añadir asignatura» y «Recibir de un compañero» (lleva a la pestaña de compartir)
+      igual de anchos, sin el «+» flotante; sin parpadeo del aviso al cargar. Recibir: contador
+      del nombre en «caracteres» (las tildes y la ñ cuentan doble). El autor prefirió no
+      renombrar las pestañas «ShareMode» y «Materias».
 
 - ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
   elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
@@ -330,6 +340,10 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   - sospechosos a revisar: sombras teñidas de `TaskCardFrame` (`shadow` + borde con degradado
     en cada tarjeta), el reloj de 5 s que recompone todas las tarjetas de Asignaturas, y
     claves/`contentType` en las `LazyColumn`.
+- ☐ **Ilustración de Asignaturas vacía** (16 de noviembre de 2026): el icono de apuntes con
+  lápiz es provisional; al autor no le convence (tampoco unos libros apilados dibujados a
+  trazo). Sustituirlo por algo más elaborado en el futuro (en `SubjectsScreen`, dentro del
+  `EmptyState`).
 - ☐ **Pulir la pantalla de crear/editar asignatura** (se quedó fuera de «Pulir la interfaz»;
   el autor la recordó el 16 de noviembre de 2026): hacerla cuando convenga, en medio o al final.
 - ☐ **Revisar la hora de las notificaciones** (notado por el autor el 16 de noviembre de 2026):
