@@ -315,6 +315,19 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   - sospechosos a revisar: sombras teñidas de `TaskCardFrame` (`shadow` + borde con degradado
     en cada tarjeta), el reloj de 5 s que recompone todas las tarjetas de Asignaturas, y
     claves/`contentType` en las `LazyColumn`.
+- ☐ **Pulir la pantalla de crear/editar asignatura** (se quedó fuera de «Pulir la interfaz»;
+  el autor la recordó el 16 de noviembre de 2026): hacerla cuando convenga, en medio o al final.
+- ☐ **Revisar la hora de las notificaciones** (notado por el autor el 16 de noviembre de 2026):
+  varias veces le llegan recordatorios justo al abrir la app, demasiada casualidad. Sospechas a
+  comprobar antes de tocar nada:
+  - la ROM (Realme sobre todo) congela los trabajos de WorkManager con la app en segundo plano y
+    se ejecutan todos los atrasados al abrirla: mirar `adb shell dumpsys jobscheduler` (trabajos
+    pendientes y su hora) y el registro `ReminderManager`; si es eso, valorar `AlarmManager`
+    (alarmas exactas) o avisar de la optimización de batería;
+  - al abrir la app, `ReminderManager` reprograma los recordatorios cuya «spec» haya cambiado y
+    `computeNotifyTime` elige una hora al azar entre ahora y el fin de la franja, que puede caer
+    a los pocos minutos;
+  - comprobar en el registro la hora programada frente a la hora real de llegada.
 - ☐ **Medir el arranque** (pedido por el autor el 16 de noviembre de 2026; abre rápido y no
   parece preocupante, pero conviene tener el dato): tiempo hasta el primer fotograma en frío
   con `adb shell am start -W -S io.github.mateorguez.cincopelao/.MainActivity` (`TotalTime`),
