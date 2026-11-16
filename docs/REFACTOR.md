@@ -29,8 +29,9 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 **Siguiente paso:** la fase 7 no es un bloque, sino una lista de mejoras que se amplía y se
 aplica de una en una (ver «Fase 7 — Mejoras»). Hecha: **colores y temas**. En curso: **pulir la
 interfaz**, pantalla por pantalla con el autor; Tareas y Asignaturas (lista, detalle y
-estadísticas), Calendario, Horario y Notificaciones están terminadas y la siguiente es
-**Instancias** (luego Compartir, y al final el menú y Apariencia). En cada pantalla: capturas con la app en
+estadísticas), Calendario, Horario, Notificaciones e Instancias están terminadas y la siguiente
+es **Compartir** (y al final el menú y Apariencia; la pantalla de crear/editar asignatura, cuando
+convenga). En cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -300,6 +301,20 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       momento, sin botón. Franja por defecto 8:00–24:00 (solo instalaciones nuevas). Tamaños
       ajustados con el autor: primero se quedó corto y luego grande; pastillas de 40 dp y horas
       en `headlineSmall` le encajan.
+  - **Horario**, arreglo (16 de noviembre de 2026): `1ace6f4` la primera visita a la pestaña tras
+    abrir la app salía vacía y a tirones (el PDF se renderizaba a 3× durante la animación de
+    entrada); ahora `ScheduleImageCache` lo precarga al abrir la app y `prepareToDraw()` lo sube a
+    la GPU antes de pintarlo.
+  - **Instancias** ✅ (16 de noviembre de 2026):
+    - `b5f1f3b` Resumen en cada tarjeta («Teleco · 10 asignaturas · 5 tareas · horario») y
+      pastilla «✓ Activa»; fuera «Cancelar»; «＋ Nueva instancia» como última fila con borde
+      discontinuo; crear y editar transformando la tarjeta en el formulario (titulación también
+      al crear) con «Eliminar» y confirmación en la misma tarjeta. Deslizar: la tarjeta vuelve y
+      se convierte en la confirmación, fondo de gris a rojo con papelera que crece y vibra al
+      pasar el umbral, la activa explica que no se puede borrar, y una pista bajo la lista (el
+      autor quería que se descubriera). Al confirmar se pide el desbloqueo del móvil
+      (`DeviceAuth.kt`, `BiometricPrompt` del sistema, sin dependencias). El autor eligió
+      tarjetas con resumen frente a filas con divisores.
 
 - ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
   elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
