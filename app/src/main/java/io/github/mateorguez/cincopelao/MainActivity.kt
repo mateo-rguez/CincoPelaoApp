@@ -16,6 +16,8 @@ import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.*
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.mateorguez.cincopelao.ui.schedule.ScheduleImageCache
+import javax.inject.Inject
 import io.github.mateorguez.cincopelao.notifications.NotificationUtils
 import io.github.mateorguez.cincopelao.ui.navigation.AppScaffold
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoTheme
@@ -27,6 +29,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 class MainActivity : ComponentActivity() {
 
     private var isThemeReady = false
+
+    @Inject lateinit var scheduleImageCache: ScheduleImageCache
 
     // Desde Android 13 hay que pedir permiso para mostrar notificaciones
     private val notificationPermissionLauncher =
@@ -45,6 +49,9 @@ class MainActivity : ComponentActivity() {
         }
 
         super.onCreate(savedInstanceState)
+        // El horario (sobre todo si es un PDF) tarda en prepararse: se adelanta para que la
+        // pestaña lo muestre al momento la primera vez
+        scheduleImageCache.preload()
 
         splashScreen.setKeepOnScreenCondition {
             !isThemeReady

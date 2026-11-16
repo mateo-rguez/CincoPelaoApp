@@ -315,6 +315,11 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   - sospechosos a revisar: sombras teñidas de `TaskCardFrame` (`shadow` + borde con degradado
     en cada tarjeta), el reloj de 5 s que recompone todas las tarjetas de Asignaturas, y
     claves/`contentType` en las `LazyColumn`.
+- ☐ **Medir el arranque** (pedido por el autor el 16 de noviembre de 2026; abre rápido y no
+  parece preocupante, pero conviene tener el dato): tiempo hasta el primer fotograma en frío
+  con `adb shell am start -W -S io.github.mateorguez.cincopelao/.MainActivity` (`TotalTime`),
+  en **release** y en los dos móviles. Ojo: desde el 16 de noviembre se precarga el horario al
+  arrancar (`ScheduleImageCache`); va en segundo plano, pero comprobar que no retrasa el inicio.
 - ☐ **Revisar que los temas estén limpios** (pedido por el autor el 11 de noviembre de 2026,
   mejor al terminar «Pulir la interfaz»): que no queden apaños con colores fijos o condiciones
   para una paleta o situación concreta (`if (oscuro) …`, colores sueltos en pantallas) y que

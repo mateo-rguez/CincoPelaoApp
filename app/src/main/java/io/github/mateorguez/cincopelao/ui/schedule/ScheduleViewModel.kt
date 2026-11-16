@@ -46,7 +46,8 @@ sealed interface ScheduleUiState {
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val instances: InstanceRepository
+    private val instances: InstanceRepository,
+    private val imageCache: ScheduleImageCache
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ScheduleUiState>(ScheduleUiState.Loading)
@@ -95,7 +96,7 @@ class ScheduleViewModel @Inject constructor(
         val (uriString, zoom, offset) = getScheduleState(context, instanceId).first()
         currentUri = uriString
         loadedKey = instanceId to uriString
-        val bitmap = uriString?.let { ScheduleFileLoader.load(context, Uri.parse(it)) }
+        val bitmap = uriString?.let { imageCache.get(it) }
         _uiState.value = if (bitmap != null) ScheduleUiState.Loaded(bitmap, zoom, offset, ++version) else ScheduleUiState.Empty
     }
 
@@ -117,6 +118,7 @@ class ScheduleViewModel @Inject constructor(
             // El archivo anterior ya no hace falta leerlo (si es el mismo, el permiso se conserva)
             if (currentUri != uri.toString()) releasePermission(currentUri)
             currentUri = uri.toString()
+            imageCache.put(uri.toString(), bitmap)
             loadedKey = instances.currentInstanceId.value to currentUri
             _uiState.value = ScheduleUiState.Loaded(bitmap, 1f, Offset.Zero, ++version)
             saveScheduleState(context, instances.currentInstanceId.value, currentUri, 1f, Offset.Zero)
@@ -136,6 +138,7 @@ class ScheduleViewModel @Inject constructor(
         currentUri = null
         loadedKey = instanceId to null
         _uiState.value = ScheduleUiState.Empty
+        imageCache.clear()
         withContext(Dispatchers.IO) { File(context.filesDir, "SCHEDULE_$instanceId").deleteRecursively() }
         clearScheduleState(context, instanceId)
     }
