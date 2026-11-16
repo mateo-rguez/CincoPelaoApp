@@ -52,7 +52,7 @@ class InstancesActivity : ComponentActivity() {
                 ) { paddingValues ->
                     Box(modifier = Modifier.padding(paddingValues)) {
                         // Al elegir una instancia basta con cerrar: las pantallas cambian de datos solas
-                        InstancesScreen(onInstanceSelected = { finish() }, onCancel = { finish() })
+                        InstancesScreen(onInstanceSelected = { finish() })
                     }
                 }
             }

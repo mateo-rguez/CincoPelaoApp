@@ -88,8 +88,8 @@ class InstanceRepository @Inject constructor(
         prefs.edit { putString(KEY_CURRENT_ID, instanceId) }
     }
 
-    fun create(name: String, setCurrent: Boolean = false): DatabaseInstance {
-        val instance = DatabaseInstance(id = UUID.randomUUID().toString(), name = name)
+    fun create(name: String, titulation: String? = null, setCurrent: Boolean = false): DatabaseInstance {
+        val instance = DatabaseInstance(id = UUID.randomUUID().toString(), name = name, titulation = titulation)
         _instances.update { it + instance }
         saveInstances()
         if (setCurrent) select(instance.id)

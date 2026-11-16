@@ -32,6 +32,10 @@ interface TaskDao {
     fun getTasksBySubject(subjectId: Long): Flow<List<Task>>
 
     // Obtener una tarea específica por ID
+    /** Tareas pendientes (sin contar subtareas ni archivadas), para el resumen de cada instancia. */
+    @Query("SELECT COUNT(*) FROM tasks WHERE isCompleted = 0 AND archived = 0 AND parentTaskId IS NULL")
+    suspend fun countPending(): Int
+
     @Query("SELECT * FROM tasks WHERE taskId = :taskId")
     suspend fun getTaskById(taskId: Long): Task?
 

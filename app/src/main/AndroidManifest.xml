@@ -26,6 +26,8 @@
     <!-- Socket TCP sobre Wi‑Fi Direct (permiso normal, se concede al instalar) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Huella o cara para confirmar el borrado de una instancia (permiso normal: no se pide) -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
     <!-- La app funciona sin ellos; solo la compartición los necesita -->
     <uses-feature
