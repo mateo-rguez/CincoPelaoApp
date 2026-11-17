@@ -197,7 +197,7 @@ private fun SubjectMenu(onEdit: () -> Unit, onDelete: () -> Unit, modifier: Modi
 
 /** Pastilla cuadrada con la abreviatura, con el degradado de asignaturas de la paleta. */
 @Composable
-private fun SubjectBadge(text: String) {
+internal fun SubjectBadge(text: String) {
     val colors = MaterialTheme.appColors
     Box(
         modifier = Modifier

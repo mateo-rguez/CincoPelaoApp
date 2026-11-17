@@ -90,14 +90,11 @@ fun EventBox(
     var showEditEventDialog by remember { mutableStateOf(false) }
 
     if (showEditEventDialog) {
-        EventDialog(
+        EventSheet(
             subjectId = subjectId,
+            event = event,
             onDismiss = { showEditEventDialog = false },
-            onEventCreated = { },
-            onEventUpdated = { newEvent ->
-                onEventUpdate(newEvent)
-            },
-            event = event
+            onSave = onEventUpdate
         )
     }
 

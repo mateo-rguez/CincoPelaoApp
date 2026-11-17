@@ -1,17 +1,13 @@
 package io.github.mateorguez.cincopelao.ui.notifications
 
+import io.github.mateorguez.cincopelao.ui.common.ChoicePill
+
 import android.content.Intent
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -187,9 +183,9 @@ private fun ReminderSettingsPage(
                 Row(horizontalArrangement = Arrangement.spacedBy(PillGap)) {
                     row.forEach { chip ->
                         if (chip != null) {
-                            DayPill(dayLabel(chip.day), chip.selected, onClick = { onToggleDay(chip.day) }, modifier = Modifier.weight(1f))
+                            ChoicePill(dayLabel(chip.day), chip.selected, onClick = { onToggleDay(chip.day) }, modifier = Modifier.weight(1f))
                         } else {
-                            DayPill("Otro", selected = false, icon = Icons.Default.Add, onClick = { showAddDayDialog = true }, modifier = Modifier.weight(1f))
+                            ChoicePill("Otro", selected = false, icon = Icons.Default.Add, onClick = { showAddDayDialog = true }, modifier = Modifier.weight(1f))
                         }
                     }
                     repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
@@ -280,45 +276,6 @@ private fun SummaryCard(parts: List<SummaryPart>) {
             },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground
-        )
-    }
-}
-
-/** Pastilla de un día: rellena del color de los controles cuando está activada. */
-@Composable
-private fun DayPill(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    icon: ImageVector? = null
-) {
-    val container by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.primary else Color.Transparent, label = "fondo"
-    )
-    val content by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground, label = "texto"
-    )
-    Row(
-        modifier = modifier
-            .height(40.dp)
-            .clip(PillShape)
-            .background(container)
-            .then(if (selected) Modifier else Modifier.border(1.dp, MaterialTheme.colorScheme.outline, PillShape))
-            .clickable(onClick = onClick),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        icon?.let {
-            Icon(it, contentDescription = null, tint = content, modifier = Modifier.size(16.dp))
-            Spacer(Modifier.width(4.dp))
-        }
-        Text(
-            text = label,
-            color = content,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-            maxLines = 1
         )
     }
 }
