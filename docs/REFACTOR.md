@@ -514,7 +514,6 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     le terminó de convencer; se quedan las animaciones del sistema.
   - B1 (tarjeta que se transforma en el detalle): no se hace, el autor da las animaciones por
     terminadas.
-- ☐ Widgets de próximos exámenes y tareas.
 - ☐ Copia de seguridad: exportar e importar a archivo.
 - ☐ Media ponderada global por curso.
 - ☐ Material You con colores dinámicos (encajaría como un tema más).
