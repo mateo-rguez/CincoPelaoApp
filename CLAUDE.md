@@ -2,7 +2,7 @@
 
 App Android de autogestión académica (asignaturas, eventos con notas, tareas con subtareas,
 calendario, horario, recordatorios e intercambio de datos entre móviles por BLE + Wi‑Fi Direct).
-Kotlin + Jetpack Compose + Room + Hilt + DataStore + WorkManager.
+Kotlin + Jetpack Compose + Room + Hilt + DataStore + AlarmManager.
 
 El proyecto está en pleno refactor por fases: **el plan, lo hecho y lo pendiente están en
 [`docs/REFACTOR.md`](docs/REFACTOR.md)**. Léelo antes de continuar.
@@ -39,7 +39,9 @@ El proyecto está en pleno refactor por fases: **el plan, lo hecho y lo pendient
   `TaskMaintenance`, reglas puras (`TaskRules`, `DataIntegrity`).
 - `data/prefs` — DataStore: tema, ajustes de recordatorios, estado del horario.
 - `domain/stats` — cálculo de notas y estadísticas (puro, con tests).
-- `notifications` — `ReminderPlanner` (puro) + `ReminderManager`, que reconcilia con WorkManager.
+- `notifications` — `ReminderPlanner` y `ReminderSync` (puros) + `ReminderManager`, que reconcilia
+  con alarmas exactas de `AlarmManager` (`ReminderAlarms`, `ReminderReceiver`; no con WorkManager,
+  que ColorOS congela con la app cerrada).
   **La UI nunca programa ni cancela recordatorios**: se sincronizan solos al cambiar los datos.
 - `sharing` — compartición: `protocol` (tramas, mensajes, selección; puro), `session` (emisor/receptor,
   fases, permisos; puro), `ble` y `wifidirect` (transportes), `ShareEnvironment`. Cómo funciona por dentro:

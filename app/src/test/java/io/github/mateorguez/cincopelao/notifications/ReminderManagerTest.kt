@@ -1,11 +1,10 @@
 package io.github.mateorguez.cincopelao.notifications
 
+import android.app.AlarmManager
 import android.app.Application
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.Configuration
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
 import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
@@ -25,11 +24,11 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import java.util.UUID
 
 /**
- * Comprueba que [ReminderManager] mantiene WorkManager sincronizado con los datos:
+ * Comprueba que [ReminderManager] mantiene las alarmas sincronizadas con los datos:
  * programa, conserva lo que no cambia y cancela lo que ya no hace falta.
  */
 @Config(application = Application::class)
@@ -60,14 +59,13 @@ class ReminderManagerTest {
         instances.currentDb().close()
     }
 
-    /** Ids de los trabajos de recordatorio pendientes. */
-    private suspend fun pending(): Set<UUID> =
-        WorkManager.getInstance(context).getWorkInfosByTagFlow("reminder").first()
-            .filter { it.state == WorkInfo.State.ENQUEUED }
-            .mapTo(HashSet()) { it.id }
+    /** Alarmas de recordatorio puestas: la URI de cada una (que lleva su clave) y su hora. */
+    private fun pending(): Set<Pair<String, Long>> =
+        shadowOf(context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).scheduledAlarms
+            .mapTo(HashSet()) { shadowOf(it.operation).savedIntent.dataString.orEmpty() to it.triggerAtTime }
 
     /** Espera a que el número de recordatorios pendientes sea [expected] (el manager reacciona con retardo). */
-    private suspend fun awaitPending(expected: Int): Set<UUID> {
+    private suspend fun awaitPending(expected: Int): Set<Pair<String, Long>> {
         repeat(50) {
             val current = pending()
             if (current.size == expected) return current

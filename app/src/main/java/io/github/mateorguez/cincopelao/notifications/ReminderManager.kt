@@ -1,50 +1,57 @@
 package io.github.mateorguez.cincopelao.notifications
 
-import kotlinx.coroutines.flow.retryWhen
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.delay
-import io.github.mateorguez.cincopelao.data.local.entity.Task
-import io.github.mateorguez.cincopelao.data.local.entity.Subject
-import io.github.mateorguez.cincopelao.data.local.entity.Event
 import android.content.Context
 import android.util.Log
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.work.Data
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.mateorguez.cincopelao.data.instances.InstanceRepository
+import io.github.mateorguez.cincopelao.data.local.entity.Event
+import io.github.mateorguez.cincopelao.data.local.entity.Subject
+import io.github.mateorguez.cincopelao.data.local.entity.Task
 import io.github.mateorguez.cincopelao.data.prefs.NotiPrefsManager
 import io.github.mateorguez.cincopelao.data.prefs.dataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
 
+/** Recordatorios programados (clave, spec y hora sorteada), para conservarlos entre ejecuciones. */
+private val Context.reminderStore by preferencesDataStore(name = "reminder_alarms")
+
 /**
- * Mantiene los recordatorios programados en WorkManager sincronizados con los datos.
+ * Mantiene las alarmas de los recordatorios sincronizadas con los datos.
  *
  * Observa las asignaturas, eventos, tareas y ajustes de todas las instancias y, en cada cambio,
- * reconcilia: programa los recordatorios que faltan, cancela los que sobran (tareas completadas,
- * elementos borrados, fechas cambiadas...) y no toca los que siguen igual, para que su hora
- * aleatoria no se vuelva a sortear. La interfaz ya no tiene que cancelar ni reprogramar nada.
+ * reconcilia ([ReminderSync]): pone las alarmas que faltan, quita las que sobran (tareas
+ * completadas, elementos borrados, fechas cambiadas...) y conserva la hora de las que siguen igual,
+ * para que no se vuelva a sortear. La interfaz no tiene que programar ni cancelar nada.
  */
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @Singleton
@@ -53,21 +60,24 @@ class ReminderManager @Inject constructor(
     private val instances: InstanceRepository,
     private val prefs: NotiPrefsManager
 ) {
-    private val workManager get() = WorkManager.getInstance(context)
+    private val alarms = ReminderAlarms(context)
+    private val store get() = context.reminderStore
+    private val mutex = Mutex()
 
     fun start(scope: CoroutineScope) {
         scope.launch {
             cleanUpLegacyScheduling()
+            migrateFromWorkManager()
             plannedReminders()
                 .debounce(DEBOUNCE_MS)
-                .collectLatest { planned ->
-                    try {
-                        reconcile(planned)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error sincronizando recordatorios", e)
-                    }
-                }
+                .collectLatest { planned -> sync(planned) }
         }
+    }
+
+    /** Sincroniza ya con los datos actuales (tras reiniciar el móvil o actualizar la app). */
+    suspend fun syncNow() {
+        migrateFromWorkManager()
+        sync(plannedReminders().first())
     }
 
     private fun settings(): Flow<Pair<ReminderSettings, ReminderSettings>> = combine(
@@ -106,56 +116,77 @@ class ReminderManager @Inject constructor(
             true
         }
 
-    private suspend fun reconcile(planned: List<PlannedReminder>) {
-        // Recordatorios que ya existen (pendientes o ya mostrados), por clave
-        val existing: Map<String, String?> = workManager.getWorkInfosByTagFlow(TAG_REMINDER).first()
-            .filter { it.state != WorkInfo.State.CANCELLED && it.state != WorkInfo.State.FAILED }
-            .mapNotNull { info -> info.tagValue(KEY_PREFIX)?.let { it to info.tagValue(SPEC_PREFIX) } }
-            .toMap()
+    /**
+     * Aplica una reconciliación. No se deja cancelar a medias (llega otro cambio, `collectLatest`
+     * cancela): las alarmas y lo guardado deben quedar de acuerdo.
+     */
+    private suspend fun sync(planned: List<PlannedReminder>) = withContext(NonCancellable) {
+        mutex.withLock {
+            try {
+                val stored = readScheduled()
+                val now = System.currentTimeMillis()
+                val result = ReminderSync.reconcile(planned, stored, now, Random.Default)
 
-        val now = System.currentTimeMillis()
-        var scheduled = 0
-        var cancelled = 0
+                result.toCancel.forEach(alarms::cancel)
+                result.toArm.forEach(alarms::arm)
+                store.edit { it[SCHEDULED_KEY] = result.scheduled.mapTo(HashSet()) { s -> s.encode() } }
 
-        for (reminder in planned) {
-            if (existing[reminder.key] == reminder.spec) continue // sin cambios (o ya se mostró)
-
-            val time = ReminderPlanner.computeNotifyTime(
-                reminder.targetTime, reminder.offsetDays, reminder.startHour, reminder.endHour, now, Random.Default
-            )
-            if (time == null) {
-                if (reminder.key in existing) { workManager.cancelUniqueWork(workName(reminder.key)); cancelled++ }
-                continue
+                val drawnKeys = result.scheduled.filter { stored[it.key]?.spec != it.spec }.mapTo(HashSet()) { it.key }
+                result.toArm.filter { it.reminder.key in drawnKeys }.forEach {
+                    Log.d(TAG, "Programado '${it.reminder.title}' para el ${DATE_FORMAT.format(it.time)}")
+                }
+                Log.d(
+                    TAG,
+                    "Recordatorios: ${planned.size} previstos, ${result.toArm.size} alarmas " +
+                        "(${result.drawn} nuevas), ${result.toCancel.size} quitadas, " +
+                        "exactas=${alarms.canScheduleExact()}"
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Error sincronizando recordatorios", e)
             }
-            workManager.enqueueUniqueWork(workName(reminder.key), ExistingWorkPolicy.REPLACE, request(reminder, time - now))
-            scheduled++
-            Log.d(TAG, "Programado '${reminder.title}' para el ${DATE_FORMAT.format(time)}")
         }
-
-        val plannedKeys = planned.mapTo(HashSet()) { it.key }
-        (existing.keys - plannedKeys).forEach { workManager.cancelUniqueWork(workName(it)); cancelled++ }
-
-        Log.d(TAG, "Recordatorios: ${planned.size} previstos, $scheduled programados, $cancelled cancelados")
     }
 
-    private fun request(reminder: PlannedReminder, delayMs: Long) =
-        OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
-            .setInputData(
-                Data.Builder()
-                    .putString(NotificationWorker.KEY_TITLE, reminder.title)
-                    .putString(NotificationWorker.KEY_MESSAGE, reminder.message)
-                    .putInt(NotificationWorker.KEY_ID, reminder.key.hashCode())
-                    .build()
-            )
-            .addTag(TAG_REMINDER)
-            .addTag(KEY_PREFIX + reminder.key)
-            .addTag(SPEC_PREFIX + reminder.spec)
-            .build()
+    private suspend fun readScheduled(): Map<String, ScheduledReminder> =
+        store.data.first()[SCHEDULED_KEY].orEmpty()
+            .mapNotNull(ScheduledReminder::decode)
+            .associateBy { it.key }
 
-    /** Elimina lo que dejaba el sistema anterior: sus trabajos y sus marcas en DataStore. */
+    /**
+     * Paso único desde la versión con WorkManager: se quedan las horas ya sorteadas de los avisos
+     * pendientes, los que ya saltaron se marcan como pasados (para que no se repitan hoy) y se
+     * quitan los trabajos, que si no avisarían dos veces.
+     */
+    private suspend fun migrateFromWorkManager(): Unit = mutex.withLock {
+        // Con el cerrojo: al actualizar la app, el arranque y ReminderBootReceiver llegan a la vez
+        if (store.data.first()[MIGRATED_KEY] == true) return@withLock
+        try {
+            val workManager = WorkManager.getInstance(context)
+            val migrated = workManager.getWorkInfosByTagFlow(LEGACY_REMINDER_TAG).first().mapNotNull { info ->
+                val key = info.tagValue(LEGACY_KEY_PREFIX) ?: return@mapNotNull null
+                val spec = info.tagValue(LEGACY_SPEC_PREFIX) ?: return@mapNotNull null
+                when (info.state) {
+                    WorkInfo.State.ENQUEUED, WorkInfo.State.BLOCKED -> ScheduledReminder(key, spec, info.nextScheduleTimeMillis)
+                    WorkInfo.State.SUCCEEDED, WorkInfo.State.RUNNING -> ScheduledReminder(key, spec, ALREADY_SHOWN)
+                    else -> null
+                }
+            }
+            workManager.cancelAllWorkByTag(LEGACY_REMINDER_TAG)
+            store.edit { prefs ->
+                val current = prefs[SCHEDULED_KEY].orEmpty().mapNotNull(ScheduledReminder::decode).associateBy { it.key }
+                prefs[SCHEDULED_KEY] = (migrated.associateBy { it.key } + current).values.mapTo(HashSet()) { it.encode() }
+                prefs[MIGRATED_KEY] = true
+            }
+            Log.d(TAG, "Migrados ${migrated.size} recordatorios desde WorkManager")
+        } catch (e: IllegalStateException) {
+            // WorkManager sin inicializar (p. ej. en tests): no hay nada que migrar
+            store.edit { it[MIGRATED_KEY] = true }
+        }
+    }
+
+    /** Elimina lo que dejaba el sistema anterior a WorkManager: sus trabajos y sus marcas en DataStore. */
     private suspend fun cleanUpLegacyScheduling() {
-        workManager.cancelAllWorkByTag(LEGACY_TAG)
+        runCatching { WorkManager.getInstance(context).cancelAllWorkByTag(LEGACY_TAG) }
         context.dataStore.edit { prefs ->
             LEGACY_KEYS.forEach { prefs.remove(stringPreferencesKey(it)) }
         }
@@ -163,17 +194,23 @@ class ReminderManager @Inject constructor(
 
     private fun WorkInfo.tagValue(prefix: String) = tags.firstOrNull { it.startsWith(prefix) }?.removePrefix(prefix)
 
-    private fun workName(key: String) = "reminder:$key"
-
     private companion object {
         const val TAG = "ReminderManager"
-        const val TAG_REMINDER = "reminder"
-        const val KEY_PREFIX = "reminder-key:"
-        const val SPEC_PREFIX = "reminder-spec:"
         const val DEBOUNCE_MS = 500L
         const val RETRY_DELAY_MS = 1_000L
+        /** Hora de los avisos que ya saltaron: en el pasado, así no se vuelven a poner. */
+        const val ALREADY_SHOWN = 0L
+        val SCHEDULED_KEY: Preferences.Key<Set<String>> = stringSetPreferencesKey("scheduled")
+        val MIGRATED_KEY: Preferences.Key<Boolean> = booleanPreferencesKey("migrated_from_work_manager")
+
+        // Versión con WorkManager (hasta noviembre de 2026)
+        const val LEGACY_REMINDER_TAG = "reminder"
+        const val LEGACY_KEY_PREFIX = "reminder-key:"
+        const val LEGACY_SPEC_PREFIX = "reminder-spec:"
+        // Versión anterior a esa
         const val LEGACY_TAG = "NOTIFICATION_WORK"
         val LEGACY_KEYS = listOf("scheduled_events_ids", "scheduled_tasks_ids")
+
         val DATE_FORMAT = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     }
 }

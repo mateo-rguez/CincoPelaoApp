@@ -1,7 +1,7 @@
 # Refactor de CincoPelao
 
 Seguimiento del refactor de la app: plan por fases, lo hecho y lo que queda.
-Rama de trabajo: `rework`. Última actualización: 17 de noviembre de 2026 (fase 7: «Pulir la interfaz» y crear/editar asignatura terminadas; editar/eliminar dentro de la tarjeta de asignatura).
+Rama de trabajo: `rework`. Última actualización: 17 de noviembre de 2026 (fase 7: editar/eliminar dentro de la tarjeta de asignatura, ayuda de la hoja de evento y recordatorios con alarmas en vez de WorkManager).
 
 ## Punto de partida
 
@@ -21,7 +21,7 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 | 1 | Dependencias en el version catalog, fuera las que sobraban, código muerto, APIs deprecadas | ✅ |
 | 2 | Paquetes por capa y renombrado a `io.github.mateorguez.cincopelao` | ✅ |
 | 3 | Capa de datos: `InstanceRepository`, repositorios, operaciones atómicas | ✅ |
-| 4 | Recordatorios: planificador puro + reconciliación con WorkManager | ✅ |
+| 4 | Recordatorios: planificador puro + reconciliación (con WorkManager; desde la fase 7, con alarmas) | ✅ |
 | 5 | Interfaz: tema, navegación, un ViewModel por pantalla, rendimiento | ✅ |
 | 6 | Compartición BLE / Wi‑Fi Direct | ✅ (probada con dos móviles) |
 | 7 | Mejoras, una a una (lista abierta) | ⏳ |
@@ -31,8 +31,12 @@ aplica de una en una (ver «Fase 7 — Mejoras»). Hechas: **colores y temas** y
 interfaz**, pantalla por pantalla con el autor: Tareas y Asignaturas (lista, detalle y
 estadísticas), Calendario, Horario, Notificaciones, Instancias, Compartir y el menú están
 terminadas (Apariencia se queda como está), y también la pantalla de crear/editar asignatura.
-El resto de la lista sigue pendiente (candidatas: probar los eventos del formulario en tarjetas y revisar la hora de las
-notificaciones). Método usado en cada pantalla: capturas con la app en
+El 17 de noviembre se hicieron también editar/eliminar dentro de la tarjeta de asignatura, la
+ayuda fija bajo ponderación y nota mínima y los recordatorios con alarmas (llegaban solo al abrir
+la app); los eventos del formulario en tarjetas se probaron y se descartaron. **Al retomar:**
+comprobar en el Realme que los recordatorios llegan solos y a su hora (ver la entrada de la hora
+de las notificaciones); después, el resto de la lista (ilustración de Asignaturas vacía,
+preferencias, medir arranque y scroll, temas limpios...). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -119,7 +123,7 @@ Recibir                                   Transmitir
   Cancelar no deshacía; "Completada el java.text.SimpleDateFormat@…"; carga de imágenes y PDF
   en el hilo principal.
 
-Tests: 192, todos en verde a 17 de noviembre de 2026 (JUnit + Robolectric con Room y WorkManager de pruebas, y sockets TCP locales para la
+Tests: 199, todos en verde a 17 de noviembre de 2026 (JUnit + Robolectric con Android 15, Room, WorkManager y AlarmManager de pruebas, y sockets TCP locales para la
 compartición) — `./gradlew testDebugUnitTest`.
 
 ## Pendiente
@@ -387,19 +391,29 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   casillas llevan siempre su ayuda («De 1 a 100» y «Opcional · 0 a 10»), así quedan iguales y,
   con un error, el mismo texto se pone en rojo sin que la hoja salte. Hechos en `7ef1c0a`:
   editar/eliminar dentro de la tarjeta de asignatura.
-- ☐ **Revisar la hora de las notificaciones** (notado por el autor el 16 de noviembre de 2026):
-  varias veces le llegan recordatorios justo al abrir la app, demasiada casualidad. Sospechas a
-  comprobar antes de tocar nada:
-  - la ROM (Realme sobre todo) congela los trabajos de WorkManager con la app en segundo plano y
-    se ejecutan todos los atrasados al abrirla: mirar `adb shell dumpsys jobscheduler` (trabajos
-    pendientes y su hora) y el registro `ReminderManager`; si es eso, valorar `AlarmManager`
-    (alarmas exactas) o avisar de la optimización de batería;
-  - al abrir la app, `ReminderManager` reprograma los recordatorios cuya «spec» haya cambiado y
-    `computeNotifyTime` elige una hora al azar entre ahora y el fin de la franja, que puede caer
-    a los pocos minutos;
-  - comprobar en el registro la hora programada frente a la hora real de llegada.
-  - Otro caso el 17 de noviembre de 2026 a las 11:55: al abrir la app saltó «Vete pensando en
-    reto…» con «Ahora mismo».
+- ✅ **Revisar la hora de las notificaciones** (notado por el autor el 16 de noviembre de 2026;
+  resuelto el 17): los avisos solo llegaban al abrir la app. Comprobado en el Realme: las tres
+  notificaciones que guardaba `dumpsys usagestats` saltaron un segundo después de abrirla, y las dos
+  que se pudieron cruzar con la BD de WorkManager debían haber saltado 13 min y 1,5 h antes. La
+  hora sorteada era correcta; ColorOS congela el JobScheduler (y con él WorkManager) con la app
+  cerrada y lo suelta todo al volver a primer plano.
+  - Ahora los recordatorios son alarmas de `AlarmManager` (`ReminderAlarms`): exactas
+    (`SCHEDULE_EXACT_ALARM` en Android 12, `USE_EXACT_ALARM` desde 13, se conceden al instalar;
+    no hay pega fuera de Google Play) y, si no se puede, inexactas. `ReminderReceiver` muestra el
+    aviso; `ReminderBootReceiver` las vuelve a poner al reiniciar, actualizar o cambiar el permiso.
+  - Las horas sorteadas se guardan en un DataStore propio (`reminder_alarms`) en vez de en las
+    etiquetas de WorkManager; la reconciliación es pura (`ReminderSync`, con tests). Migración
+    única: se conservan las horas ya sorteadas y los avisos que ya saltaron no se repiten.
+  - ColorOS da a las alarmas exactas de casi todas las apps (WhatsApp y Google Play Services
+    incluidos; Google Calendar no) una ventana de 1 h (`dumpsys alarm`: `window=+1h`): pueden
+    llegar hasta una hora tarde, pero ya no esperan a que se abra la app. Si molesta, siguiente
+    paso: pedir la exención de la optimización de batería (descartado por ahora por el autor).
+  - Por el camino: Robolectric usaba Android 5.0 al no leer el manifiesto; se fija Android 15 en
+    `app/src/test/resources/robolectric.properties`.
+  - Commits: `7ef1c0a` (editar/eliminar en la tarjeta), `2d99eeb` (ayuda de la hoja de evento),
+    `8cd622b` (tarjetas descartadas) y el de este cambio.
+  - Pendiente: comprobar en el Realme que llegan solos (primera alarma: 17 de noviembre entre
+    las 19:58 y las 20:58) cruzando `dumpsys usagestats` con la hora prevista.
 - ☐ **Medir el arranque** (pedido por el autor el 16 de noviembre de 2026; abre rápido y no
   parece preocupante, pero conviene tener el dato): tiempo hasta el primer fotograma en frío
   con `adb shell am start -W -S io.github.mateorguez.cincopelao/.MainActivity` (`TotalTime`),
