@@ -19,7 +19,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 
 /** Ajustes de los recordatorios: con cuántos días de antelación y en qué franja horaria. */
@@ -35,7 +34,7 @@ class NotificationsActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text(text = "Notificaciones", fontFamily = DelightMedium) },
+                            title = { Text(text = "Notificaciones") },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = MaterialTheme.appColors.bar,
                                 titleContentColor = MaterialTheme.appColors.onBar,

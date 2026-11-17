@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.mateorguez.cincopelao.data.local.entity.Task
-import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
 import kotlinx.coroutines.launch
 
 /** Pestaña de tareas completadas (archivadas): se pueden restaurar o borrar. */
@@ -186,7 +185,6 @@ private fun CompletedTasksHeader(showDeleteAll: Boolean, onDeleteAll: () -> Unit
     ) {
         Text(
             text = "Tareas Completadas",
-            fontFamily = DelightRegular,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
@@ -229,7 +227,7 @@ private fun ArchivedParentTaskBlock(
                 .animateContentSize()
         ) {
             Column(modifier = Modifier.weight(1f).height(48.dp)) {
-                Text(text = item.task.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(text = item.task.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
                 Text(
                     text = completedSubtitle(item.task, item.subjectAbbrev),
                     style = MaterialTheme.typography.bodySmall,

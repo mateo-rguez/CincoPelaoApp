@@ -12,7 +12,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Ajustes de apariencia (modo y paleta). Se empiezan a cargar al arrancar la app, así que al abrir
+ * Ajustes de apariencia (modo, paleta y letra de los títulos). Se empiezan a cargar al arrancar la app, así que al abrir
  * cualquier pantalla ya están disponibles y no hay un fotograma con los colores equivocados.
  */
 @Singleton
@@ -28,4 +28,6 @@ class ThemeRepository @Inject constructor(
     suspend fun setMode(mode: ThemeMode) = context.setThemeMode(mode)
 
     suspend fun setPalette(palette: AppPalette) = context.setThemePalette(palette)
+
+    suspend fun setTitleFont(font: TitleFont) = context.setThemeTitleFont(font)
 }

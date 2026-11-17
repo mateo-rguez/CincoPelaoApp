@@ -2,8 +2,10 @@ package io.github.mateorguez.cincopelao.ui.appearance
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.mateorguez.cincopelao.data.prefs.AppPalette
 import io.github.mateorguez.cincopelao.data.prefs.ThemeMode
+import io.github.mateorguez.cincopelao.data.prefs.TitleFont
 import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 
@@ -47,7 +50,7 @@ private val ThemeMode.icon: ImageVector
         ThemeMode.DARK -> Icons.Default.DarkMode
     }
 
-/** Modo claro/oscuro y paleta de colores. Los cambios se ven al momento. */
+/** Modo claro/oscuro, paleta de colores y letra de los títulos. Los cambios se ven al momento. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppearanceScreen(viewModel: AppearanceViewModel = hiltViewModel()) {
@@ -105,6 +108,33 @@ fun AppearanceScreen(viewModel: AppearanceViewModel = hiltViewModel()) {
                 if (row.size == 1) Spacer(Modifier.weight(1f))
             }
         }
+
+        Spacer(Modifier.height(16.dp))
+
+        SectionTitle("Letra de los títulos")
+        TitleFont.entries.chunked(2).forEach { row ->
+            // Misma altura en las dos: cada letra tiene su propio interlineado
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(bottom = 12.dp)
+            ) {
+                row.forEach { font ->
+                    TitleFontCard(
+                        font = font,
+                        selected = settings.titleFont == font,
+                        onClick = { viewModel.setTitleFont(font) },
+                        modifier = Modifier.weight(1f).fillMaxHeight()
+                    )
+                }
+                if (row.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+        Text(
+            text = "Para títulos, nombres de asignatura y notas. El resto del texto no cambia.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 4.dp)
+        )
     }
 }
 

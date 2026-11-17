@@ -44,7 +44,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.mateorguez.cincopelao.sharing.protocol.PayloadSummary
 import io.github.mateorguez.cincopelao.sharing.protocol.ShareSelection
 import io.github.mateorguez.cincopelao.sharing.session.SharePhase
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 
 @Composable
 fun TransmitScreen(
@@ -197,7 +196,7 @@ private fun ReceiverList(receivers: List<NearbyReceiver>, onConnect: (NearbyRece
                     )
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(receiver.displayName, style = MaterialTheme.typography.titleMedium, fontFamily = DelightMedium)
+                        Text(receiver.displayName, style = MaterialTheme.typography.titleMedium)
                         Text(
                             "${receiver.rssi} dBm · ${formatDistance(estimateDistanceMeters(receiver.rssi, receiver.txPower ?: -59))}",
                             fontFamily = FontFamily.Monospace,

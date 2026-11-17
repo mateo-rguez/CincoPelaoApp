@@ -69,6 +69,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -78,8 +79,6 @@ import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.ui.common.ChoicePill
 import io.github.mateorguez.cincopelao.ui.tasks.TaskCardFrame
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
-import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 import kotlinx.coroutines.launch
 
@@ -173,7 +172,7 @@ fun AddEditSubjectScreen(onClose: () -> Unit, viewModel: AddEditSubjectViewModel
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (state.isEditMode) "Editar asignatura" else "Nueva asignatura", fontFamily = DelightMedium) },
+                title = { Text(if (state.isEditMode) "Editar asignatura" else "Nueva asignatura") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.appColors.bar,
                     titleContentColor = MaterialTheme.appColors.onBar,
@@ -326,7 +325,7 @@ private fun SubjectHeaderCard(
                 Text(
                     text = subject.name.ifBlank { "Nombre de la asignatura" },
                     style = MaterialTheme.typography.titleMedium.copy(lineHeight = 20.sp),
-                    fontFamily = DelightRegular,
+                    fontWeight = FontWeight.Normal,
                     color = if (subject.name.isBlank()) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
                     else MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
@@ -337,7 +336,6 @@ private fun SubjectHeaderCard(
                     text = listOf(subject.course, titulation.orEmpty()).filter { it.isNotBlank() }
                         .joinToString(" · ").ifEmpty { "Sin curso" },
                     style = MaterialTheme.typography.bodySmall,
-                    fontFamily = DelightRegular,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
             }
@@ -420,7 +418,7 @@ private fun EventsHeader(total: Float, hasEvents: Boolean, onAdd: () -> Unit) {
     Column(modifier = Modifier.padding(horizontal = FormEdge)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("Eventos", style = MaterialTheme.typography.titleLarge, fontFamily = DelightMedium)
+                Text("Eventos", style = MaterialTheme.typography.titleLarge)
                 if (hasEvents) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (status == WeightStatus.Complete) {
@@ -501,7 +499,6 @@ private fun EventFormRow(item: EditableEvent, onClick: () -> Unit) {
                 Text(
                     text = event.name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontFamily = DelightMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

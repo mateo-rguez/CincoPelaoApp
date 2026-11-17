@@ -20,7 +20,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 
 /** Gestión de instancias: crear, renombrar, borrar y elegir la activa. */
 @AndroidEntryPoint
@@ -35,7 +34,7 @@ class InstancesActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text(text = "Instancias", fontFamily = DelightMedium) },
+                            title = { Text(text = "Instancias") },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = MaterialTheme.appColors.bar,
                                 titleContentColor = MaterialTheme.appColors.onBar,

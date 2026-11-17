@@ -40,8 +40,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
-import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -85,7 +83,7 @@ fun CalendarHeader(month: YearMonth, onPreviousClick: () -> Unit, onNextClick: (
             Text(
                 text = shown.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault()))
                     .replaceFirstChar { it.titlecase(Locale.getDefault()) },
-                style = MaterialTheme.typography.titleLarge.copy(fontFamily = DelightMedium),
+                style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -116,7 +114,7 @@ fun WeekDaysHeader(days: List<DayOfWeek>, modifier: Modifier = Modifier) {
                 fontSize = 11.sp,
                 lineHeight = 14.sp,
                 color = MaterialTheme.colorScheme.onBackground,
-                style = MaterialTheme.typography.labelMedium.copy(fontFamily = DelightRegular, fontWeight = FontWeight.Medium),
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
                 maxLines = 1
             )
         }

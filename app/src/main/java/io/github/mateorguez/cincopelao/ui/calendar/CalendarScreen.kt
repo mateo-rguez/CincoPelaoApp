@@ -188,7 +188,7 @@ private fun DayItemRow(item: TimelineItem) {
                     is TimelineItem.EventItem -> item.event.name
                     is TimelineItem.TaskItem -> item.task.title
                 },
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onBackground
             )

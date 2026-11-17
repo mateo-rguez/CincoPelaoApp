@@ -51,7 +51,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.data.local.entity.Event
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import kotlinx.coroutines.launch
 
 // Detalle de una asignatura: cabecera con la nota y lista de eventos.
@@ -112,7 +111,7 @@ fun SubjectTopBar(
     onNavigateToStats: () -> Unit
 ) {
     TopAppBar(
-        title = { Text(text = title, fontFamily = DelightMedium) },
+        title = { Text(text = title) },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.appColors.bar,
             titleContentColor = MaterialTheme.appColors.onBar,
@@ -248,9 +247,7 @@ fun AnimatedNumber(
                 }
             }) { char ->
                 Text(char.toString(),
-                    style = MaterialTheme.typography.displayLarge.copy(
-                        fontFamily = DelightMedium
-                    ),
+                    style = MaterialTheme.typography.displayLarge,
                     textAlign = TextAlign.Center, fontSize = 80.sp)
             }
         }

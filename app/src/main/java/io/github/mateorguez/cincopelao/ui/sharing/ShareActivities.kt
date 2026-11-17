@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.sharing.session.SetupIssue
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 
 /** Ajustes del sistema a los que se puede mandar al usuario para resolver un [SetupIssue]. */
 enum class SettingsTarget {
@@ -58,7 +57,7 @@ private fun ShareScaffold(title: String, onBack: () -> Unit, content: @Composabl
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = title, fontFamily = DelightMedium) },
+                    title = { Text(text = title) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.appColors.bar,
                         titleContentColor = MaterialTheme.appColors.onBar,

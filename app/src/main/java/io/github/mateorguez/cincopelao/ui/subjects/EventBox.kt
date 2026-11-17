@@ -57,7 +57,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.data.local.entity.Event
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -178,7 +177,6 @@ private fun EventTitle(name: String, onEdit: () -> Unit) {
         Text(
             text = name,
             style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp, lineHeight = 24.sp),
-            fontFamily = DelightMedium,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
@@ -303,7 +301,6 @@ private fun ScoreField(score: ScoreState) {
         },
         singleLine = true,
         textStyle = MaterialTheme.typography.titleLarge.copy(
-            fontFamily = DelightMedium,
             textAlign = TextAlign.Center
         ),
         shape = RoundedCornerShape(14.dp),

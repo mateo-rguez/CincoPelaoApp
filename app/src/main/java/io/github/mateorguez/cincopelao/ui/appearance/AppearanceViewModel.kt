@@ -7,6 +7,7 @@ import io.github.mateorguez.cincopelao.data.prefs.AppPalette
 import io.github.mateorguez.cincopelao.data.prefs.ThemeMode
 import io.github.mateorguez.cincopelao.data.prefs.ThemeRepository
 import io.github.mateorguez.cincopelao.data.prefs.ThemeSettings
+import io.github.mateorguez.cincopelao.data.prefs.TitleFont
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -14,7 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/** Modo y paleta elegidos. Los cambios se guardan al momento y toda la app los ve. */
+/** Modo, paleta y letra de los títulos elegidos. Los cambios se guardan al momento y toda la app los ve. */
 @HiltViewModel
 class AppearanceViewModel @Inject constructor(
     private val repository: ThemeRepository
@@ -30,5 +31,9 @@ class AppearanceViewModel @Inject constructor(
 
     fun setPalette(palette: AppPalette) {
         viewModelScope.launch { repository.setPalette(palette) }
+    }
+
+    fun setTitleFont(font: TitleFont) {
+        viewModelScope.launch { repository.setTitleFont(font) }
     }
 }

@@ -29,6 +29,17 @@ class ThemeSettingsTest {
     }
 
     @Test
+    fun `sin letra guardada los titulos van en Delight`() {
+        assertEquals(TitleFont.DELIGHT, ThemeSettings.fromStored(null, null, null).titleFont)
+        assertEquals(TitleFont.DELIGHT, ThemeSettings.fromStored(null, null, null, titleFont = "COMIC").titleFont)
+    }
+
+    @Test
+    fun `se lee la letra de titulos guardada`() {
+        assertEquals(TitleFont.FRAUNCES, ThemeSettings.fromStored("DARK", "GRAPHITE", null, titleFont = "FRAUNCES").titleFont)
+    }
+
+    @Test
     fun `modo oscuro segun el sistema`() {
         assertTrue(ThemeSettings(ThemeMode.SYSTEM).isDark(systemDark = true))
         assertFalse(ThemeSettings(ThemeMode.SYSTEM).isDark(systemDark = false))

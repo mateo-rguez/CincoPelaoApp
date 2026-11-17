@@ -67,7 +67,6 @@ import io.github.mateorguez.cincopelao.ui.tasks.DueUrgency
 import io.github.mateorguez.cincopelao.ui.tasks.TaskCardFrame
 import io.github.mateorguez.cincopelao.ui.tasks.dueDateLabel
 import io.github.mateorguez.cincopelao.ui.tasks.dueUrgency
-import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 
 /** Lo que muestra la franja de abajo de la tarjeta. */
@@ -119,7 +118,7 @@ fun SubjectCard(
                     // Interlineado más apretado que el de titleMedium (24 sp): si no, la separación
                     // entre las líneas del nombre era mayor que la que hay hasta el curso
                     style = MaterialTheme.typography.titleMedium.copy(lineHeight = 20.sp),
-                    fontFamily = DelightRegular,
+                    fontWeight = FontWeight.Normal,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -132,7 +131,6 @@ fun SubjectCard(
                     Text(
                         text = courseLine,
                         style = MaterialTheme.typography.bodySmall,
-                        fontFamily = DelightRegular,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                 }

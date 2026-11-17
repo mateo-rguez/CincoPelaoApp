@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.domain.stats.Stats
 import io.github.mateorguez.cincopelao.domain.stats.StatsUtils
 import io.github.mateorguez.cincopelao.domain.stats.SubjectInsights
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 
 /**
@@ -136,7 +135,6 @@ internal fun StatsGroupTitle(
         Text(
             text,
             style = MaterialTheme.typography.titleMedium,
-            fontFamily = DelightMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f)
         )
@@ -163,7 +161,6 @@ private fun DataRow(label: String, value: String) {
         Text(
             value,
             style = MaterialTheme.typography.titleMedium,
-            fontFamily = DelightMedium,
             textAlign = TextAlign.End,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -217,7 +214,6 @@ private fun ProjectionTile(value: Float?, caption: String, modifier: Modifier = 
         Text(
             value?.let { grade(it) } ?: "—",
             style = MaterialTheme.typography.headlineSmall,
-            fontFamily = DelightMedium
         )
         Spacer(Modifier.height(4.dp))
         Text(
@@ -253,7 +249,6 @@ private fun TrendRow(trend: Float) {
         Text(
             "$label · ${"%+.2f".format(trend)}",
             style = MaterialTheme.typography.titleMedium,
-            fontFamily = DelightMedium
         )
     }
 }

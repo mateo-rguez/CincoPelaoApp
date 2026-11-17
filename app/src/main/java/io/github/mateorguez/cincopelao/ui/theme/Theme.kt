@@ -7,10 +7,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.hilt.navigation.compose.hiltViewModel
 import io.github.mateorguez.cincopelao.data.prefs.AppPalette
 import io.github.mateorguez.cincopelao.data.prefs.ThemeSettings
+import io.github.mateorguez.cincopelao.data.prefs.TitleFont
 
 /**
  * Si la app está en modo oscuro. Lo publica [CincoPelaoTheme]. Para colores, mejor
@@ -26,16 +28,18 @@ val MaterialTheme.appColors: AppColors
 fun CincoPelaoTheme(
     darkTheme: Boolean,
     palette: AppPalette = AppPalette.CLASSIC,
+    titleFont: TitleFont = TitleFont.DELIGHT,
     content: @Composable () -> Unit
 ) {
     val colors = paletteColors(palette, darkTheme)
+    val typography = remember(titleFont) { appTypography(titleFont) }
     CompositionLocalProvider(
         LocalDarkTheme provides darkTheme,
         LocalAppColors provides colors.app,
     ) {
         MaterialTheme(
             colorScheme = colors.scheme,
-            typography = Typography,
+            typography = typography,
             content = content
         )
     }
@@ -50,6 +54,7 @@ fun CincoPelaoAppTheme(content: @Composable () -> Unit) {
     CincoPelaoTheme(
         darkTheme = current.isDark(isSystemInDarkTheme()),
         palette = current.palette,
+        titleFont = current.titleFont,
         content = content
     )
 }

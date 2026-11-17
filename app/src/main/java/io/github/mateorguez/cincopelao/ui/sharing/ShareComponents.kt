@@ -51,8 +51,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.sharing.session.SetupIssue
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
-import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
 import io.github.mateorguez.cincopelao.ui.theme.TerminalAccent
 import io.github.mateorguez.cincopelao.ui.theme.TerminalBackground
 import io.github.mateorguez.cincopelao.ui.theme.TerminalDim
@@ -78,7 +76,6 @@ fun PhaseHeader(icon: @Composable () -> Unit, title: String, subtitle: String?) 
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
-            fontFamily = DelightMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -87,7 +84,6 @@ fun PhaseHeader(icon: @Composable () -> Unit, title: String, subtitle: String?) 
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                fontFamily = DelightRegular,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

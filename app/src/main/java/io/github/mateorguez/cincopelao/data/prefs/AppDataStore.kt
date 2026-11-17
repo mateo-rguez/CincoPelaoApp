@@ -16,12 +16,14 @@ val Context.dataStore by preferencesDataStore(name = "settings")
 private val LEGACY_DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
 private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
 private val THEME_PALETTE_KEY = stringPreferencesKey("theme_palette")
+private val THEME_TITLE_FONT_KEY = stringPreferencesKey("theme_title_font")
 
 fun Context.getThemeSettingsFlow(): Flow<ThemeSettings> = dataStore.data.map { preferences ->
     ThemeSettings.fromStored(
         mode = preferences[THEME_MODE_KEY],
         palette = preferences[THEME_PALETTE_KEY],
         legacyDarkMode = preferences[LEGACY_DARK_MODE_KEY],
+        titleFont = preferences[THEME_TITLE_FONT_KEY],
     )
 }
 
@@ -34,4 +36,8 @@ suspend fun Context.setThemeMode(mode: ThemeMode) {
 
 suspend fun Context.setThemePalette(palette: AppPalette) {
     dataStore.edit { preferences -> preferences[THEME_PALETTE_KEY] = palette.name }
+}
+
+suspend fun Context.setThemeTitleFont(font: TitleFont) {
+    dataStore.edit { preferences -> preferences[THEME_TITLE_FONT_KEY] = font.name }
 }

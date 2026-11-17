@@ -51,7 +51,7 @@ fun ParentTaskBlock(
                 .animateContentSize()
         ) {
             Column(modifier = Modifier.weight(1f).heightIn(min = 48.dp)) {
-                Text(text = parentTask.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(text = parentTask.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
                 Row(
                     modifier = Modifier.padding(top = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,

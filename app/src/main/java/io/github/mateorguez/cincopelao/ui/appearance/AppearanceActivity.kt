@@ -20,7 +20,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.mateorguez.cincopelao.ui.theme.CincoPelaoAppTheme
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 
 /** Ajustes de apariencia: modo claro/oscuro y paleta de colores. */
 @AndroidEntryPoint
@@ -36,7 +35,7 @@ class AppearanceActivity : ComponentActivity() {
                     containerColor = MaterialTheme.colorScheme.background,
                     topBar = {
                         TopAppBar(
-                            title = { Text(text = "Apariencia", fontFamily = DelightMedium) },
+                            title = { Text(text = "Apariencia") },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = MaterialTheme.appColors.bar,
                                 titleContentColor = MaterialTheme.appColors.onBar,

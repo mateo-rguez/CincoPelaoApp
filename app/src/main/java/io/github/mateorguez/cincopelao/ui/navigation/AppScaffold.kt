@@ -5,7 +5,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.compose.BackHandler
@@ -53,6 +52,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -203,7 +203,7 @@ fun AppTopBar(
     onToggleTasksClick: () -> Unit
 ) {
     TopAppBar(
-        title = { Text(text = "Cinco Pelao", fontFamily = DelightMedium) },
+        title = { Text(text = "Cinco Pelao") },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.appColors.bar,
             titleContentColor = MaterialTheme.appColors.onBar,
@@ -303,7 +303,7 @@ fun AppBottomBar(
                             text = item.label,
                             color = animatedColor,
                             fontSize = 10.sp,
-                            fontFamily = DelightMedium,
+                            fontWeight = FontWeight.Medium,
                             maxLines = 1
                         )
                     }

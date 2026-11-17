@@ -91,7 +91,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.mateorguez.cincopelao.ui.common.requestDeviceAuth
 import io.github.mateorguez.cincopelao.data.instances.DatabaseInstance
-import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 
 /** Letras, números y espacios (ya no se usa como nombre de archivo, así que puede tener espacios). */
@@ -348,7 +347,7 @@ private fun InstanceRow(name: String, summary: String?, isSelected: Boolean, onC
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     name,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontFamily = DelightRegular),
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

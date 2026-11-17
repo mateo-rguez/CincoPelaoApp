@@ -51,7 +51,6 @@ import io.github.mateorguez.cincopelao.domain.stats.StatsUtils
 import io.github.mateorguez.cincopelao.domain.stats.TargetVerdict
 import io.github.mateorguez.cincopelao.domain.stats.requirement
 import io.github.mateorguez.cincopelao.domain.stats.targetVerdict
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,7 +127,6 @@ private fun StatsSectionHeader(icon: ImageVector, text: String, first: Boolean =
         Text(
             text,
             style = MaterialTheme.typography.titleLarge,
-            fontFamily = DelightMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
     }
@@ -147,7 +145,7 @@ fun GradeTargetCalculator(events: List<GradedEvent>) {
 
     Column {
         StatsGroupTitle("Nota objetivo", first = true) {
-            Text("%.2f".format(target), style = MaterialTheme.typography.headlineSmall, fontFamily = DelightMedium)
+            Text("%.2f".format(target), style = MaterialTheme.typography.headlineSmall)
         }
         // Un punto por cada medio punto de nota
         Slider(value = target, onValueChange = { target = it }, valueRange = 0f..10f, steps = 19)
@@ -214,7 +212,6 @@ private fun TargetRow(event: GradedEvent, required: Float?) {
             Text(
                 "%.2f".format(score),
                 style = MaterialTheme.typography.titleMedium,
-                fontFamily = DelightMedium,
                 color = if (belowMinimum) MaterialTheme.appColors.gradeFail else MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else if (required != null) {
@@ -237,7 +234,6 @@ private fun TargetRow(event: GradedEvent, required: Float?) {
                 Text(
                     if (level == Requirement.MINIMUM && minimum == 0f) "—" else "%.2f".format(required),
                     style = MaterialTheme.typography.titleMedium,
-                    fontFamily = DelightMedium,
                     color = color,
                     modifier = Modifier.alignByBaseline()
                 )

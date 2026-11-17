@@ -55,7 +55,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.local.entity.Task
-import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
 
 /** Formulario abierto: la tarea a editar (o null si es nueva) y el bloque en el que se crea. */
 private data class TaskFormTarget(val task: Task?, val subject: Subject?)
@@ -237,7 +236,7 @@ private fun TaskGroupSection(
 /** Nombre del bloque; si no cabe en una línea, la abreviatura de la asignatura (si tiene). */
 @Composable
 private fun GroupTitle(name: String, abbrev: String, modifier: Modifier = Modifier) {
-    val style = MaterialTheme.typography.titleLarge.copy(fontFamily = DelightRegular, fontWeight = FontWeight.Bold)
+    val style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
     val measurer = rememberTextMeasurer()
     BoxWithConstraints(modifier = modifier) {
         val nameFits = remember(name, style, constraints.maxWidth) {

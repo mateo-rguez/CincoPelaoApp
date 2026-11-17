@@ -50,7 +50,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.ui.common.ChoicePill
-import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -160,7 +159,6 @@ fun EventSheet(
             Text(
                 text = if (event == null) "Nuevo evento" else "Editar evento",
                 style = MaterialTheme.typography.headlineSmall,
-                fontFamily = DelightMedium
             )
 
             OutlinedTextField(
