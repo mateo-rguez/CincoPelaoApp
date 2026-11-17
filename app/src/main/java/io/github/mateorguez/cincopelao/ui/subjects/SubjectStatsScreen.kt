@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -211,7 +212,8 @@ private fun TargetRow(event: GradedEvent, required: Float?) {
             Spacer(Modifier.width(6.dp))
             Text(
                 "%.2f".format(score),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
                 color = if (belowMinimum) MaterialTheme.appColors.gradeFail else MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else if (required != null) {
@@ -233,7 +235,8 @@ private fun TargetRow(event: GradedEvent, required: Float?) {
                 Spacer(Modifier.width(8.dp))
                 Text(
                     if (level == Requirement.MINIMUM && minimum == 0f) "—" else "%.2f".format(required),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
                     color = color,
                     modifier = Modifier.alignByBaseline()
                 )
