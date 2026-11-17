@@ -1,7 +1,7 @@
 # Refactor de CincoPelao
 
 Seguimiento del refactor de la app: plan por fases, lo hecho y lo que queda.
-Rama de trabajo: `rework`. Última actualización: 16 de noviembre de 2026 (fase 7: «Pulir la interfaz» terminada).
+Rama de trabajo: `rework`. Última actualización: 17 de noviembre de 2026 (fase 7: «Pulir la interfaz» y crear/editar asignatura terminadas).
 
 ## Punto de partida
 
@@ -30,9 +30,10 @@ Para no tocar la versión instalada, la app nueva usa otro `applicationId`
 aplica de una en una (ver «Fase 7 — Mejoras»). Hechas: **colores y temas** y **pulir la
 interfaz**, pantalla por pantalla con el autor: Tareas y Asignaturas (lista, detalle y
 estadísticas), Calendario, Horario, Notificaciones, Instancias, Compartir y el menú están
-terminadas (Apariencia se queda como está). Queda aparte la pantalla de crear/editar asignatura,
-cuando convenga; el resto de la lista sigue pendiente (candidatas: crear/editar asignatura y
-revisar la hora de las notificaciones). Método usado en cada pantalla: capturas con la app en
+terminadas (Apariencia se queda como está), y también la pantalla de crear/editar asignatura.
+El resto de la lista sigue pendiente (candidatas: menú de editar/eliminar dentro de la tarjeta de
+asignatura, probar los eventos del formulario en tarjetas y revisar la hora de las
+notificaciones). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -119,7 +120,7 @@ Recibir                                   Transmitir
   Cancelar no deshacía; "Completada el java.text.SimpleDateFormat@…"; carga de imágenes y PDF
   en el hilo principal.
 
-Tests: 185, todos en verde a 16 de noviembre de 2026 (JUnit + Robolectric con Room y WorkManager de pruebas, y sockets TCP locales para la
+Tests: 192, todos en verde a 17 de noviembre de 2026 (JUnit + Robolectric con Room y WorkManager de pruebas, y sockets TCP locales para la
 compartición) — `./gradlew testDebugUnitTest`.
 
 ## Pendiente
@@ -356,8 +357,33 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   lápiz es provisional; al autor no le convence (tampoco unos libros apilados dibujados a
   trazo). Sustituirlo por algo más elaborado en el futuro (en `SubjectsScreen`, dentro del
   `EmptyState`).
-- ☐ **Pulir la pantalla de crear/editar asignatura** (se quedó fuera de «Pulir la interfaz»;
-  el autor la recordó el 16 de noviembre de 2026): hacerla cuando convenga, en medio o al final.
+- ✅ **Pulir la pantalla de crear/editar asignatura** (17 de noviembre de 2026):
+  - `0107388` Arriba, la tarjeta de la lista como vista previa en vivo, que se despliega en
+    nombre, abreviatura (sugerida desde el nombre con `suggestAbbrev` hasta que se escribe a
+    mano) y curso en pastillas; se pliega y suelta el foco al añadir o abrir un evento. Eventos
+    en filas con divisores (nombre; tipo · modalidad · fecha corta · mín. · nota; ponderación a
+    la derecha) y medidor de ponderación con barra y «Faltan/Sobran X %» en su propia línea.
+    «Guardar» en la barra, aviso de descartar cambios al salir, errores en cada campo.
+    `EventSheet` sustituye a `EventDialog` (también en el detalle): pastillas de tipo y
+    modalidad, interruptor «Cuenta para la nota», nota mínima sobre 10 (se sigue guardando en
+    %), eliminar con deshacer; arrastrar/tocar fuera/atrás/Cancelar con algo escrito piden
+    confirmación (el atrás de la hoja lo gestiona un `BackHandler` propio porque en Android 13+
+    el de `ModalBottomSheet` no consulta `confirmValueChange`). Pastilla común `ChoicePill` en
+    `ui/common`. Reglas puras en `SubjectForm.kt` con `SubjectFormTest`.
+    Corregido: «8.379999» en vez de «8,38», el «Guardar» flotante tapaba el último evento,
+    atrás perdía lo escrito, el teclado volvía tras elegir la fecha (el foco de la hoja es de
+    otra ventana: hay que usar el `LocalFocusManager` de dentro).
+  - El autor pidió quitar el «Faltan X %» de debajo de la ponderación en la hoja (sí lo quiere
+    en el medidor de la lista de eventos).
+- ☐ **Eventos del formulario en tarjetas** (idea del autor, 17 de noviembre de 2026): probar
+  la lista de eventos de crear/editar asignatura con tarjetas (`TaskCardFrame`) en vez de filas
+  con divisores, para comparar. La fila está en `EventFormRow`, así que basta con envolverla.
+- ☐ **Menú de editar/eliminar asignatura** (idea del autor, 17 de noviembre de 2026): el menú
+  flotante del «⋮» de `SubjectCard` no le convence; quizá queda mejor con las opciones dentro
+  de la propia tarjeta (por ejemplo, la tarjeta que se transforma, como en Instancias).
+- ☐ **«Opcional» bajo la nota mínima** (detalle visto el 17 de noviembre de 2026): en la hoja
+  de evento solo la nota mínima tiene texto debajo y las dos casillas quedan desiguales;
+  valorar pasarlo a la etiqueta o quitarlo.
 - ☐ **Revisar la hora de las notificaciones** (notado por el autor el 16 de noviembre de 2026):
   varias veces le llegan recordatorios justo al abrir la app, demasiada casualidad. Sospechas a
   comprobar antes de tocar nada:
@@ -369,6 +395,8 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     `computeNotifyTime` elige una hora al azar entre ahora y el fin de la franja, que puede caer
     a los pocos minutos;
   - comprobar en el registro la hora programada frente a la hora real de llegada.
+  - Otro caso el 17 de noviembre de 2026 a las 11:55: al abrir la app saltó «Vete pensando en
+    reto…» con «Ahora mismo».
 - ☐ **Medir el arranque** (pedido por el autor el 16 de noviembre de 2026; abre rápido y no
   parece preocupante, pero conviene tener el dato): tiempo hasta el primer fotograma en frío
   con `adb shell am start -W -S io.github.mateorguez.cincopelao/.MainActivity` (`TotalTime`),
