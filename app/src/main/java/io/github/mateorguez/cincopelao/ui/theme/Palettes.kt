@@ -17,6 +17,9 @@ data class PaletteColors(val scheme: ColorScheme, val app: AppColors)
 fun paletteColors(palette: AppPalette, dark: Boolean): PaletteColors = when (palette) {
     AppPalette.CLASSIC -> if (dark) classicDark else classicLight
     AppPalette.GRAPHITE -> if (dark) graphiteDark else graphiteLight
+    AppPalette.CATPPUCCIN -> if (dark) catppuccinDark else catppuccinLight
+    AppPalette.ROSE_PINE -> if (dark) rosePineDark else rosePineLight
+    AppPalette.GRUVBOX -> if (dark) gruvboxDark else gruvboxLight
 }
 
 /** Nombre visible de cada paleta. */
@@ -24,4 +27,7 @@ val AppPalette.displayName: String
     get() = when (this) {
         AppPalette.CLASSIC -> "Clásico"
         AppPalette.GRAPHITE -> "Grafito"
+        AppPalette.CATPPUCCIN -> "Catppuccin"
+        AppPalette.ROSE_PINE -> "Rosé Pine"
+        AppPalette.GRUVBOX -> "Gruvbox"
     }

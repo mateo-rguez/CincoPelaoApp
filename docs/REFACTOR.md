@@ -37,8 +37,8 @@ la app); los eventos del formulario en tarjetas se probaron y se descartaron. De
 ilustración de Asignaturas vacía, las animaciones (pestañas y listas; cerradas) y la revisión de
 temas (paletas escritas enteras y colores de nota por paleta). Los recordatorios con alarmas
 ya se han comprobado en el Realme. **En curso: tipografía** (texto en DM Sans y letra de los
-títulos a elegir en Apariencia; falta que el autor la pruebe). **Después:** más paletas de colores
-y el resto de la lista (preferencias, medir arranque y scroll...). Método usado en cada pantalla: capturas con la app en
+títulos a elegir en Apariencia) y **más paletas** (Catppuccin, Rosé Pine y Gruvbox; falta que el
+autor las pruebe). **Después:** el resto de la lista (preferencias, medir arranque y scroll...). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -193,11 +193,14 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     `namedPalette(...)` (claro y oscuro) en `ui/theme/Palettes.kt`; el test de contraste la revisa.
   - Visto y sin tocar: los días de otros meses del calendario (`CalendarInactiveText`, gris fijo)
     se leen poco sobre fondos oscuros.
-- ☐ **Más paletas** (**lo siguiente**, decidido por el autor el 17 de noviembre de 2026): el autor
-  dirá cuáles añadir (Bosque, Coral y Violeta se probaron y no gustaron). Desde la revisión de
-  temas basta con copiar `PaletteGraphite.kt`, rellenar los valores de sus dos modos, añadirla
-  a `AppPalette`, `paletteColors` y `displayName`, y pasar `PalettesTest`. Método propuesto:
-  proponer varias con su miniatura en Apariencia, que el autor elija y ajustar en el móvil.
+- ⏳ **Más paletas** (17 de noviembre de 2026): el autor eligió Catppuccin, Rosé Pine y Gruvbox
+  (de la comunidad Linux, licencia MIT) tras una comparativa con maquetas en claro y oscuro.
+  - `PaletteCatppuccin.kt` (Latte / Mocha, barra y acento mauve en claro), `PaletteRosePine.kt`
+    (Dawn / Moon, barra pino y acento rosa en claro) y `PaletteGruvbox.kt` (Light / Dark, barra
+    marrón y acento naranja): todos los colores salen de los tonos oficiales o de mezclas suyas.
+  - Los tonos de texto que no llegaban al contraste de `PalettesTest` se oscurecieron (claro) o
+    aclararon (oscuro) lo justo; sobre todo amarillos y naranjas en claro, como ya pasaba en Grafito.
+  - Pendiente: que el autor las pruebe en el móvil y ajustar lo que no le guste.
 - ✅ **Calendario: tarea o evento en cada tarjeta**: hecho dentro de «Pulir la interfaz» (etiqueta
   del tipo y marcador con forma).
 - ✅ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
