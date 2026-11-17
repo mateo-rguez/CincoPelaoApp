@@ -39,12 +39,6 @@ import io.github.mateorguez.cincopelao.domain.stats.Stats
 import io.github.mateorguez.cincopelao.domain.stats.StatsUtils
 import io.github.mateorguez.cincopelao.domain.stats.SubjectInsights
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
-import io.github.mateorguez.cincopelao.ui.theme.StatusBelowMinimum
-import io.github.mateorguez.cincopelao.ui.theme.StatusExcellent
-import io.github.mateorguez.cincopelao.ui.theme.StatusFail
-import io.github.mateorguez.cincopelao.ui.theme.StatusFair
-import io.github.mateorguez.cincopelao.ui.theme.StatusGood
-import io.github.mateorguez.cincopelao.ui.theme.StatusPass
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 
 /**
@@ -271,13 +265,14 @@ private data class GradeBand(val name: String, val count: Int, val color: Color)
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun GradeDistribution(stats: Stats) {
+    val colors = MaterialTheme.appColors
     val bands = listOf(
-        GradeBand("Bajo mínima", stats.eventCountTrunc, StatusBelowMinimum),
-        GradeBand("Suspenso", stats.eventCountSusp, StatusFail),
-        GradeBand("Suficiente", stats.eventCountSufi, StatusPass),
-        GradeBand("Aceptable", stats.eventCountAcep, StatusFair),
-        GradeBand("Notable", stats.eventCountNotable, StatusGood),
-        GradeBand("Sobresaliente", stats.eventCountSobre, StatusExcellent)
+        GradeBand("Bajo mínima", stats.eventCountTrunc, colors.gradeBelowMinimum),
+        GradeBand("Suspenso", stats.eventCountSusp, colors.gradeFail),
+        GradeBand("Suficiente", stats.eventCountSufi, colors.gradePass),
+        GradeBand("Aceptable", stats.eventCountAcep, colors.gradeFair),
+        GradeBand("Notable", stats.eventCountNotable, colors.gradeGood),
+        GradeBand("Sobresaliente", stats.eventCountSobre, colors.gradeExcellent)
     ).filter { it.count > 0 }
 
     Row(

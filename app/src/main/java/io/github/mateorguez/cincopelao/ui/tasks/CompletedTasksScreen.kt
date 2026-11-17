@@ -43,7 +43,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -234,7 +233,7 @@ private fun ArchivedParentTaskBlock(
                 Text(
                     text = completedSubtitle(item.task, item.subjectAbbrev),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = MaterialTheme.appColors.muted
                 )
             }
             TintedIconButton(Icons.AutoMirrored.Filled.Undo, "Restaurar tarea", onRestore)
@@ -287,7 +286,7 @@ private fun ArchivedTaskRow(
             Spacer(modifier = Modifier.width(8.dp))
             Column {
                 Text(task.title)
-                Text(text = completedSubtitle(task, subjectAbbrev), style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Text(text = completedSubtitle(task, subjectAbbrev), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.appColors.muted)
             }
         }
 

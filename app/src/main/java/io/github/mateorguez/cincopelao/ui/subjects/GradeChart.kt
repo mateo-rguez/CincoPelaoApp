@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import android.graphics.Paint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -21,7 +22,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.mateorguez.cincopelao.ui.theme.StatusFail
 import kotlinx.coroutines.launch
 
 /**
@@ -55,7 +55,7 @@ fun GradeChart(
     }
 
     val lineColor = MaterialTheme.colorScheme.primary
-    val failColor = StatusFail
+    val failColor = MaterialTheme.appColors.gradeFail
     val gridColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f)
     val passLineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
     val axisColor = MaterialTheme.colorScheme.onSurfaceVariant

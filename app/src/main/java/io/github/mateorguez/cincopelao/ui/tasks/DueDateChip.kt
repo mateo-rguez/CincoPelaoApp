@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.ui.theme.appColors
@@ -31,7 +30,7 @@ const val DUE_CHIP_ALPHA = 0.15f
 fun DueDateChip(dueDate: Long, isCompleted: Boolean, modifier: Modifier = Modifier) {
     val urgency = dueUrgency(dueDate)
     val tone = when {
-        isCompleted -> Color.Gray
+        isCompleted -> MaterialTheme.appColors.muted
         urgency == DueUrgency.OVERDUE -> MaterialTheme.appColors.dueOverdue
         urgency == DueUrgency.SOON -> MaterialTheme.appColors.dueSoon
         else -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f)

@@ -38,7 +38,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -53,9 +52,6 @@ import io.github.mateorguez.cincopelao.domain.stats.TargetVerdict
 import io.github.mateorguez.cincopelao.domain.stats.requirement
 import io.github.mateorguez.cincopelao.domain.stats.targetVerdict
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
-import io.github.mateorguez.cincopelao.ui.theme.StatusDone
-import io.github.mateorguez.cincopelao.ui.theme.StatusFail
-import io.github.mateorguez.cincopelao.ui.theme.StatusFair
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -159,7 +155,7 @@ fun GradeTargetCalculator(events: List<GradedEvent>) {
         Text(
             text = verdictText(verdict, target),
             style = MaterialTheme.typography.bodyLarge,
-            color = if (verdict is TargetVerdict.Impossible) StatusFail else MaterialTheme.colorScheme.onSurface,
+            color = if (verdict is TargetVerdict.Impossible) MaterialTheme.appColors.gradeFail else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
         )
 
@@ -219,15 +215,15 @@ private fun TargetRow(event: GradedEvent, required: Float?) {
                 "%.2f".format(score),
                 style = MaterialTheme.typography.titleMedium,
                 fontFamily = DelightMedium,
-                color = if (belowMinimum) StatusFail else MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (belowMinimum) MaterialTheme.appColors.gradeFail else MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else if (required != null) {
             val level = requirement(required, event.minScore)
             val (caption, color) = when (level) {
-                Requirement.MINIMUM -> (if (minimum > 0f) "Basta la mínima" else "Cualquier nota") to StatusDone
-                Requirement.REACHABLE -> "Asequible" to StatusDone
-                Requirement.DEMANDING -> "Exigente" to StatusFair
-                Requirement.IMPOSSIBLE -> "Imposible" to StatusFail
+                Requirement.MINIMUM -> (if (minimum > 0f) "Basta la mínima" else "Cualquier nota") to MaterialTheme.appColors.done
+                Requirement.REACHABLE -> "Asequible" to MaterialTheme.appColors.done
+                Requirement.DEMANDING -> "Exigente" to MaterialTheme.appColors.gradeFair
+                Requirement.IMPOSSIBLE -> "Imposible" to MaterialTheme.appColors.gradeFail
             }
             // La palabra a la izquierda de la nota, sobre la misma base; el par se centra en la fila
             Row {

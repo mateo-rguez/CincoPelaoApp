@@ -13,7 +13,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import io.github.mateorguez.cincopelao.ui.tasks.TaskCheckbox
 import io.github.mateorguez.cincopelao.ui.tasks.daysUntil
 import io.github.mateorguez.cincopelao.ui.tasks.dueDateLabel
+import io.github.mateorguez.cincopelao.ui.theme.AppColors
 import io.github.mateorguez.cincopelao.ui.theme.appColors
+import io.github.mateorguez.cincopelao.ui.tasks.DUE_CHIP_ALPHA
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -56,13 +58,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
-import io.github.mateorguez.cincopelao.ui.theme.StatusBelowMinimum
-import io.github.mateorguez.cincopelao.ui.theme.StatusDone
-import io.github.mateorguez.cincopelao.ui.theme.StatusExcellent
-import io.github.mateorguez.cincopelao.ui.theme.StatusFail
-import io.github.mateorguez.cincopelao.ui.theme.StatusFair
-import io.github.mateorguez.cincopelao.ui.theme.StatusGood
-import io.github.mateorguez.cincopelao.ui.theme.StatusPass
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -137,7 +132,7 @@ private fun PuntuableEvent(event: Event, onScoreChange: (Float?) -> Unit, onEdit
     Band(
         left = {
             val (text, color) = puntuableStatus(event)
-            EventStatusTag(text = text, backgroundColor = color)
+            EventStatusTag(text = text, tone = color)
         },
         right = { ScoreArrows(up = false, score::modify) }
     )
@@ -148,9 +143,9 @@ private fun PuntuableEvent(event: Event, onScoreChange: (Float?) -> Unit, onEdit
 private fun puntuableStatus(event: Event): Pair<String, Color> {
     val daysLeft = daysUntil(event.date)
     return if (event.score == null && daysLeft >= 0) {
-        dueDateLabel(event.date) to (if (daysLeft <= 1) MaterialTheme.appColors.dueSoon else Color.Gray)
+        dueDateLabel(event.date) to (if (daysLeft <= 1) MaterialTheme.appColors.dueSoon else MaterialTheme.appColors.muted)
     } else {
-        getEventStatus(event)
+        getEventStatus(event, MaterialTheme.appColors)
     }
 }
 
@@ -162,9 +157,9 @@ private fun NoPuntuableEvent(event: Event, onDoneChange: (Boolean) -> Unit, onEd
             EventInfoChips(event)
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            val (statusText, statusColor) = getEventStatus(event)
+            val (statusText, statusColor) = getEventStatus(event, MaterialTheme.appColors)
             var checked by remember { mutableStateOf(event.noPuntuableDone) }
-            EventStatusTag(text = statusText, backgroundColor = statusColor)
+            EventStatusTag(text = statusText, tone = statusColor)
             TaskCheckbox(
                 checked = checked,
                 onCheckedChange = {
@@ -331,22 +326,17 @@ private fun ScoreField(score: ScoreState) {
     )
 }
 
+/**
+ * Etiqueta del estado de un evento: el texto en el tono de su estado sobre ese mismo tono suave,
+ * como las etiquetas de fecha de las tareas (cada paleta da tonos que se leen así).
+ */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun EventStatusTag(
-    text: String,
-    backgroundColor: Color,
-    contentColor: Color = Color.White
-) {
-    // Animar el color de fondo y del texto
-    val animatedBackgroundColor by animateColorAsState(
-        targetValue = backgroundColor,
+fun EventStatusTag(text: String, tone: Color) {
+    // Al cambiar de estado, el tono pasa de uno a otro
+    val animatedTone by animateColorAsState(
+        targetValue = tone,
         animationSpec = tween(durationMillis = 500)
-    )
-
-    val animatedContentColor by animateColorAsState(
-        targetValue = contentColor,
-        animationSpec = tween(durationMillis = 200)
     )
 
     // Animar el cambio de texto con AnimatedContent
@@ -360,7 +350,7 @@ fun EventStatusTag(
         Box(
             modifier = Modifier
                 .background(
-                    color = animatedBackgroundColor,
+                    color = animatedTone.copy(alpha = DUE_CHIP_ALPHA),
                     shape = RoundedCornerShape(50)
                 )
                 .padding(horizontal = 10.dp, vertical = 4.dp),
@@ -368,30 +358,31 @@ fun EventStatusTag(
         ) {
             Text(
                 text = animatedText,
-                color = animatedContentColor,
+                color = animatedTone,
                 style = MaterialTheme.typography.labelSmall
             )
         }
     }
 }
 
-fun getEventStatus(event: Event): Pair<String, Color> {
+/** Texto y tono del estado de un evento ya calificado (o no puntuable), con los colores de la paleta. */
+fun getEventStatus(event: Event, colors: AppColors): Pair<String, Color> {
     return if (!event.isPuntuable) {
         if (event.noPuntuableDone) {
-            "Hecho" to StatusDone
+            "Hecho" to colors.done
         } else {
-            "Por hacer" to Color.Gray
+            "Por hacer" to colors.muted
         }
     } else {
         when {
-            event.score == null -> "Sin nota" to Color.Gray
-            event.minScore != null && event.score < event.minScore / 10 -> "Nota mínima" to StatusBelowMinimum
-            event.score < 5 -> "Suspenso" to StatusFail
-            event.score < 6 -> "Suficiente" to StatusPass
-            event.score < 7 -> "Aceptable" to StatusFair
-            event.score < 9 -> "Notable" to StatusGood
-            event.score >= 9 -> "Sobresaliente" to StatusExcellent
-            else -> "Bien" to StatusFair
+            event.score == null -> "Sin nota" to colors.muted
+            event.minScore != null && event.score < event.minScore / 10 -> "Nota mínima" to colors.gradeBelowMinimum
+            event.score < 5 -> "Suspenso" to colors.gradeFail
+            event.score < 6 -> "Suficiente" to colors.gradePass
+            event.score < 7 -> "Aceptable" to colors.gradeFair
+            event.score < 9 -> "Notable" to colors.gradeGood
+            event.score >= 9 -> "Sobresaliente" to colors.gradeExcellent
+            else -> "Bien" to colors.gradeFair
         }
     }
 }

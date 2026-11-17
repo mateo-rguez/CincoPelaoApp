@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.tasks
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
@@ -26,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.data.local.entity.Task
@@ -114,6 +114,6 @@ private fun SubtaskProgress(done: Int, total: Int) {
             gapSize = 0.dp,
             drawStopIndicator = {}
         )
-        Text(text = "$done/$total", style = MaterialTheme.typography.labelMedium, color = Color.Gray)
+        Text(text = "$done/$total", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.appColors.muted)
     }
 }

@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Surface
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -141,7 +140,7 @@ private fun ScheduleMenu(onChange: () -> Unit, onRemove: () -> Unit) {
             Box(
                 Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = scrim))
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = scrim))
                     .pointerInput(Unit) { detectTapGestures { stage = MenuStage.CLOSED } }
             )
         }

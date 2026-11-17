@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.sharing
 
+import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -60,7 +61,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.sharing.session.SharePhase
-import io.github.mateorguez.cincopelao.ui.theme.StatusDone
 
 /** Escenas del icono: varias fases comparten animación. */
 private enum class IconScene(val description: String) {
@@ -394,7 +394,7 @@ private fun ImportingScene() {
 /** Círculo que aparece con rebote y un check que se dibuja trazo a trazo. */
 @Composable
 private fun DoneScene() {
-    val color = StatusDone
+    val color = MaterialTheme.appColors.done
     val circle = remember { Animatable(0f) }
     val check = remember { Animatable(0f) }
     LaunchedEffect(Unit) {

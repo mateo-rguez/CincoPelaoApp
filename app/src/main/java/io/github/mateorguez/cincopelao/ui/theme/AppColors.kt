@@ -34,6 +34,23 @@ data class AppColors(
     /** Etiqueta de la fecha límite: vencida y para hoy o mañana (texto; el fondo es el mismo tono suave). */
     val dueOverdue: Color,
     val dueSoon: Color,
+    /**
+     * Texto apagado: tareas completadas, eventos sin nota o por hacer, fechas sin urgencia y
+     * recuentos secundarios. Legible (4,5:1) sobre el fondo y sobre las tarjetas de tareas.
+     */
+    val muted: Color,
+    /** Algo hecho o al alcance: eventos no puntuables hechos, «Asequible», envío completado. */
+    val done: Color,
+    /**
+     * Calificaciones, de peor a mejor: etiquetas de los eventos (texto del tono sobre ese tono
+     * suave), barra del Reparto, puntos de la gráfica y calculadora de la nota objetivo.
+     */
+    val gradeBelowMinimum: Color,
+    val gradeFail: Color,
+    val gradePass: Color,
+    val gradeFair: Color,
+    val gradeGood: Color,
+    val gradeExcellent: Color,
     /** Calendario: borde del día de hoy, fondo de las casillas de los días y borde del elegido. */
     val calendarToday: Color,
     val calendarDayBackground: Color,

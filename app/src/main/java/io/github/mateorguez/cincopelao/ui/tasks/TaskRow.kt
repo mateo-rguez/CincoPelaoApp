@@ -33,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -107,7 +106,7 @@ fun ScribbleStrikeThroughText(
         animationSpec = tween(durationMillis = 1000)
     )
     val textColor by animateColorAsState(
-        targetValue = if (isChecked) Color.Gray else MaterialTheme.colorScheme.onBackground
+        targetValue = if (isChecked) MaterialTheme.appColors.muted else MaterialTheme.colorScheme.onBackground
     )
     var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
