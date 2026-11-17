@@ -1,6 +1,9 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -24,6 +28,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
@@ -34,14 +39,13 @@ import androidx.compose.material.icons.outlined.Grade
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material.icons.outlined.WorkspacePremium
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.mateorguez.cincopelao.ui.common.requestDeviceAuth
 import io.github.mateorguez.cincopelao.ui.tasks.DUE_CHIP_ALPHA
 import io.github.mateorguez.cincopelao.ui.tasks.DueUrgency
 import io.github.mateorguez.cincopelao.ui.tasks.TaskCardFrame
@@ -65,12 +70,15 @@ import io.github.mateorguez.cincopelao.ui.tasks.dueUrgency
 import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 
-/** Margen horizontal de la tarjeta; la barra de acciones lo comparte para quedar alineada. */
+/** Lo que muestra la franja de abajo de la tarjeta. */
+private enum class CardStage { CLOSED, ACTIONS, CONFIRM_DELETE }
+
 /**
  * Tarjeta de una asignatura: pastilla con su abreviatura, nombre y curso, y debajo dos etiquetas
  * que se alternan: una con la nota (media ↔ último examen, o la nota final si ya está todo hecho)
  * y otra con lo siguiente que hacer (próximo evento ↔ tareas pendientes). Una pulsación abre la
- * asignatura; el botón «⋮» abre el menú con editar y eliminar.
+ * asignatura; el botón «⋮» despliega dentro de la tarjeta una franja con editar y eliminar, y
+ * eliminar se confirma en esa misma franja.
  */
 @Composable
 fun SubjectCard(
@@ -78,16 +86,29 @@ fun SubjectCard(
     titulation: String?,
     /** Cambia cada pocos segundos (a la vez en todas las tarjetas) para alternar las etiquetas. */
     showAlternate: Boolean,
+    /** Si la franja de acciones está desplegada (la lista solo deja una abierta a la vez). */
+    menuOpen: Boolean,
+    onMenuOpenChange: (Boolean) -> Unit,
     onDelete: () -> Unit,
 ) {
     val context = LocalContext.current
     val subject = summary.subject
-    var showDeleteDialog by remember { mutableStateOf(false) }
+    var confirmingDelete by remember { mutableStateOf(false) }
+    LaunchedEffect(menuOpen) { if (!menuOpen) confirmingDelete = false }
+    val stage = when {
+        !menuOpen -> CardStage.CLOSED
+        confirmingDelete -> CardStage.CONFIRM_DELETE
+        else -> CardStage.ACTIONS
+    }
 
     TaskCardFrame(
         outerPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
         contentPadding = 14.dp,
-        modifier = Modifier.clickable { context.startActivity(SubjectActivity.intent(context, subject.subjectId)) }
+        modifier = Modifier.clickable {
+            // Con la franja abierta, tocar la tarjeta solo la cierra
+            if (menuOpen) onMenuOpenChange(false)
+            else context.startActivity(SubjectActivity.intent(context, subject.subjectId))
+        }
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             SubjectBadge(summary.badge)
@@ -116,81 +137,132 @@ fun SubjectCard(
                     )
                 }
             }
-            SubjectMenu(
-                modifier = Modifier.align(Alignment.Top),
-                onEdit = { context.startActivity(AddEditSubjectActivity.editIntent(context, subject.subjectId)) },
-                onDelete = { showDeleteDialog = true }
+            MenuToggle(
+                open = menuOpen,
+                onClick = { onMenuOpenChange(!menuOpen) },
+                modifier = Modifier.align(Alignment.Top)
             )
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            RotatingChip(gradeChips(summary), showAlternate)
-            RotatingChip(nextChips(summary), showAlternate, Modifier.weight(1f, fill = false))
-        }
-    }
-
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Eliminar asignatura") },
-            text = { Text("¿Estás seguro de que deseas eliminar '${subject.name}'?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    onDelete()
-                    showDeleteDialog = false
-                }) {
-                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancelar", color = MaterialTheme.appColors.accent)
+        // En una columna propia: el espaciado del marco no debe añadir hueco con la franja cerrada
+        Column {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                RotatingChip(gradeChips(summary), showAlternate)
+                RotatingChip(nextChips(summary), showAlternate, Modifier.weight(1f, fill = false))
+            }
+            AnimatedContent(
+                targetState = stage,
+                transitionSpec = {
+                    (fadeIn(tween(150, delayMillis = 90)) togetherWith fadeOut(tween(90)))
+                        .using(SizeTransform(clip = true) { _, _ -> spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow) })
+                },
+                label = "SubjectCardStage"
+            ) { shown ->
+                when (shown) {
+                    CardStage.CLOSED -> Spacer(Modifier.fillMaxWidth())
+                    CardStage.ACTIONS -> ActionsStrip(
+                        onEdit = {
+                            onMenuOpenChange(false)
+                            context.startActivity(AddEditSubjectActivity.editIntent(context, subject.subjectId))
+                        },
+                        onDelete = { confirmingDelete = true }
+                    )
+                    CardStage.CONFIRM_DELETE -> ConfirmDeleteStrip(
+                        name = subject.name,
+                        onCancel = { confirmingDelete = false },
+                        onConfirm = {
+                            onMenuOpenChange(false)
+                            onDelete()
+                        }
+                    )
                 }
             }
-        )
+        }
     }
 }
 
 /**
- * Botón «⋮» con el menú de editar y eliminar. Pequeño y pegado al borde derecho y arriba, para no
- * ensanchar ni alargar la fila del nombre.
+ * Botón «⋮» que pasa a «✕» con la franja abierta. Pequeño y pegado al borde derecho y arriba,
+ * para no ensanchar ni alargar la fila del nombre.
  */
 @Composable
-private fun SubjectMenu(onEdit: () -> Unit, onDelete: () -> Unit, modifier: Modifier = Modifier) {
-    var open by remember { mutableStateOf(false) }
-    // El Box ancla el menú al botón; el offset lo mete en el margen derecho de la tarjeta
-    Box(modifier = modifier.offset(x = 8.dp, y = (-6).dp)) {
-        Box(
-            modifier = Modifier
-                .size(28.dp)
-                .clip(CircleShape)
-                .clickable { open = true },
-            contentAlignment = Alignment.Center
-        ) {
+private fun MenuToggle(open: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .offset(x = 8.dp, y = (-6).dp)
+            .size(28.dp)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Crossfade(targetState = open, animationSpec = tween(200), label = "SubjectMenuIcon") { isOpen ->
             Icon(
-                Icons.Default.MoreVert,
-                contentDescription = "Opciones",
+                if (isOpen) Icons.Default.Close else Icons.Default.MoreVert,
+                contentDescription = if (isOpen) "Cerrar opciones" else "Opciones",
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                 modifier = Modifier.size(18.dp)
             )
         }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            DropdownMenuItem(
-                text = { Text("Editar") },
-                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null, tint = MaterialTheme.appColors.accent) },
-                onClick = {
-                    open = false
-                    onEdit()
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Eliminar", color = MaterialTheme.colorScheme.error) },
-                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-                onClick = {
-                    open = false
-                    onDelete()
-                }
-            )
+    }
+}
+
+/** Divisor de la franja, del mismo tono que los de las filas de eventos. */
+@Composable
+private fun StripDivider() {
+    HorizontalDivider(
+        modifier = Modifier.padding(top = 12.dp),
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+        thickness = 1.dp
+    )
+}
+
+/** Franja con Editar y Eliminar, cada uno centrado en su mitad. */
+@Composable
+private fun ActionsStrip(onEdit: () -> Unit, onDelete: () -> Unit) {
+    Column(Modifier.fillMaxWidth()) {
+        StripDivider()
+        // El margen inferior de la tarjeta ya separa: los botones solo suben un poco
+        Row(Modifier.fillMaxWidth().padding(top = 6.dp).offset(y = 4.dp)) {
+            StripButton(Icons.Default.Edit, "Editar", MaterialTheme.appColors.accent, onEdit, Modifier.weight(1f))
+            StripButton(Icons.Default.Delete, "Eliminar", MaterialTheme.colorScheme.error, onDelete, Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun StripButton(icon: ImageVector, text: String, color: Color, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    TextButton(onClick = onClick, modifier = modifier) {
+        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(text, color = color)
+    }
+}
+
+/** Confirmación del borrado en la propia franja, con desbloqueo del móvil; después queda «Deshacer» en el aviso. */
+@Composable
+private fun ConfirmDeleteStrip(name: String, onCancel: () -> Unit, onConfirm: () -> Unit) {
+    Column(Modifier.fillMaxWidth()) {
+        StripDivider()
+        Spacer(Modifier.height(10.dp))
+        Text(
+            "¿Eliminar «${name.trim()}»?",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            "Se borrarán también sus eventos y tareas.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        )
+        val context = LocalContext.current
+        Row(Modifier.align(Alignment.End).offset(x = 8.dp, y = 4.dp)) {
+            TextButton(onClick = onCancel) { Text("Cancelar", color = MaterialTheme.appColors.accent) }
+            // Como en Instancias, se pide además el desbloqueo del móvil (huella, cara, PIN o patrón)
+            TextButton(onClick = { requestDeviceAuth(context, "Eliminar asignatura", "Confirma que quieres eliminar «${name.trim()}»", onConfirm) }) {
+                Text("Eliminar", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }

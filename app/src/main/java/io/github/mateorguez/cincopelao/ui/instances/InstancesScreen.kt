@@ -89,6 +89,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.mateorguez.cincopelao.ui.common.requestDeviceAuth
 import io.github.mateorguez.cincopelao.data.instances.DatabaseInstance
 import io.github.mateorguez.cincopelao.ui.theme.DelightRegular
 import io.github.mateorguez.cincopelao.ui.theme.appColors

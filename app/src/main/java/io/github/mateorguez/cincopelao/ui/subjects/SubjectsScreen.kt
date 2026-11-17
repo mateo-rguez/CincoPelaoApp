@@ -24,7 +24,9 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -96,29 +98,36 @@ fun SubjectsScreen(
                 }
             }
         }
-        else -> LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            // Abajo deja sitio al botón de añadir para que no tape la última tarjeta
-            contentPadding = PaddingValues(top = 10.dp, bottom = 88.dp)
-        ) {
-            items(state.subjects, key = { it.subject.subjectId }) { summary ->
-                val subject = summary.subject
-                SubjectCard(
-                    summary = summary,
-                    titulation = state.titulation,
-                    showAlternate = showAlternate,
-                    onDelete = {
-                        scope.launch {
-                            val deleted = viewModel.delete(subject)
-                            val result = snackbarHostState.showSnackbar(
-                                message = "${subject.name} ha sido eliminada",
-                                actionLabel = "Deshacer",
-                                duration = SnackbarDuration.Short
-                            )
-                            if (result == SnackbarResult.ActionPerformed) viewModel.undoDelete(deleted)
+        else -> {
+            // Solo una tarjeta con la franja de acciones abierta; atrás la cierra
+            var openMenuId by rememberSaveable { mutableStateOf<Long?>(null) }
+            BackHandler(enabled = openMenuId != null) { openMenuId = null }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                // Abajo deja sitio al botón de añadir para que no tape la última tarjeta
+                contentPadding = PaddingValues(top = 10.dp, bottom = 88.dp)
+            ) {
+                items(state.subjects, key = { it.subject.subjectId }) { summary ->
+                    val subject = summary.subject
+                    SubjectCard(
+                        summary = summary,
+                        titulation = state.titulation,
+                        showAlternate = showAlternate,
+                        menuOpen = openMenuId == subject.subjectId,
+                        onMenuOpenChange = { open -> openMenuId = if (open) subject.subjectId else null },
+                        onDelete = {
+                            scope.launch {
+                                val deleted = viewModel.delete(subject)
+                                val result = snackbarHostState.showSnackbar(
+                                    message = "${subject.name} ha sido eliminada",
+                                    actionLabel = "Deshacer",
+                                    duration = SnackbarDuration.Short
+                                )
+                                if (result == SnackbarResult.ActionPerformed) viewModel.undoDelete(deleted)
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }

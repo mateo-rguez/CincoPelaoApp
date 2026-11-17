@@ -1,7 +1,7 @@
 # Refactor de CincoPelao
 
 Seguimiento del refactor de la app: plan por fases, lo hecho y lo que queda.
-Rama de trabajo: `rework`. Última actualización: 17 de noviembre de 2026 (fase 7: «Pulir la interfaz» y crear/editar asignatura terminadas).
+Rama de trabajo: `rework`. Última actualización: 17 de noviembre de 2026 (fase 7: «Pulir la interfaz» y crear/editar asignatura terminadas; editar/eliminar dentro de la tarjeta de asignatura).
 
 ## Punto de partida
 
@@ -31,8 +31,7 @@ aplica de una en una (ver «Fase 7 — Mejoras»). Hechas: **colores y temas** y
 interfaz**, pantalla por pantalla con el autor: Tareas y Asignaturas (lista, detalle y
 estadísticas), Calendario, Horario, Notificaciones, Instancias, Compartir y el menú están
 terminadas (Apariencia se queda como está), y también la pantalla de crear/editar asignatura.
-El resto de la lista sigue pendiente (candidatas: menú de editar/eliminar dentro de la tarjeta de
-asignatura, probar los eventos del formulario en tarjetas y revisar la hora de las
+El resto de la lista sigue pendiente (candidatas: probar los eventos del formulario en tarjetas y revisar la hora de las
 notificaciones). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
@@ -378,9 +377,12 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
 - ☐ **Eventos del formulario en tarjetas** (idea del autor, 17 de noviembre de 2026): probar
   la lista de eventos de crear/editar asignatura con tarjetas (`TaskCardFrame`) en vez de filas
   con divisores, para comparar. La fila está en `EventFormRow`, así que basta con envolverla.
-- ☐ **Menú de editar/eliminar asignatura** (idea del autor, 17 de noviembre de 2026): el menú
-  flotante del «⋮» de `SubjectCard` no le convence; quizá queda mejor con las opciones dentro
-  de la propia tarjeta (por ejemplo, la tarjeta que se transforma, como en Instancias).
+- ✅ **Menú de editar/eliminar asignatura** (idea del autor, 17 de noviembre de 2026): el «⋮»
+  de `SubjectCard` ya no abre un menú flotante, sino que despliega dentro de la tarjeta (con el
+  muelle de Instancias) una franja con divisor y Editar · Eliminar; el «⋮» pasa a «✕». Eliminar
+  se confirma en la misma franja y pide el desbloqueo del móvil (`requestDeviceAuth`, movida a
+  `ui/common/DeviceAuth.kt` para compartirla con Instancias); después sigue el «Deshacer».
+  Solo una tarjeta abierta a la vez; atrás o tocar la tarjeta la cierra.
 - ☐ **«Opcional» bajo la nota mínima** (detalle visto el 17 de noviembre de 2026): en la hoja
   de evento solo la nota mínima tiene texto debajo y las dos casillas quedan desiguales;
   valorar pasarlo a la etiqueta o quitarlo.

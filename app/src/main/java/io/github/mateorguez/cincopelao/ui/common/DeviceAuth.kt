@@ -1,4 +1,4 @@
-package io.github.mateorguez.cincopelao.ui.instances
+package io.github.mateorguez.cincopelao.ui.common
 
 import android.app.KeyguardManager
 import android.content.Context
