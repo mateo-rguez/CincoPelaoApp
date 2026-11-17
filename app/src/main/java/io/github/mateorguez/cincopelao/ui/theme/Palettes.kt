@@ -20,6 +20,13 @@ fun paletteColors(palette: AppPalette, dark: Boolean): PaletteColors = when (pal
     AppPalette.CATPPUCCIN -> if (dark) catppuccinDark else catppuccinLight
     AppPalette.ROSE_PINE -> if (dark) rosePineDark else rosePineLight
     AppPalette.GRUVBOX -> if (dark) gruvboxDark else gruvboxLight
+    AppPalette.FLEXOKI -> if (dark) flexokiDark else flexokiLight
+    AppPalette.TOKYO_NIGHT -> if (dark) tokyoNightDark else tokyoNightLight
+    AppPalette.KANAGAWA -> if (dark) kanagawaDark else kanagawaLight
+    AppPalette.CHALKBOARD -> if (dark) chalkboardDark else chalkboardLight
+    AppPalette.NOTEBOOK -> if (dark) notebookDark else notebookLight
+    AppPalette.LIBRARY -> if (dark) libraryDark else libraryLight
+    AppPalette.RISO -> if (dark) risoDark else risoLight
 }
 
 /** Nombre visible de cada paleta. */
@@ -30,4 +37,11 @@ val AppPalette.displayName: String
         AppPalette.CATPPUCCIN -> "Catppuccin"
         AppPalette.ROSE_PINE -> "Rosé Pine"
         AppPalette.GRUVBOX -> "Gruvbox"
+        AppPalette.FLEXOKI -> "Flexoki"
+        AppPalette.TOKYO_NIGHT -> "Tokyo Night"
+        AppPalette.KANAGAWA -> "Kanagawa"
+        AppPalette.CHALKBOARD -> "Pizarra"
+        AppPalette.NOTEBOOK -> "Cuaderno"
+        AppPalette.LIBRARY -> "Biblioteca"
+        AppPalette.RISO -> "Risografía"
     }

@@ -37,8 +37,8 @@ la app); los eventos del formulario en tarjetas se probaron y se descartaron. De
 ilustración de Asignaturas vacía, las animaciones (pestañas y listas; cerradas) y la revisión de
 temas (paletas escritas enteras y colores de nota por paleta). Los recordatorios con alarmas
 ya se han comprobado en el Realme. **En curso: tipografía** (texto en DM Sans y letra de los
-títulos a elegir en Apariencia) y **más paletas** (Catppuccin, Rosé Pine y Gruvbox; falta que el
-autor las pruebe). **Después:** el resto de la lista (preferencias, medir arranque y scroll...). Método usado en cada pantalla: capturas con la app en
+títulos a elegir en Apariencia) y **más paletas** (Catppuccin, Rosé Pine y Gruvbox, aprobadas; Flexoki,
+Tokyo Night, Kanagawa, Pizarra, Cuaderno, Biblioteca y Risografía, sin probar). **Después:** el resto de la lista (preferencias, medir arranque y scroll...). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -200,7 +200,12 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     marrón y acento naranja): todos los colores salen de los tonos oficiales o de mezclas suyas.
   - Los tonos de texto que no llegaban al contraste de `PalettesTest` se oscurecieron (claro) o
     aclararon (oscuro) lo justo; sobre todo amarillos y naranjas en claro, como ya pasaba en Grafito.
-  - Pendiente: que el autor las pruebe en el móvil y ajustar lo que no le guste.
+  - Probadas por el autor el 17 de noviembre: le gustan las tres.
+  - Segunda tanda (18 de noviembre), metida directamente a petición del autor: Flexoki, Tokyo
+    Night y Kanagawa (MIT) y cuatro propias con tema de estudio: Pizarra (pizarra blanca /
+    verde con tizas), Cuaderno (bolígrafo azul, margen rojo), Biblioteca (madera, verde de
+    lámpara, burdeos y latón) y Risografía (tintas riso, barra rosa flúor). Quedan 12 paletas.
+  - Pendiente: que el autor pruebe la segunda tanda y quitar o ajustar las que no le gusten.
 - ✅ **Calendario: tarea o evento en cada tarjeta**: hecho dentro de «Pulir la interfaz» (etiqueta
   del tipo y marcador con forma).
 - ✅ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
