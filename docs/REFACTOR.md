@@ -36,9 +36,9 @@ ayuda fija bajo ponderación y nota mínima y los recordatorios con alarmas (lle
 la app); los eventos del formulario en tarjetas se probaron y se descartaron. Después, la
 ilustración de Asignaturas vacía, las animaciones (pestañas y listas; cerradas) y la revisión de
 temas (paletas escritas enteras y colores de nota por paleta). Los recordatorios con alarmas
-ya se han comprobado en el Realme. **En curso: tipografía** (texto en DM Sans y letra de los
-títulos a elegir en Apariencia) y **más paletas** (Catppuccin, Rosé Pine y Gruvbox, aprobadas; Flexoki,
-Tokyo Night, Kanagawa, Pizarra, Cuaderno y Biblioteca, también aprobadas). **Después:** el resto de la lista (preferencias, medir arranque y scroll...). Método usado en cada pantalla: capturas con la app en
+ya se han comprobado en el Realme. **Hechas: tipografía** (texto en DM Sans y letra de los
+títulos a elegir en Apariencia) y **más paletas** (11 en total), ambas cerradas. **Después:** el resto de
+la lista (preferencias, copia de seguridad, medir arranque y scroll...). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -193,7 +193,7 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     `namedPalette(...)` (claro y oscuro) en `ui/theme/Palettes.kt`; el test de contraste la revisa.
   - Visto y sin tocar: los días de otros meses del calendario (`CalendarInactiveText`, gris fijo)
     se leen poco sobre fondos oscuros.
-- ⏳ **Más paletas** (17 de noviembre de 2026): el autor eligió Catppuccin, Rosé Pine y Gruvbox
+- ✅ **Más paletas** (17–18 de noviembre de 2026; cerrada por el autor): el autor eligió Catppuccin, Rosé Pine y Gruvbox
   (de la comunidad Linux, licencia MIT) tras una comparativa con maquetas en claro y oscuro.
   - `PaletteCatppuccin.kt` (Latte / Mocha, barra y acento mauve en claro), `PaletteRosePine.kt`
     (Dawn / Moon, barra pino y acento rosa en claro) y `PaletteGruvbox.kt` (Light / Dark, barra
@@ -459,7 +459,7 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     transparencia sobre `onBackground`/`onSurface` (se adaptan solos a cualquier paleta). Mejora
     opcional: unificarlos en unos pocos roles con nombre (hoy hay divisores al 12 % y al 50 % y
     textos secundarios al 45–75 % sin comprobar su contraste).
-- ⏳ **Tipografía** (17 de noviembre de 2026): la letra se veía distinta en el Realme y en el
+- ✅ **Tipografía** (17–18 de noviembre de 2026; cerrada por el autor): la letra se veía distinta en el Realme y en el
   Samsung porque casi todo usaba la del sistema (en el Realme, OPlus Sans de ColorOS, que no se
   puede incluir) y solo unos 35 textos llevaban Delight puesta a mano. Elegido por el autor tras
   una comparativa: el texto, fijo; la letra de los títulos, a elegir en Apariencia.
@@ -473,12 +473,11 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   - Las pantallas ya no ponen `fontFamily` a mano (salvo la monoespaciada de Compartir): el estilo
     decide. Los nombres de tareas y de elementos de la línea de tiempo pasan a `bodyLarge` (son
     texto, no títulos); los nombres de asignatura conservan el peso normal que tenían.
-  - Pendiente: que el autor pruebe las cuatro letras en el móvil; mirar si DM Sans pide menos
-    espaciado entre letras que el de Material (pensado para Roboto) y si la consola de Compartir
-    necesita una monoespaciada propia.
-  Ojo al compararlos: el Samsung tiene la letra del sistema al 90 % y el Realme al 100 % con el
-  tamaño de pantalla ampliado (densidad 480 en vez de 560), así que parte de la diferencia de
-  tamaño (p. ej. la tarjeta de la petición en Transmitir) viene de los ajustes de cada móvil.
+  - Después: espaciado entre letras del texto a la mitad del de Material, pasada pantalla por
+    pantalla con Fraunces («Guardar» de la barra y los valores de las filas de Estadísticas pasan
+    a la letra del texto) y fuera la descripción de cada letra en Apariencia.
+  - Se queda así: la consola de «Detalles técnicos» de Compartir sigue con la monoespaciada del
+    sistema.
 - ✅ **Pulir animaciones** (17 de noviembre de 2026; cerrada por el autor tras A1 y C, sin B1). Orden acordado: A1 pestañas → C1
   `animateItem()` en las listas → C2 tareas que se tachan y pliegan / C3 tarjeta de asignatura
   que se encoge al borrarla (y la entrada de la sección de Completadas que se perdió) → B2
@@ -517,12 +516,9 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     terminadas.
 - ☐ Widgets de próximos exámenes y tareas.
 - ☐ Copia de seguridad: exportar e importar a archivo.
-- ☐ Horario estructurado (no solo imagen) que pueda avisar de las clases.
 - ☐ Media ponderada global por curso.
 - ☐ Material You con colores dinámicos (encajaría como un tema más).
 - ☐ Publicación: R8/minify activado y firma de release.
-- ☐ Animaciones Lottie para los iconos de compartir (si el autor encuentra unas que le gusten:
-  basta con cambiar `ShareStatusIcon`).
 
 ### Aplazado a propósito
 - Actualizar versiones de librerías (Compose, Kotlin, AGP…): el autor prefirió no hacerlo aún.
