@@ -268,7 +268,7 @@ fun EventSheet(
                             label = { Text("Ponderación") },
                             suffix = { Text("%") },
                             isError = EventField.Weight in errors,
-                            supportingText = if (EventField.Weight in errors) ({ Text("De 1 a 100") }) else null,
+                            supportingText = { Text("De 1 a 100") }, // siempre visible: con error solo cambia a rojo
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                             modifier = Modifier.weight(1f)
@@ -282,7 +282,7 @@ fun EventSheet(
                             placeholder = { Text("0") },
                             suffix = { Text("/ 10") },
                             isError = EventField.MinScore in errors,
-                            supportingText = { Text(if (EventField.MinScore in errors) "De 0 a 10" else "Opcional") },
+                            supportingText = { Text("Opcional · 0 a 10") },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
                             modifier = Modifier.weight(1f)

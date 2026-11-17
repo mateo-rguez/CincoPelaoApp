@@ -383,9 +383,10 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   se confirma en la misma franja y pide el desbloqueo del móvil (`requestDeviceAuth`, movida a
   `ui/common/DeviceAuth.kt` para compartirla con Instancias); después sigue el «Deshacer».
   Solo una tarjeta abierta a la vez; atrás o tocar la tarjeta la cierra.
-- ☐ **«Opcional» bajo la nota mínima** (detalle visto el 17 de noviembre de 2026): en la hoja
-  de evento solo la nota mínima tiene texto debajo y las dos casillas quedan desiguales;
-  valorar pasarlo a la etiqueta o quitarlo.
+- ✅ **«Opcional» bajo la nota mínima** (17 de noviembre de 2026): en la hoja de evento las dos
+  casillas llevan siempre su ayuda («De 1 a 100» y «Opcional · 0 a 10»), así quedan iguales y,
+  con un error, el mismo texto se pone en rojo sin que la hoja salte. Hechos en `7ef1c0a`:
+  editar/eliminar dentro de la tarjeta de asignatura.
 - ☐ **Revisar la hora de las notificaciones** (notado por el autor el 16 de noviembre de 2026):
   varias veces le llegan recordatorios justo al abrir la app, demasiada casualidad. Sospechas a
   comprobar antes de tocar nada:
