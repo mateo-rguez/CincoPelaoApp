@@ -48,7 +48,9 @@ El proyecto está en pleno refactor por fases: **el plan, lo hecho y lo pendient
   [`docs/COMPARTICION.md`](docs/COMPARTICION.md).
 - `ui/<pantalla>` — una pantalla = `XxxScreen` + `XxxViewModel` con un `uiState: StateFlow`
   (`collectAsStateWithLifecycle`); componentes en archivos propios del mismo paquete.
-  `ui/theme`: `CincoPelaoTheme`/`CincoPelaoAppTheme`, `LocalDarkTheme`, colores y fuentes con nombre.
+  `ui/theme`: `CincoPelaoTheme`/`CincoPelaoAppTheme`, `LocalDarkTheme`, fuentes con nombre y una
+  paleta por archivo (`PaletteXxx.kt`, claro y oscuro con todos los colores de `ColorScheme` y
+  `AppColors`); cómo añadir una, en `Palettes.kt`.
 - `di` — módulos de Hilt y `@ApplicationScope`.
 
 ## Reglas
@@ -57,3 +59,6 @@ El proyecto está en pleno refactor por fases: **el plan, lo hecho y lo pendient
   Cualquier cambio en una entidad necesita subir la versión y escribir una migración.
 - Lógica fuera de los composables: si se puede probar sin Android, va en una función pura con test.
 - Nada de `!!`, `CoroutineScope(...)` sueltos ni lecturas de DataStore/BD dentro de la UI.
+- Colores: las pantallas solo usan `MaterialTheme.colorScheme` y `MaterialTheme.appColors`; nada
+  de colores fijos ni `if (oscuro)` fuera de las paletas. Un color nuevo = una variable en
+  `AppColors` con su valor en cada paleta y modo, y su comprobación en `PalettesTest`.

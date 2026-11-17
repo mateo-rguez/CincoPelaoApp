@@ -37,8 +37,8 @@ la app); los eventos del formulario en tarjetas se probaron y se descartaron. De
 ilustración de Asignaturas vacía, las animaciones (pestañas y listas; cerradas) y la revisión de
 temas (paletas escritas enteras y colores de nota por paleta). **Al retomar:** comprobar en el
 Realme que los recordatorios llegan solos y a su hora (ver la entrada de la hora de las
-notificaciones); después, el resto de la lista (preferencias, medir arranque y scroll,
-tipografía...). Método usado en cada pantalla: capturas con la app en
+notificaciones); después, **más paletas de colores** (lo elegido por el autor para la próxima
+sesión) y el resto de la lista (preferencias, medir arranque y scroll, tipografía...). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -193,8 +193,11 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     `namedPalette(...)` (claro y oscuro) en `ui/theme/Palettes.kt`; el test de contraste la revisa.
   - Visto y sin tocar: los días de otros meses del calendario (`CalendarInactiveText`, gris fijo)
     se leen poco sobre fondos oscuros.
-- ☐ **Más paletas**: el autor dirá cuáles añadir (Bosque, Coral y Violeta se probaron y no
-  gustaron).
+- ☐ **Más paletas** (**lo siguiente**, decidido por el autor el 17 de noviembre de 2026): el autor
+  dirá cuáles añadir (Bosque, Coral y Violeta se probaron y no gustaron). Desde la revisión de
+  temas basta con copiar `PaletteGraphite.kt`, rellenar los valores de sus dos modos, añadirla
+  a `AppPalette`, `paletteColors` y `displayName`, y pasar `PalettesTest`. Método propuesto:
+  proponer varias con su miniatura en Apariencia, que el autor elija y ajustar en el móvil.
 - ✅ **Calendario: tarea o evento en cada tarjeta**: hecho dentro de «Pulir la interfaz» (etiqueta
   del tipo y marcador con forma).
 - ✅ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta
