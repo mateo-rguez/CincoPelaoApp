@@ -374,9 +374,9 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     otra ventana: hay que usar el `LocalFocusManager` de dentro).
   - El autor pidió quitar el «Faltan X %» de debajo de la ponderación en la hoja (sí lo quiere
     en el medidor de la lista de eventos).
-- ☐ **Eventos del formulario en tarjetas** (idea del autor, 17 de noviembre de 2026): probar
-  la lista de eventos de crear/editar asignatura con tarjetas (`TaskCardFrame`) en vez de filas
-  con divisores, para comparar. La fila está en `EventFormRow`, así que basta con envolverla.
+- ✖ **Eventos del formulario en tarjetas** (idea del autor, probada y descartada el 17 de
+  noviembre de 2026): con tarjetas la pantalla quedaba recargada («ya es mucha tarjeta en esta
+  pantalla y en toda la app»); se quedan las filas con divisores.
 - ✅ **Menú de editar/eliminar asignatura** (idea del autor, 17 de noviembre de 2026): el «⋮»
   de `SubjectCard` ya no abre un menú flotante, sino que despliega dentro de la tarjeta (con el
   muelle de Instancias) una franja con divisor y Editar · Eliminar; el «⋮» pasa a «✕». Eliminar
