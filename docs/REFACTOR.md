@@ -33,10 +33,12 @@ estadísticas), Calendario, Horario, Notificaciones, Instancias, Compartir y el 
 terminadas (Apariencia se queda como está), y también la pantalla de crear/editar asignatura.
 El 17 de noviembre se hicieron también editar/eliminar dentro de la tarjeta de asignatura, la
 ayuda fija bajo ponderación y nota mínima y los recordatorios con alarmas (llegaban solo al abrir
-la app); los eventos del formulario en tarjetas se probaron y se descartaron. **Al retomar:**
-comprobar en el Realme que los recordatorios llegan solos y a su hora (ver la entrada de la hora
-de las notificaciones); después, el resto de la lista (ilustración de Asignaturas vacía,
-preferencias, medir arranque y scroll, temas limpios...). Método usado en cada pantalla: capturas con la app en
+la app); los eventos del formulario en tarjetas se probaron y se descartaron. Después, la
+ilustración de Asignaturas vacía, las animaciones (pestañas y listas; cerradas) y la revisión de
+temas (paletas escritas enteras y colores de nota por paleta). **Al retomar:** comprobar en el
+Realme que los recordatorios llegan solos y a su hora (ver la entrada de la hora de las
+notificaciones); después, el resto de la lista (preferencias, medir arranque y scroll,
+tipografía...). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -123,7 +125,7 @@ Recibir                                   Transmitir
   Cancelar no deshacía; "Completada el java.text.SimpleDateFormat@…"; carga de imágenes y PDF
   en el hilo principal.
 
-Tests: 199, todos en verde a 17 de noviembre de 2026 (JUnit + Robolectric con Android 15, Room, WorkManager y AlarmManager de pruebas, y sockets TCP locales para la
+Tests: 206, todos en verde a 17 de noviembre de 2026 (JUnit + Robolectric con Android 15, Room, WorkManager y AlarmManager de pruebas, y sockets TCP locales para la
 compartición) — `./gradlew testDebugUnitTest`.
 
 ## Pendiente
@@ -423,30 +425,33 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   con `adb shell am start -W -S io.github.mateorguez.cincopelao/.MainActivity` (`TotalTime`),
   en **release** y en los dos móviles. Ojo: desde el 16 de noviembre se precarga el horario al
   arrancar (`ScheduleImageCache`); va en segundo plano, pero comprobar que no retrasa el inicio.
-- ☐ **Revisar que los temas estén limpios** (pedido por el autor el 11 de noviembre de 2026,
-  mejor al terminar «Pulir la interfaz»): que no queden apaños con colores fijos o condiciones
-  para una paleta o situación concreta (`if (oscuro) …`, colores sueltos en pantallas) y que
-  cada paleta defina por sí misma colores coherentes y bien contrastados en toda la app, de
-  modo que añadir una paleta nueva sea solo rellenar sus valores. Objetivo del autor (15 de
-  noviembre): ningún cambio puntual con combinaciones de colores fuera de las paletas; una
-  paleta nueva = apuntar sus colores en cada variable, sin tocar nada más. Pendiente de revisar:
-  - Los colores de estado de nota (`StatusFail`, `StatusGood`…: etiquetas del detalle,
-    Reparto, calculadora y gráfica), que hoy son constantes fijas y no de cada paleta.
-  - Clásico se escribe a mano (`classicLightAppColors` / `classicDarkAppColors`) y no con
-    `namedPalette` como Grafito; dentro de `namedPalette` quedan `if (dark)` (tarjeta de
-    tareas, fechas, brillos).
-  - Variables que se derivan de colores generales del esquema (en Grafito, la casilla del
-    calendario sale de `secondaryContainer`, `accent` y `onPrimaryContainer`): decidir cuáles
-    deben ser propias para que retocar una pantalla no mueva otra.
-  - Hecho por el camino: los días de otros meses del calendario ya no usan `CalendarInactiveText`
-    (`bfce1a6`) y los tipos del calendario son propios de cada paleta y modo (`26fda6e`).
+- ✅ **Revisar que los temas estén limpios** (pedido por el autor el 11 de noviembre de 2026;
+  hecho el 17): objetivo del autor, una paleta nueva = apuntar sus colores en cada variable, sin
+  apaños fuera de las paletas ni `if (oscuro)`.
+  - `812924d` Cada paleta es un archivo (`PaletteClassic.kt`, `PaletteGraphite.kt`) con sus dos
+    modos escritos enteros: los 36 colores del `ColorScheme` y todos los de `AppColors`, que ya
+    no tiene valores por defecto. Antes Clásico solo fijaba 7 colores de Material y heredaba el
+    resto de la paleta base morada sin decirlo, y Grafito se montaba con `namedPalette`, que
+    deducía colores con `if (dark)` y a partir de otros del esquema. Sin cambios visibles: los
+    236 colores se volcaron antes y después y son idénticos. `Palettes.kt` explica cómo añadir
+    una paleta; `Color.kt` solo conserva la consola de Transmitir/Recibir (oscura a propósito).
+  - `09fa054` Colores de nota, «hecho» y texto apagado propios de cada paleta y modo
+    (`gradeBelowMinimum`…`gradeExcellent`, `done`, `muted`), en vez de constantes fijas y
+    `Color.Gray`. Las etiquetas de los eventos pasan a texto del tono sobre ese tono suave
+    (como las de fecha), porque con texto blanco «Aceptable» tenía contraste 2,0 y en oscuro
+    «Nota mínima» como texto 1,6. `PalettesTest` comprueba todos (4,5:1) en cada paleta y modo.
+    El autor probó el fondo de las etiquetas al 28 % y prefirió el 15 % de las fechas.
+  - Queda a propósito: divisores, bordes, rellenos tenues y textos secundarios hechos con
+    transparencia sobre `onBackground`/`onSurface` (se adaptan solos a cualquier paleta). Mejora
+    opcional: unificarlos en unos pocos roles con nombre (hoy hay divisores al 12 % y al 50 % y
+    textos secundarios al 45–75 % sin comprobar su contraste).
 - ☐ **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
   qué textos usan las fuentes propias (Delight) y cuáles la del sistema, que cambia según el
   fabricante, y unificarlo.
   Ojo al compararlos: el Samsung tiene la letra del sistema al 90 % y el Realme al 100 % con el
   tamaño de pantalla ampliado (densidad 480 en vez de 560), así que parte de la diferencia de
   tamaño (p. ej. la tarjeta de la petición en Transmitir) viene de los ajustes de cada móvil.
-- ⏳ **Pulir animaciones** (17 de noviembre de 2026). Orden acordado: A1 pestañas → C1
+- ✅ **Pulir animaciones** (17 de noviembre de 2026; cerrada por el autor tras A1 y C, sin B1). Orden acordado: A1 pestañas → C1
   `animateItem()` en las listas → C2 tareas que se tachan y pliegan / C3 tarjeta de asignatura
   que se encoge al borrarla (y la entrada de la sección de Completadas que se perdió) → B2
   animación propia al abrir pantallas + atrás predictivo → B1 tarjeta que se transforma en la
@@ -480,7 +485,8 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     nueva entraba desde la derecha desplazando un 12 % con fundido, la de debajo quieta) junto
     con el atrás predictivo (`enableOnBackInvokedCallback`): probada y descartada, al autor no
     le terminó de convencer; se quedan las animaciones del sistema.
-  - Pendiente: B1 (tarjeta que se transforma en el detalle).
+  - B1 (tarjeta que se transforma en el detalle): no se hace, el autor da las animaciones por
+    terminadas.
 - ☐ Widgets de próximos exámenes y tareas.
 - ☐ Copia de seguridad: exportar e importar a archivo.
 - ☐ Horario estructurado (no solo imagen) que pueda avisar de las clases.
