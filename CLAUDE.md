@@ -48,7 +48,7 @@ El proyecto está en pleno refactor por fases: **el plan, lo hecho y lo pendient
   [`docs/COMPARTICION.md`](docs/COMPARTICION.md).
 - `ui/<pantalla>` — una pantalla = `XxxScreen` + `XxxViewModel` con un `uiState: StateFlow`
   (`collectAsStateWithLifecycle`); componentes en archivos propios del mismo paquete.
-  `ui/theme`: `CincoPelaoTheme`/`CincoPelaoAppTheme`, `LocalDarkTheme`, fuentes con nombre y una
+  `ui/theme`: `CincoPelaoTheme`/`CincoPelaoAppTheme`, `LocalDarkTheme`, tipografía (`Type.kt`) y una
   paleta por archivo (`PaletteXxx.kt`, claro y oscuro con todos los colores de `ColorScheme` y
   `AppColors`); cómo añadir una, en `Palettes.kt`.
 - `di` — módulos de Hilt y `@ApplicationScope`.
@@ -62,3 +62,6 @@ El proyecto está en pleno refactor por fases: **el plan, lo hecho y lo pendient
 - Colores: las pantallas solo usan `MaterialTheme.colorScheme` y `MaterialTheme.appColors`; nada
   de colores fijos ni `if (oscuro)` fuera de las paletas. Un color nuevo = una variable en
   `AppColors` con su valor en cada paleta y modo, y su comprobación en `PalettesTest`.
+- Letra: las pantallas eligen un estilo de `MaterialTheme.typography` y no ponen `fontFamily` a
+  mano. Los estilos display, headline, titleLarge y titleMedium son de título (la letra que elige
+  el usuario en Apariencia); el resto, de texto (DM Sans).

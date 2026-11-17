@@ -35,10 +35,10 @@ El 17 de noviembre se hicieron también editar/eliminar dentro de la tarjeta de 
 ayuda fija bajo ponderación y nota mínima y los recordatorios con alarmas (llegaban solo al abrir
 la app); los eventos del formulario en tarjetas se probaron y se descartaron. Después, la
 ilustración de Asignaturas vacía, las animaciones (pestañas y listas; cerradas) y la revisión de
-temas (paletas escritas enteras y colores de nota por paleta). **Al retomar:** comprobar en el
-Realme que los recordatorios llegan solos y a su hora (ver la entrada de la hora de las
-notificaciones); después, **más paletas de colores** (lo elegido por el autor para la próxima
-sesión) y el resto de la lista (preferencias, medir arranque y scroll, tipografía...). Método usado en cada pantalla: capturas con la app en
+temas (paletas escritas enteras y colores de nota por paleta). Los recordatorios con alarmas
+ya se han comprobado en el Realme. **En curso: tipografía** (texto en DM Sans y letra de los
+títulos a elegir en Apariencia; falta que el autor la pruebe). **Después:** más paletas de colores
+y el resto de la lista (preferencias, medir arranque y scroll...). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -421,8 +421,10 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     `app/src/test/resources/robolectric.properties`.
   - Commits: `7ef1c0a` (editar/eliminar en la tarjeta), `2d99eeb` (ayuda de la hoja de evento),
     `8cd622b` (tarjetas descartadas) y el de este cambio.
-  - Pendiente: comprobar en el Realme que llegan solos (primera alarma: 17 de noviembre entre
-    las 19:58 y las 20:58) cruzando `dumpsys usagestats` con la hora prevista.
+  - Comprobado en el Realme el 17 de noviembre: el aviso saltó a las 19:07:18 con la app cerrada
+    (`dumpsys usagestats`: última apertura a las 18:59, la siguiente a las 19:34). La hora no
+    coincide con la apuntada porque se volvió a sortear al abrir la app a las 18:58; las alarmas
+    siguientes aparecen en `dumpsys alarm` como exactas (`exactAllowReason=policy_permission`).
 - ☐ **Medir el arranque** (pedido por el autor el 16 de noviembre de 2026; abre rápido y no
   parece preocupante, pero conviene tener el dato): tiempo hasta el primer fotograma en frío
   con `adb shell am start -W -S io.github.mateorguez.cincopelao/.MainActivity` (`TotalTime`),
@@ -448,9 +450,23 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     transparencia sobre `onBackground`/`onSurface` (se adaptan solos a cualquier paleta). Mejora
     opcional: unificarlos en unos pocos roles con nombre (hoy hay divisores al 12 % y al 50 % y
     textos secundarios al 45–75 % sin comprobar su contraste).
-- ☐ **Tipografía**: la letra se ve ligeramente distinta en el Realme y en el Samsung. Investigar
-  qué textos usan las fuentes propias (Delight) y cuáles la del sistema, que cambia según el
-  fabricante, y unificarlo.
+- ⏳ **Tipografía** (17 de noviembre de 2026): la letra se veía distinta en el Realme y en el
+  Samsung porque casi todo usaba la del sistema (en el Realme, OPlus Sans de ColorOS, que no se
+  puede incluir) y solo unos 35 textos llevaban Delight puesta a mano. Elegido por el autor tras
+  una comparativa: el texto, fijo; la letra de los títulos, a elegir en Apariencia.
+  - Dos papeles en `ui/theme/Type.kt`: **texto** en DM Sans (body, label y titleSmall, que Material
+    usa en pestañas) y **títulos** (display, headline, titleLarge y titleMedium, en peso medio)
+    con la letra de `TitleFont`: Delight (por defecto), Plus Jakarta Sans, Source Serif 4 o
+    Fraunces. Guardada en DataStore (`theme_title_font`) junto al tema; `appTypography` y
+    `TypographyTest`.
+  - Fuentes de Google (OFL, licencias en `assets/licencias`) como instancias estáticas de cada
+    peso (400–700) recortadas al alfabeto latino: 1,4 MB en total. Fuera Lora, que no se usaba.
+  - Las pantallas ya no ponen `fontFamily` a mano (salvo la monoespaciada de Compartir): el estilo
+    decide. Los nombres de tareas y de elementos de la línea de tiempo pasan a `bodyLarge` (son
+    texto, no títulos); los nombres de asignatura conservan el peso normal que tenían.
+  - Pendiente: que el autor pruebe las cuatro letras en el móvil; mirar si DM Sans pide menos
+    espaciado entre letras que el de Material (pensado para Roboto) y si la consola de Compartir
+    necesita una monoespaciada propia.
   Ojo al compararlos: el Samsung tiene la letra del sistema al 90 % y el Realme al 100 % con el
   tamaño de pantalla ampliado (densidad 480 en vez de 560), así que parte de la diferencia de
   tamaño (p. ej. la tarjeta de la petición en Transmitir) viene de los ajustes de cada móvil.
