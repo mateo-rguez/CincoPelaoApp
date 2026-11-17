@@ -476,8 +476,11 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     pliega, y solo entonces se borra de la BD; con «Deshacer» reaparece.
   - ✗ C4 Entrada de Completadas (las tarjetas desplegándose al abrirla, como en la versión
     antigua): probada y descartada, no le gustó al autor.
-  - Pendiente: B2 (animación propia al abrir pantallas + atrás predictivo) y B1 (tarjeta que
-    se transforma en el detalle).
+  - ✗ B2 Animación propia al abrir y cerrar pantallas (`windowAnimationStyle` en el tema: la
+    nueva entraba desde la derecha desplazando un 12 % con fundido, la de debajo quieta) junto
+    con el atrás predictivo (`enableOnBackInvokedCallback`): probada y descartada, al autor no
+    le terminó de convencer; se quedan las animaciones del sistema.
+  - Pendiente: B1 (tarjeta que se transforma en el detalle).
 - ☐ Widgets de próximos exámenes y tareas.
 - ☐ Copia de seguridad: exportar e importar a archivo.
 - ☐ Horario estructurado (no solo imagen) que pueda avisar de las clases.
