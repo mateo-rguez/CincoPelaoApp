@@ -6,7 +6,8 @@ import androidx.compose.ui.graphics.Color
 
 /**
  * Colores con significado propio de la app, además del `ColorScheme` de Material. Cada paleta
- * define los suyos para claro y oscuro, así las pantallas no tienen que preguntar por el modo.
+ * define todos para claro y oscuro (sin valores por defecto: una paleta nueva tiene que decidir
+ * cada uno), así las pantallas no tienen que preguntar por el modo.
  */
 @Immutable
 data class AppColors(
@@ -16,11 +17,11 @@ data class AppColors(
      * tiene que verse sobre los diálogos.
      */
     val bar: Color,
-    val onBar: Color = Color.White,
+    val onBar: Color,
     /** Iconos, botones de texto y datos destacados sobre el fondo; legible en los dos modos. */
     val accent: Color,
-    /** Iconos y datos de las pantallas de compartir; por defecto, el acento. */
-    val shareAccent: Color = accent,
+    /** Iconos y datos de las pantallas de compartir (puede ser el mismo que el acento). */
+    val shareAccent: Color,
     /** Iconos de la barra inferior sin seleccionar (sobre `primary`). */
     val navBarUnselected: Color,
     /** Degradado de las tarjetas de asignatura. */
@@ -53,4 +54,4 @@ data class AppColors(
 )
 
 /** Colores propios de la paleta activa. Lo publica [CincoPelaoTheme]. */
-val LocalAppColors = staticCompositionLocalOf { classicLightAppColors }
+val LocalAppColors = staticCompositionLocalOf { classicLight.app }
