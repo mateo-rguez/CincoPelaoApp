@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -34,7 +32,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import io.github.mateorguez.cincopelao.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
@@ -73,11 +73,12 @@ fun SubjectsScreen(
                 title = "Aún no hay asignaturas",
                 text = "Añade la primera o recíbelas de un compañero.",
                 illustration = {
+                    // Ilustración blanca sobre transparente: se tiñe con el color de la paleta
                     Icon(
-                        Icons.Default.EditNote,
+                        painterResource(R.drawable.empty_subjects),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.size(110.dp)
+                        modifier = Modifier.size(145.dp)
                     )
                 }
             ) {

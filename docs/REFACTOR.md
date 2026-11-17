@@ -356,10 +356,14 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   - sospechosos a revisar: sombras teñidas de `TaskCardFrame` (`shadow` + borde con degradado
     en cada tarjeta), el reloj de 5 s que recompone todas las tarjetas de Asignaturas, y
     claves/`contentType` en las `LazyColumn`.
-- ☐ **Ilustración de Asignaturas vacía** (16 de noviembre de 2026): el icono de apuntes con
-  lápiz es provisional; al autor no le convence (tampoco unos libros apilados dibujados a
-  trazo). Sustituirlo por algo más elaborado en el futuro (en `SubjectsScreen`, dentro del
-  `EmptyState`).
+- ✅ **Ilustración de Asignaturas vacía** (16–17 de noviembre de 2026): el icono de apuntes con
+  lápiz era provisional (tampoco gustaron unos libros apilados dibujados a trazo). Ahora es un
+  archivador abierto con pestañas vacías bajo un flexo, generado con IA en un solo color:
+  blanco sobre transparente en `res/drawable-nodpi/empty_subjects.png` (560 px, solo alfa,
+  34 KB), dibujado con `Icon` para que se tiña con el color del texto de la paleta. A 145 dp
+  dentro del círculo de 180 dp del `EmptyState` (a 120 dp no se distinguían los anillos).
+  El original venía como SVG con un PNG dentro, no vectorial; si algún día se quiere en
+  VectorDrawable, hace falta vectorizarlo (potrace o similar, no instalado).
 - ✅ **Pulir la pantalla de crear/editar asignatura** (17 de noviembre de 2026):
   - `0107388` Arriba, la tarjeta de la lista como vista previa en vivo, que se despliega en
     nombre, abreviatura (sugerida desde el nombre con `suggestAbbrev` hasta que se escribe a
