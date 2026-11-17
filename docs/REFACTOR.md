@@ -38,7 +38,9 @@ ilustración de Asignaturas vacía, las animaciones (pestañas y listas; cerrada
 temas (paletas escritas enteras y colores de nota por paleta). Los recordatorios con alarmas
 ya se han comprobado en el Realme. **Hechas: tipografía** (texto en DM Sans y letra de los
 títulos a elegir en Apariencia) y **más paletas** (11 en total), ambas cerradas. **Después:** el resto de
-la lista (preferencias, copia de seguridad, medir arranque y scroll...). Método usado en cada pantalla: capturas con la app en
+la lista. **Al retomar:** preguntar al autor qué tal va la release instalada en el Realme el 18
+de noviembre (si sigue dando tirones, medir con `dumpsys gfxinfo`, ver «Rendimiento del scroll»);
+después, preferencias, copia de seguridad, medir el arranque... Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -358,7 +360,9 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
 
 - ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
   elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
-- ☐ **Rendimiento del scroll** (notado por el autor el 11 de noviembre de 2026): la app antigua
+- ⏳ **Rendimiento del scroll** (notado por el autor el 11 de noviembre de 2026; el 18 dice que la
+  app «va a pedales»): el 18 de noviembre se instaló una **release** en el Realme para que la
+  pruebe en la mano (ver «Probar una release» en CLAUDE.md); falta su impresión. La app antigua
   daba tirones al hacer scroll rápido arriba y abajo, sobre todo en el Realme (en el Samsung
   bastante menos). Tras las primeras fases casi desapareció, pero con el pulido de la interfaz
   quizá vuelve a notarse un poco. Medir antes de tocar nada, en todas las listas (Tareas,

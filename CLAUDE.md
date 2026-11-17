@@ -25,6 +25,12 @@ El proyecto está en pleno refactor por fases: **el plan, lo hecho y lo pendient
 ./gradlew clean                    # si Hilt falla con clases generadas antiguas tras mover paquetes
 ```
 
+- **Probar una release** (el rendimiento de la debug de Compose no sirve para juzgar): `./gradlew
+  assembleRelease`, alinear y firmar con la clave de depuración de este PC (`zipalign -p 4` y
+  `apksigner sign --ks ~/.android/debug.keystore --ks-pass pass:android`, de
+  `~/Android/Sdk/build-tools/`), `adb install -r` (se instala encima conservando los datos) y
+  `adb shell cmd package compile -m speed-profile -f io.github.mateorguez.cincopelao`. El
+  siguiente `installDebug` la vuelve a cambiar por la debug.
 - adb: `~/Android/Sdk/platform-tools/adb`. Paquete: `io.github.mateorguez.cincopelao`.
 - El móvil de pruebas es el personal del autor: **antes de automatizar pulsaciones, comprobar que
   Cinco Pelao está en primer plano**, no tocar sus datos (probar en una instancia de prueba y
