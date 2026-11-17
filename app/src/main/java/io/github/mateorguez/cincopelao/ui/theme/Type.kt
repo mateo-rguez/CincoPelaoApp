@@ -72,15 +72,6 @@ val TitleFont.displayName: String
         TitleFont.FRAUNCES -> "Fraunces"
     }
 
-/** Cómo es cada letra, para Apariencia. */
-val TitleFont.description: String
-    get() = when (this) {
-        TitleFont.DELIGHT -> "Sobria y seria"
-        TitleFont.JAKARTA -> "Moderna"
-        TitleFont.SOURCE_SERIF -> "Académica"
-        TitleFont.FRAUNCES -> "Con carácter"
-    }
-
 /** Parte del espaciado entre letras de Material que se conserva en el texto. */
 internal const val BODY_LETTER_SPACING = 0.5f
 

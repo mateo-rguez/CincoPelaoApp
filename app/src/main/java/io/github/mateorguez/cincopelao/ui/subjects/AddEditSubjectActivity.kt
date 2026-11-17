@@ -186,7 +186,7 @@ fun AddEditSubjectScreen(onClose: () -> Unit, viewModel: AddEditSubjectViewModel
                 },
                 actions = {
                     TextButton(onClick = ::trySave, enabled = state.loaded && !saving) {
-                        Text("Guardar", color = MaterialTheme.appColors.onBar, style = MaterialTheme.typography.titleMedium)
+                        Text("Guardar", color = MaterialTheme.appColors.onBar, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
                     }
                 }
             )

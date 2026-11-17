@@ -26,13 +26,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.data.prefs.TitleFont
 import io.github.mateorguez.cincopelao.ui.theme.appColors
-import io.github.mateorguez.cincopelao.ui.theme.description
 import io.github.mateorguez.cincopelao.ui.theme.displayName
 import io.github.mateorguez.cincopelao.ui.theme.titleFontFamily
 
 /**
  * Muestra de una letra de títulos: un nombre de asignatura y una nota escritos con ella, y debajo
- * su nombre y cómo es (estos en la letra del texto, para que se lean igual en todas).
+ * su nombre (en la letra del texto, para que se lea igual en todas).
  */
 @Composable
 fun TitleFontCard(
@@ -74,19 +73,13 @@ fun TitleFontCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(top = 6.dp)
         ) {
-            Column(Modifier.weight(1f)) {
-                Text(
-                    font.displayName,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    font.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            Text(
+                font.displayName,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
             if (selected) {
                 Icon(
                     Icons.Default.Check,

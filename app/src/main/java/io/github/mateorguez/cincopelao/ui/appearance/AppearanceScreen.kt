@@ -129,12 +129,6 @@ fun AppearanceScreen(viewModel: AppearanceViewModel = hiltViewModel()) {
                 if (row.size == 1) Spacer(Modifier.weight(1f))
             }
         }
-        Text(
-            text = "Para títulos, nombres de asignatura y notas. El resto del texto no cambia.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 4.dp)
-        )
     }
 }
 

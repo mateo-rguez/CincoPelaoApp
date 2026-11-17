@@ -4,7 +4,6 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontWeight
 import io.github.mateorguez.cincopelao.data.prefs.TitleFont
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 class TypographyTest {
@@ -39,9 +38,8 @@ class TypographyTest {
     }
 
     @Test
-    fun `cada letra de titulos es distinta y tiene nombre`() {
+    fun `cada letra de titulos es distinta y tiene nombre propio`() {
         assertEquals(TitleFont.entries.size, TitleFont.entries.map { titleFontFamily(it) }.toSet().size)
         assertEquals(TitleFont.entries.size, TitleFont.entries.map { it.displayName }.toSet().size)
-        TitleFont.entries.forEach { assertNotNull(it.description) }
     }
 }
