@@ -5,10 +5,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavBackStackEntry
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.AnimatedContentTransitionScope
 import io.github.mateorguez.cincopelao.ui.theme.DelightMedium
 import android.app.Activity
 import android.content.Intent
@@ -22,8 +18,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,34 +82,27 @@ private fun NavHostController.navigateToTab(item: BottomNavItem) {
     }
 }
 
-// Transiciones entre pestañas: la nueva entra desde arriba y la anterior sale hacia abajo
-private val tabEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-    slideInVertically(initialOffsetY = { -it }, animationSpec = tween(300)) + fadeIn(tween(300))
-}
-private val tabExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
-    slideOutVertically(targetOffsetY = { it }, animationSpec = tween(300)) + fadeOut(tween(300))
-}
-private val tabPopEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-    slideInVertically(initialOffsetY = { it }, animationSpec = tween(300)) + fadeIn(tween(300))
-}
-private val tabPopExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
-    slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(300)) + fadeOut(tween(300))
-}
-
 /** Pestaña con las transiciones comunes; el botón atrás cierra la app desde cualquier pestaña. */
 private fun NavGraphBuilder.tab(
     item: BottomNavItem,
-    enter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = tabEnter,
-    exit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = tabExit,
-    popEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = tabPopEnter,
-    popExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = tabPopExit,
     content: @Composable () -> Unit
 ) {
-    composable(item.route, enterTransition = enter, exitTransition = exit, popEnterTransition = popEnter, popExitTransition = popExit) {
+    composable(
+        item.route,
+        enterTransition = tabEnter,
+        exitTransition = tabExit,
+        popEnterTransition = tabEnter,
+        popExitTransition = tabExit
+    ) {
         val activity = LocalContext.current as? Activity
         BackHandler { activity?.finish() }
         val instanceId by hiltViewModel<ActiveInstanceViewModel>().instanceId.collectAsStateWithLifecycle()
-        key(instanceId) { content() }
+        // Siempre a pantalla completa: el AnimatedContent del NavHost (2.7) anima el tamaño y
+        // centra el contenido, así que una pestaña que aún no ha leído sus datos y mide 0
+        // (Asignaturas) hacía crecer el hueco y la pantalla aparecía bajando desde arriba.
+        Box(Modifier.fillMaxSize()) {
+            key(instanceId) { content() }
+        }
     }
 }
 
@@ -194,13 +181,7 @@ fun AppScaffold(darkTheme: Boolean, onToggleTheme: () -> Unit) {
 
                 tab(BottomNavItem.Horarios) { ScheduleScreen() }
 
-                tab(
-                    BottomNavItem.Calendario,
-                    enter = { fadeIn(tween(600)) },
-                    exit = { fadeOut(tween(600)) },
-                    popEnter = { fadeIn(tween(600)) },
-                    popExit = { fadeOut(tween(600)) }
-                ) { CalendarScreen() }
+                tab(BottomNavItem.Calendario) { CalendarScreen() }
 
                 tab(BottomNavItem.ShareMode) {
                     ShareModeScreen(

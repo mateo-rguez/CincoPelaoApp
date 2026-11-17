@@ -446,7 +446,23 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   Ojo al compararlos: el Samsung tiene la letra del sistema al 90 % y el Realme al 100 % con el
   tamaño de pantalla ampliado (densidad 480 en vez de 560), así que parte de la diferencia de
   tamaño (p. ej. la tarjeta de la petición en Transmitir) viene de los ajustes de cada móvil.
-- ☐ Pulir animaciones (p. ej. la entrada de la sección de Completadas que se perdió).
+- ⏳ **Pulir animaciones** (17 de noviembre de 2026). Orden acordado: A1 pestañas → C1
+  `animateItem()` en las listas → C2 tareas que se tachan y pliegan / C3 tarjeta de asignatura
+  que se encoge al borrarla (y la entrada de la sección de Completadas que se perdió) → B2
+  animación propia al abrir pantallas + atrás predictivo → B1 tarjeta que se transforma en la
+  pantalla de detalle (obliga a pasar el detalle y el formulario de *Activities* al `NavHost`).
+  Opcional: entrada escalonada de las tarjetas solo al arrancar.
+  - ✅ A1: entre pestañas, «eje compartido» horizontal (`ui/navigation/TabTransitions.kt`): la
+    nueva entra desde el lado en que está en la barra, desplazando 1/6 del ancho; la anterior
+    se desvanece en los primeros 110 ms de 320. Calendario sin su fundido propio de 600 ms.
+    Sentido en `tabDirection` (puro, con test). Antes caían desde arriba a toda altura.
+  - ✅ Arreglado por el camino: al cambiar de pestaña rápido, a veces la pantalla aparecía
+    bajando desde arriba. El `AnimatedContent` del `NavHost` 2.7 lleva `SizeTransform` y centra
+    el contenido; Asignaturas no dibuja nada hasta leer la BD (mide 0), así que el hueco crecía
+    desde 0 y la lista, centrada y recortada, bajaba hasta su sitio. Cada pestaña va ahora en
+    una caja a pantalla completa (`tab()` en `AppScaffold`).
+  - El autor nota algún tirón al cambiar de pestaña: medirlo con lo del rendimiento (en
+    release; la debug de Compose es bastante más lenta).
 - ☐ Widgets de próximos exámenes y tareas.
 - ☐ Copia de seguridad: exportar e importar a archivo.
 - ☐ Horario estructurado (no solo imagen) que pueda avisar de las clases.
