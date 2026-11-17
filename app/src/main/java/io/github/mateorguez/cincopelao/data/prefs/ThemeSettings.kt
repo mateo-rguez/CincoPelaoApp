@@ -6,7 +6,7 @@ enum class ThemeMode { SYSTEM, LIGHT, DARK }
 /** Paleta de colores de la app; cada una tiene variante clara y oscura. */
 enum class AppPalette {
     CLASSIC, GRAPHITE, CATPPUCCIN, ROSE_PINE, GRUVBOX, FLEXOKI, TOKYO_NIGHT, KANAGAWA,
-    CHALKBOARD, NOTEBOOK, LIBRARY, RISO,
+    CHALKBOARD, NOTEBOOK, LIBRARY,
 }
 
 /**

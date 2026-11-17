@@ -38,7 +38,7 @@ ilustración de Asignaturas vacía, las animaciones (pestañas y listas; cerrada
 temas (paletas escritas enteras y colores de nota por paleta). Los recordatorios con alarmas
 ya se han comprobado en el Realme. **En curso: tipografía** (texto en DM Sans y letra de los
 títulos a elegir en Apariencia) y **más paletas** (Catppuccin, Rosé Pine y Gruvbox, aprobadas; Flexoki,
-Tokyo Night, Kanagawa, Pizarra, Cuaderno, Biblioteca y Risografía, sin probar). **Después:** el resto de la lista (preferencias, medir arranque y scroll...). Método usado en cada pantalla: capturas con la app en
+Tokyo Night, Kanagawa, Pizarra, Cuaderno y Biblioteca, también aprobadas). **Después:** el resto de la lista (preferencias, medir arranque y scroll...). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -204,8 +204,9 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   - Segunda tanda (18 de noviembre), metida directamente a petición del autor: Flexoki, Tokyo
     Night y Kanagawa (MIT) y cuatro propias con tema de estudio: Pizarra (pizarra blanca /
     verde con tizas), Cuaderno (bolígrafo azul, margen rojo), Biblioteca (madera, verde de
-    lámpara, burdeos y latón) y Risografía (tintas riso, barra rosa flúor). Quedan 12 paletas.
-  - Pendiente: que el autor pruebe la segunda tanda y quitar o ajustar las que no le gusten.
+    lámpara, burdeos y latón) y Risografía (tintas riso, barra rosa flúor).
+  - Revisadas por el autor: le gustan todas menos Risografía, que se quita, y el fondo de
+    Kanagawa claro se aclara (el papel original, `#f2ecbc`, era demasiado amarillo). Quedan 11.
 - ✅ **Calendario: tarea o evento en cada tarjeta**: hecho dentro de «Pulir la interfaz» (etiqueta
   del tipo y marcador con forma).
 - ✅ **Pulir la interfaz**: hacer algunas pantallas más amigables y bonitas. Se concreta

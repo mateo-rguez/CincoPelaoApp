@@ -26,7 +26,6 @@ fun paletteColors(palette: AppPalette, dark: Boolean): PaletteColors = when (pal
     AppPalette.CHALKBOARD -> if (dark) chalkboardDark else chalkboardLight
     AppPalette.NOTEBOOK -> if (dark) notebookDark else notebookLight
     AppPalette.LIBRARY -> if (dark) libraryDark else libraryLight
-    AppPalette.RISO -> if (dark) risoDark else risoLight
 }
 
 /** Nombre visible de cada paleta. */
@@ -43,5 +42,4 @@ val AppPalette.displayName: String
         AppPalette.CHALKBOARD -> "Pizarra"
         AppPalette.NOTEBOOK -> "Cuaderno"
         AppPalette.LIBRARY -> "Biblioteca"
-        AppPalette.RISO -> "Risografía"
     }
