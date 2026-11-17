@@ -81,15 +81,20 @@ val TitleFont.description: String
         TitleFont.FRAUNCES -> "Con carácter"
     }
 
+/** Parte del espaciado entre letras de Material que se conserva en el texto. */
+internal const val BODY_LETTER_SPACING = 0.5f
+
 /**
  * Estilos de Material con la letra de títulos elegida. Los títulos van en peso medio (como iba
- * Delight Medium en las barras); los tamaños y los interlineados son los de Material.
+ * Delight Medium en las barras); los tamaños y los interlineados son los de Material, y el texto
+ * tiene la mitad de su espaciado entre letras.
  */
 fun appTypography(titleFont: TitleFont): Typography {
     val base = Typography()
     val title = titleFontFamily(titleFont)
     fun TextStyle.asTitle() = copy(fontFamily = title, fontWeight = FontWeight.Medium)
-    fun TextStyle.asBody() = copy(fontFamily = BodyFont)
+    // El espaciado entre letras de Material está pensado para Roboto; con DM Sans queda suelto
+    fun TextStyle.asBody() = copy(fontFamily = BodyFont, letterSpacing = letterSpacing * BODY_LETTER_SPACING)
     return Typography(
         displayLarge = base.displayLarge.asTitle(),
         displayMedium = base.displayMedium.asTitle(),

@@ -1,5 +1,6 @@
 package io.github.mateorguez.cincopelao.ui.theme
 
+import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontWeight
 import io.github.mateorguez.cincopelao.data.prefs.TitleFont
 import org.junit.Assert.assertEquals
@@ -26,6 +27,15 @@ class TypographyTest {
                 t.labelLarge, t.labelMedium, t.labelSmall,
             ).forEach { assertEquals(BodyFont, it.fontFamily) }
         }
+    }
+
+    @Test
+    fun `el texto junta el espaciado entre letras de Material y los titulos lo conservan`() {
+        val material = Typography()
+        val t = appTypography(TitleFont.DELIGHT)
+        assertEquals(material.bodyLarge.letterSpacing * BODY_LETTER_SPACING, t.bodyLarge.letterSpacing)
+        assertEquals(material.labelMedium.letterSpacing * BODY_LETTER_SPACING, t.labelMedium.letterSpacing)
+        assertEquals(material.titleLarge.letterSpacing, t.titleLarge.letterSpacing)
     }
 
     @Test
