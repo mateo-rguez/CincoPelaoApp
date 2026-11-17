@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 
@@ -54,6 +55,11 @@ fun EmptyState(
     modifier: Modifier = Modifier,
     accent: Color = MaterialTheme.appColors.accent,
     waves: Boolean = false,
+    /** Hueco entre el texto y las acciones. */
+    actionsSpacing: Dp = 24.dp,
+    /** Márgenes arriba y abajo (a los lados siempre 32 dp). */
+    topPadding: Dp = 24.dp,
+    bottomPadding: Dp = 24.dp,
     illustration: @Composable BoxScope.() -> Unit,
     actions: @Composable ColumnScope.() -> Unit = {}
 ) {
@@ -64,7 +70,7 @@ fun EmptyState(
                 .verticalScroll(rememberScrollState())
                 .heightIn(min = maxHeight)
                 .fillMaxWidth()
-                .padding(32.dp),
+                .padding(start = 32.dp, end = 32.dp, top = topPadding, bottom = bottomPadding),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -91,7 +97,7 @@ fun EmptyState(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(actionsSpacing))
             actions()
         }
     }

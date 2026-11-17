@@ -49,6 +49,11 @@ fun ShareModeScreen(
         text = "Pasa asignaturas, eventos, tareas y horario a un móvil cercano. No hace falta conexión a internet.",
         accent = accent,
         waves = true,
+        // Ajustado para que quepa sin scroll en el Realme: menos hueco sobre la tarjeta y bajo el
+        // aviso del candado, y algo más de aire sobre la ilustración (y sus ondas)
+        actionsSpacing = 16.dp,
+        topPadding = 36.dp,
+        bottomPadding = 12.dp,
         illustration = {
             Icon(
                 painter = painterResource(id = R.drawable.sharemode),
