@@ -463,6 +463,21 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     una caja a pantalla completa (`tab()` en `AppScaffold`).
   - El autor nota algún tirón al cambiar de pestaña: medirlo con lo del rendimiento (en
     release; la debug de Compose es bastante más lenta).
+  - ✅ C1 `animateItem()` en Asignaturas, Instancias (también «Nueva instancia» y la pista) y
+    eventos del detalle (también el título «No puntuables», ahora con clave): al añadir, borrar
+    o reordenar, el resto se recoloca deslizándose.
+  - ✅ C2 Tareas: no están en una lista *lazy* sino en columnas dentro de cada bloque, así que
+    `ui/common/AnimatedColumnItems` (con test del orden, `keepRemovedInPlace`) despliega las
+    tareas nuevas y pliega las que se archivan o borran, conservándolas en su sitio mientras
+    salen; también las subtareas dentro de su madre (divisor encima de cada una salvo la
+    primera, para que se pliegue con ella). La pastilla de pendientes cambia de número con un
+    deslizamiento vertical (entra desde abajo si sube) y aparece/desaparece con zoom.
+  - ✅ C3 Borrar asignatura: tras confirmar, la tarjeta se encoge al 85 %, se desvanece y se
+    pliega, y solo entonces se borra de la BD; con «Deshacer» reaparece.
+  - ✗ C4 Entrada de Completadas (las tarjetas desplegándose al abrirla, como en la versión
+    antigua): probada y descartada, no le gustó al autor.
+  - Pendiente: B2 (animación propia al abrir pantallas + atrás predictivo) y B1 (tarjeta que
+    se transforma en el detalle).
 - ☐ Widgets de próximos exámenes y tareas.
 - ☐ Copia de seguridad: exportar e importar a archivo.
 - ☐ Horario estructurado (no solo imagen) que pueda avisar de las clases.

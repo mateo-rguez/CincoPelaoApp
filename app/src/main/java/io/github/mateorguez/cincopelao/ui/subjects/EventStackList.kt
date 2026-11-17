@@ -175,29 +175,9 @@ fun EventStackList(
                         val puntuables = filteredEvents.filter { it.isPuntuable }
                         val noPuntuables = filteredEvents.filterNot { it.isPuntuable }
 
-                        itemsIndexed(puntuables, key = { _, event -> event.eventId }) { index, event ->
-
-                            EventBox(
-                                event = event,
-                                subjectId = subjectId,
-                                onScoreChange = { newScore -> onEventChanged(event.copy(score = newScore)) },
-                                onEventUpdate = { newEvent -> onEventChanged(newEvent) },
-                                onDoneChange = { newDone -> onEventChanged(event.copy(noPuntuableDone = newDone)) }
-                            )
-
-                        }
-
-                        if (noPuntuables.isNotEmpty()) {
-                            item {
-                                Text(
-                                    "No puntuables",
-                                    color = MaterialTheme.appColors.accent,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    modifier = Modifier.padding(start = 24.dp, top = 14.dp, bottom = 4.dp)
-                                )
-                            }
-
-                            itemsIndexed(noPuntuables, key = { _, event -> event.eventId }) { _, event ->
+                        // animateItem: al añadir, borrar o reordenar eventos, el resto se recoloca deslizándose
+                        itemsIndexed(puntuables, key = { _, event -> event.eventId }) { _, event ->
+                            Box(Modifier.animateItem()) {
                                 EventBox(
                                     event = event,
                                     subjectId = subjectId,
@@ -205,6 +185,29 @@ fun EventStackList(
                                     onEventUpdate = { newEvent -> onEventChanged(newEvent) },
                                     onDoneChange = { newDone -> onEventChanged(event.copy(noPuntuableDone = newDone)) }
                                 )
+                            }
+                        }
+
+                        if (noPuntuables.isNotEmpty()) {
+                            item(key = "no-puntuables") {
+                                Text(
+                                    "No puntuables",
+                                    color = MaterialTheme.appColors.accent,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    modifier = Modifier.animateItem().padding(start = 24.dp, top = 14.dp, bottom = 4.dp)
+                                )
+                            }
+
+                            itemsIndexed(noPuntuables, key = { _, event -> event.eventId }) { _, event ->
+                                Box(Modifier.animateItem()) {
+                                    EventBox(
+                                        event = event,
+                                        subjectId = subjectId,
+                                        onScoreChange = { newScore -> onEventChanged(event.copy(score = newScore)) },
+                                        onEventUpdate = { newEvent -> onEventChanged(newEvent) },
+                                        onDoneChange = { newDone -> onEventChanged(event.copy(noPuntuableDone = newDone)) }
+                                    )
+                                }
                             }
                         }
                     }

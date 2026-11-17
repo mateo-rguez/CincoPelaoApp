@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.data.local.entity.Task
+import io.github.mateorguez.cincopelao.ui.common.AnimatedColumnItems
 
 /** Tarjeta de una tarea con subtareas: cabecera con el progreso y la lista de subtareas. */
 @Composable
@@ -72,18 +73,21 @@ fun ParentTaskBlock(
 
         SubtaskDivider()
 
-        // Subtareas
+        // Subtareas: al crearlas o borrarlas se despliegan y pliegan; el divisor va encima de
+        // cada una salvo la primera, así se pliega junto con su subtarea
+        val sortedSubtasks = subtasks.sortedBy { it.dueDate ?: Long.MAX_VALUE }
         Column {
-            val sortedSubtasks = subtasks.sortedBy { it.dueDate ?: Long.MAX_VALUE }
-            sortedSubtasks.forEachIndexed { index, subtask ->
-                TaskRow(
-                    task = subtask,
-                    modifier = Modifier,
-                    onCheckedChange = { checked -> onCheckedChange(subtask, checked) },
-                    onClick = { showInfoSheet(subtask) },
-                    onArchive = { /* las subtareas se archivan con su madre */ }
-                )
-                if (index < sortedSubtasks.lastIndex) SubtaskDivider()
+            AnimatedColumnItems(sortedSubtasks, key = { it.taskId }) { subtask, isFirst ->
+                Column {
+                    if (!isFirst) SubtaskDivider()
+                    TaskRow(
+                        task = subtask,
+                        modifier = Modifier,
+                        onCheckedChange = { checked -> onCheckedChange(subtask, checked) },
+                        onClick = { showInfoSheet(subtask) },
+                        onArchive = { /* las subtareas se archivan con su madre */ }
+                    )
+                }
             }
         }
     }

@@ -134,44 +134,49 @@ fun InstancesScreen(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // animateItem: al crear, borrar o reordenar, las tarjetas se recolocan deslizándose
         items(instances, key = { it.id }) { instance ->
-            InstanceItem(
-                instance = instance,
-                summary = summaries[instance.id],
-                isSelected = instance.id == currentInstanceId,
-                isOpen = openId == instance.id,
-                onClick = {
-                    viewModel.select(instance)
-                    onInstanceSelected()
-                },
-                onOpen = { openId = instance.id },
-                onClose = { openId = null },
-                onSave = { name, titulation ->
-                    viewModel.update(instance, name, titulation)
-                    openId = null
-                },
-                onDelete = {
-                    openId = null
-                    viewModel.delete(instance)
-                }
-            )
+            Box(Modifier.animateItem()) {
+                InstanceItem(
+                    instance = instance,
+                    summary = summaries[instance.id],
+                    isSelected = instance.id == currentInstanceId,
+                    isOpen = openId == instance.id,
+                    onClick = {
+                        viewModel.select(instance)
+                        onInstanceSelected()
+                    },
+                    onOpen = { openId = instance.id },
+                    onClose = { openId = null },
+                    onSave = { name, titulation ->
+                        viewModel.update(instance, name, titulation)
+                        openId = null
+                    },
+                    onDelete = {
+                        openId = null
+                        viewModel.delete(instance)
+                    }
+                )
+            }
         }
 
         item(key = NEW_INSTANCE) {
-            NewInstanceItem(
-                isOpen = openId == NEW_INSTANCE,
-                onOpen = { openId = NEW_INSTANCE },
-                onClose = { openId = null },
-                onSave = { name, titulation ->
-                    viewModel.create(name, titulation)
-                    openId = null
-                }
-            )
+            Box(Modifier.animateItem()) {
+                NewInstanceItem(
+                    isOpen = openId == NEW_INSTANCE,
+                    onOpen = { openId = NEW_INSTANCE },
+                    onClose = { openId = null },
+                    onSave = { name, titulation ->
+                        viewModel.create(name, titulation)
+                        openId = null
+                    }
+                )
+            }
         }
 
         // Pista para descubrir el deslizamiento (solo si hay alguna instancia que se pueda borrar)
         if (instances.size > 1) {
-            item(key = "pista") { SwipeHint() }
+            item(key = "pista") { Box(Modifier.animateItem()) { SwipeHint() } }
         }
     }
 }

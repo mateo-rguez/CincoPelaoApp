@@ -1,6 +1,16 @@
 package io.github.mateorguez.cincopelao.ui.tasks
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import io.github.mateorguez.cincopelao.ui.common.AnimatedColumnItems
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -151,9 +162,18 @@ private fun TaskGroupSection(
                     abbrev = subject?.abbrev.orEmpty(),
                     modifier = Modifier.weight(1f, fill = false)
                 )
-                if (group.pendingCount > 0) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    PendingBadge(group.pendingCount)
+                // La pastilla aparece y se va con un zoom; mientras se va conserva su último número
+                var lastCount by remember { mutableIntStateOf(group.pendingCount) }
+                if (group.pendingCount > 0) lastCount = group.pendingCount
+                AnimatedVisibility(
+                    visible = group.pendingCount > 0,
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut()
+                ) {
+                    Row {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        PendingBadge(lastCount)
+                    }
                 }
             }
             val iconTint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
@@ -181,18 +201,23 @@ private fun TaskGroupSection(
                         )
                     }
                 } else {
-                    group.tasks.forEach { task ->
+                    // Tareas sueltas y tareas madre (las subtareas van dentro de su madre); al
+                    // archivarlas, borrarlas o crearlas se pliegan y despliegan en vez de saltar
+                    val topLevel = group.tasks.filter { task ->
+                        task.parentTaskId == null || group.tasks.any { it.parentTaskId == task.taskId }
+                    }
+                    AnimatedColumnItems(topLevel, key = { it.taskId }) { task, _ ->
                         val subtasks = group.tasks.filter { it.parentTaskId == task.taskId }
-                        when {
-                            subtasks.isNotEmpty() -> ParentTaskBlock(
+                        if (subtasks.isNotEmpty()) {
+                            ParentTaskBlock(
                                 parentTask = task,
                                 subtasks = subtasks,
                                 onCheckedChange = onCheckedChange,
                                 showInfoSheet = onShowInfo,
                                 onArchive = { onArchive(task, subtasks) }
                             )
-                            // Las subtareas se muestran dentro de su tarea madre
-                            task.parentTaskId == null -> TaskCardFrame {
+                        } else {
+                            TaskCardFrame {
                                 TaskRow(
                                     task = task,
                                     modifier = Modifier.padding(horizontal = 8.dp),
@@ -227,19 +252,31 @@ private fun GroupTitle(name: String, abbrev: String, modifier: Modifier = Modifi
     }
 }
 
-/** Número de tareas pendientes de un bloque, en una pastilla junto a su nombre. */
+/** Número de tareas pendientes de un bloque, en una pastilla junto a su nombre; al cambiar, el
+ *  número nuevo entra desde abajo si sube y desde arriba si baja. */
 @Composable
 private fun PendingBadge(count: Int) {
-    Text(
-        text = count.toString(),
-        style = MaterialTheme.typography.labelMedium,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onPrimary,
+    AnimatedContent(
+        targetState = count,
+        transitionSpec = {
+            val up = targetState > initialState
+            (slideInVertically { if (up) it else -it } + fadeIn()) togetherWith
+                (slideOutVertically { if (up) -it else it } + fadeOut()) using
+                SizeTransform(clip = true)
+        },
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(MaterialTheme.colorScheme.primary)
-            .padding(horizontal = 8.dp, vertical = 1.dp)
-    )
+            .padding(horizontal = 8.dp, vertical = 1.dp),
+        label = "pendientes"
+    ) { value ->
+        Text(
+            text = value.toString(),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
 }
 
 /** Confirmación de borrado; si la tarea tiene subtareas, permite conservarlas. */

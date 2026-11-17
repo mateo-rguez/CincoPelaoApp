@@ -1,5 +1,12 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -110,13 +117,11 @@ fun SubjectsScreen(
             ) {
                 items(state.subjects, key = { it.subject.subjectId }) { summary ->
                     val subject = summary.subject
-                    SubjectCard(
-                        summary = summary,
-                        titulation = state.titulation,
-                        showAlternate = showAlternate,
-                        menuOpen = openMenuId == subject.subjectId,
-                        onMenuOpenChange = { open -> openMenuId = if (open) subject.subjectId else null },
-                        onDelete = {
+                    // Al confirmar el borrado la tarjeta se encoge y desvanece, y solo entonces se
+                    // borra (las demás suben a su sitio con animateItem); al deshacer, vuelve a aparecer
+                    val visible = remember { MutableTransitionState(true) }
+                    LaunchedEffect(visible.isIdle, visible.currentState) {
+                        if (visible.isIdle && !visible.currentState) {
                             scope.launch {
                                 val deleted = viewModel.delete(subject)
                                 val result = snackbarHostState.showSnackbar(
@@ -127,7 +132,26 @@ fun SubjectsScreen(
                                 if (result == SnackbarResult.ActionPerformed) viewModel.undoDelete(deleted)
                             }
                         }
-                    )
+                    }
+                    AnimatedVisibility(
+                        visibleState = visible,
+                        enter = fadeIn(),
+                        exit = scaleOut(tween(250), targetScale = 0.85f) + fadeOut(tween(250)) +
+                            shrinkVertically(tween(300, delayMillis = 150)),
+                        modifier = Modifier.animateItem()
+                    ) {
+                        SubjectCard(
+                            summary = summary,
+                            titulation = state.titulation,
+                            showAlternate = showAlternate,
+                            menuOpen = openMenuId == subject.subjectId,
+                            onMenuOpenChange = { open -> openMenuId = if (open) subject.subjectId else null },
+                            onDelete = {
+                                openMenuId = null
+                                visible.targetState = false
+                            }
+                        )
+                    }
                 }
             }
         }
