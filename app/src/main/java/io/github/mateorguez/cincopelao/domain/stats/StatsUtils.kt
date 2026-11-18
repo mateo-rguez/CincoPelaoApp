@@ -26,7 +26,13 @@ data class Stats(
     val stdDeviation: Float,
     val median: Float,
     val range: Float
-)
+) {
+    /**
+     * Puntos (sobre 10) que valen los eventos ya puntuados: lo máximo que se podría llevar ahora.
+     * Lo conseguido de ellos es [currentWeighted].
+     */
+    val pointsInPlay: Float get() = scoreCompletedPerc / 10f
+}
 
 object StatsUtils {
 

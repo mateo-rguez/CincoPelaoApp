@@ -51,6 +51,11 @@ fun SubjectDataSection(stats: Stats, insights: SubjectInsights) {
     Column {
         StatsGroupTitle("Progreso", first = true)
         InPlayBar(stats.scoreCompletedPerc)
+        if (stats.pointsInPlay > 0f) {
+            // De lo ya puntuado, cuánto se ha conseguido (sobre 10, como la nota final)
+            DataRow("Puntos conseguidos", "${grade(stats.currentWeighted)} de ${grade(stats.pointsInPlay)}")
+            RowDivider()
+        }
         DataRow("Eventos hechos", "${stats.eventCountDone} de ${stats.eventCount}")
         insights.heaviestPending?.let {
             RowDivider()

@@ -64,6 +64,7 @@ class StatsUtilsTest {
         assertEquals(1, stats.eventCountLeft)
         assertEquals(50f, stats.eventCompletedPerc, delta)
         assertEquals(40f, stats.scoreCompletedPerc, delta)
+        assertEquals(4f, stats.pointsInPlay, delta) // 3,2 conseguidos de 4 en juego
     }
 
     @Test
