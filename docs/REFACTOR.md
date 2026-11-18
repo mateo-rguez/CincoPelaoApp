@@ -39,9 +39,9 @@ temas (paletas escritas enteras y colores de nota por paleta). Los recordatorios
 ya se han comprobado en el Realme. **Hechas: tipografía** (texto en DM Sans y letra de los
 títulos a elegir en Apariencia) y **más paletas** (11 en total), ambas cerradas. **Después:** el resto de
 la lista. La release instalada en el Realme el 18 de noviembre va perfecta: rendimiento del
-scroll cerrado y medir el arranque descartado. Material You hecho (paleta «De tu móvil»).
-**Al retomar:** preguntar qué sigue de la lista (preferencias, copia de seguridad, media
-ponderada global, publicación...). Método usado en cada pantalla: capturas con la app en
+scroll cerrado y medir el arranque descartado. Material You hecho (paleta «De tu móvil»), la
+pantalla de preferencias sustituida por un toque en la cabecera, media global en Asignaturas.
+**Al retomar:** copia de seguridad (plan acordado en su entrada). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -359,8 +359,18 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     - Apariencia se queda como está (decisión del autor). Siguen sin tocar el icono `[ ]` de
       Instancias y el pulgar negro del interruptor.
 
-- ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
-  elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
+- ✖ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): descartada el 18 de
+  noviembre, no vale la pena para un solo ajuste. En su lugar (`7ae1b30`): **un toque en la
+  cabecera de una asignatura intercambia la nota ponderada y la media** (la otra pasa a la frase
+  de debajo; la valoración y el brillo siguen siendo de la media). Se guarda en DataStore
+  (`subject_header_grade`, `SubjectDisplayRepository`) para todas las asignaturas e instancias.
+  Al abrir y al cambiar aparece 1,5 s una etiqueta con el nombre de la nota; una de cada cuatro
+  aperturas, al azar (`HEADER_TAP_HINT_CHANCE`), añade «· toca para cambiar». Textos en
+  `HeaderTexts.kt` (puro, con test).
+- ✅ Pequeños añadidos del 18 de noviembre de 2026: «No puntuables» del detalle en su franja
+  entre dos divisores y alineado con los títulos (`5d4442f`); en Estadísticas, «Puntos
+  conseguidos · 3,70 de 5,00» bajo la barra de lo que está en juego (`eb80424`,
+  `Stats.pointsInPlay`).
 - ✅ **Rendimiento del scroll** (notado por el autor el 11 de noviembre de 2026; el 18 dice que la
   app «va a pedales»): el 18 de noviembre se instaló una **release** en el Realme (ver «Probar
   una release» en CLAUDE.md) y el autor dice que va perfecta: los tirones eran de la debug de
@@ -520,8 +530,15 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     le terminó de convencer; se quedan las animaciones del sistema.
   - B1 (tarjeta que se transforma en el detalle): no se hace, el autor da las animaciones por
     terminadas.
-- ☐ Copia de seguridad: exportar e importar a archivo.
-- ☐ Media ponderada global por curso.
+- ⏳ **Copia de seguridad** (siguiente, acordado el 18 de noviembre de 2026): entrada en el menú
+  lateral con su pantalla, Exportar e Importar con el selector de archivos del sistema (sin
+  permisos), formato de la compartición (`SharePayload`: JSON + imagen del horario), todas las
+  instancias por defecto con casillas para elegir, e importar siempre como instancia nueva
+  (nunca sobrescribe).
+- ✅ **Media global** (18 de noviembre de 2026, `630d110`): pie al final de la lista de
+  Asignaturas con un divisor y «Media global 7,12 · 6 asignaturas». Cada asignatura cuenta igual
+  (no hay créditos): su nota final si está terminada y, si no, la media de sus notas; las que no
+  tienen nota no cuentan. `overallAverage`, con test.
 - ✅ **Material You** (18 de noviembre de 2026): paleta **«De tu móvil»** (`AppPalette.SYSTEM`,
   nombre elegido por el autor), la primera de Apariencia; solo en Android 12 o posterior (en 10
   y 11 no aparece y, si estuviera guardada, se usa Clásico).
