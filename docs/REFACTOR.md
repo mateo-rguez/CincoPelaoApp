@@ -39,8 +39,9 @@ temas (paletas escritas enteras y colores de nota por paleta). Los recordatorios
 ya se han comprobado en el Realme. **Hechas: tipografía** (texto en DM Sans y letra de los
 títulos a elegir en Apariencia) y **más paletas** (11 en total), ambas cerradas. **Después:** el resto de
 la lista. La release instalada en el Realme el 18 de noviembre va perfecta: rendimiento del
-scroll cerrado y medir el arranque descartado. **Al retomar:** Material You (en curso); después,
-preferencias, copia de seguridad... Método usado en cada pantalla: capturas con la app en
+scroll cerrado y medir el arranque descartado. Material You hecho (paleta «De tu móvil»).
+**Al retomar:** preguntar qué sigue de la lista (preferencias, copia de seguridad, media
+ponderada global, publicación...). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -521,7 +522,17 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     terminadas.
 - ☐ Copia de seguridad: exportar e importar a archivo.
 - ☐ Media ponderada global por curso.
-- ⏳ **Material You** con colores dinámicos (encajaría como un tema más; empezado el 18 de noviembre de 2026).
+- ✅ **Material You** (18 de noviembre de 2026): paleta **«De tu móvil»** (`AppPalette.SYSTEM`,
+  nombre elegido por el autor), la primera de Apariencia; solo en Android 12 o posterior (en 10
+  y 11 no aparece y, si estuviera guardada, se usa Clásico).
+  - `ui/theme/PaletteSystem.kt`: la única paleta calculada. Del `ColorScheme` que genera Android
+    salen barras (primario en claro, contenedor primario en oscuro), acento, degradado de las
+    tarjetas de asignatura (contenedor primario → terciario), tarjetas de tareas, calendario y
+    texto apagado. Los colores con significado (notas, fechas, «hecho», tipos del calendario)
+    parten de Grafito, giran su tono como mucho 15° hacia el del fondo y se aclaran u oscurecen
+    lo justo para cumplir el contraste.
+  - `PalettesTest` la prueba con 14 fondos simulados (12 tonos, uno gris y uno muy saturado).
+  - Probada por el autor en el Realme (fondo azul, estilo «Vibrante»): le gusta.
 - ☐ Publicación: R8/minify activado y firma de release.
 
 ### Aplazado a propósito
