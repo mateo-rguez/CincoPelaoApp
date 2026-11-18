@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.data.prefs.AppPalette
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 import io.github.mateorguez.cincopelao.ui.theme.displayName
-import io.github.mateorguez.cincopelao.ui.theme.paletteColors
+import io.github.mateorguez.cincopelao.ui.theme.rememberPaletteColors
 
 /**
  * Miniatura de la app pintada con [palette] (barra superior, una tarjeta de asignatura, una
@@ -47,7 +47,7 @@ fun PalettePreviewCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = paletteColors(palette, dark)
+    val colors = rememberPaletteColors(palette, dark)
     val scheme = colors.scheme
     val app = colors.app
     val shape = RoundedCornerShape(16.dp)

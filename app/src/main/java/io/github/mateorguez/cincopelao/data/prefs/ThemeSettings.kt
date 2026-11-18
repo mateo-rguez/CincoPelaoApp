@@ -3,9 +3,12 @@ package io.github.mateorguez.cincopelao.data.prefs
 /** Cuándo usar los colores oscuros. */
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
-/** Paleta de colores de la app; cada una tiene variante clara y oscura. */
+/**
+ * Paleta de colores de la app; cada una tiene variante clara y oscura. SYSTEM (Material You) toma
+ * los colores del fondo de pantalla y solo existe en Android 12 o posterior.
+ */
 enum class AppPalette {
-    CLASSIC, GRAPHITE, CATPPUCCIN, ROSE_PINE, GRUVBOX, FLEXOKI, TOKYO_NIGHT, KANAGAWA,
+    SYSTEM, CLASSIC, GRAPHITE, CATPPUCCIN, ROSE_PINE, GRUVBOX, FLEXOKI, TOKYO_NIGHT, KANAGAWA,
     CHALKBOARD, NOTEBOOK, LIBRARY,
 }
 

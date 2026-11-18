@@ -30,7 +30,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.mateorguez.cincopelao.data.prefs.AppPalette
+import io.github.mateorguez.cincopelao.ui.theme.availablePalettes
 import io.github.mateorguez.cincopelao.data.prefs.ThemeMode
 import io.github.mateorguez.cincopelao.data.prefs.TitleFont
 import io.github.mateorguez.cincopelao.ui.theme.LocalDarkTheme
@@ -91,7 +91,7 @@ fun AppearanceScreen(viewModel: AppearanceViewModel = hiltViewModel()) {
 
         SectionTitle("Colores")
         // Rejilla de dos columnas; con pocos elementos no hace falta una LazyGrid
-        AppPalette.entries.chunked(2).forEach { row ->
+        availablePalettes.chunked(2).forEach { row ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)

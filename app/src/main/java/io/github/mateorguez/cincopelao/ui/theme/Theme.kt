@@ -31,7 +31,7 @@ fun CincoPelaoTheme(
     titleFont: TitleFont = TitleFont.DELIGHT,
     content: @Composable () -> Unit
 ) {
-    val colors = paletteColors(palette, darkTheme)
+    val colors = rememberPaletteColors(palette, darkTheme)
     val typography = remember(titleFont) { appTypography(titleFont) }
     CompositionLocalProvider(
         LocalDarkTheme provides darkTheme,
