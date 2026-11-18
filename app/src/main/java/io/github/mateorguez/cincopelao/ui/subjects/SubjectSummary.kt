@@ -69,3 +69,15 @@ fun subjectBadge(subject: Subject): String {
         else -> significant.take(3).joinToString("") { it.take(1).uppercase() }
     }
 }
+
+/** Media global de la instancia y de cuántas asignaturas sale. */
+data class OverallAverage(val value: Float, val subjects: Int)
+
+/**
+ * Media de las asignaturas con alguna nota, contando cada una igual: su nota final si ya está
+ * terminada y, si no, la media de sus notas. null si ninguna tiene nota.
+ */
+fun overallAverage(summaries: List<SubjectSummary>): OverallAverage? {
+    val grades = summaries.mapNotNull { it.finalGrade ?: it.average }
+    return if (grades.isEmpty()) null else OverallAverage(grades.average().toFloat(), grades.size)
+}

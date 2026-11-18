@@ -1,5 +1,8 @@
 package io.github.mateorguez.cincopelao.ui.subjects
 
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.padding
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -153,7 +156,29 @@ fun SubjectsScreen(
                         )
                     }
                 }
+                overallAverage(state.subjects)?.let { overall ->
+                    item(key = "media-global") {
+                        OverallAverageFooter(overall, Modifier.animateItem())
+                    }
+                }
             }
         }
+    }
+}
+
+/** Pie de la lista: un divisor y la media global de las asignaturas con nota. */
+@Composable
+private fun OverallAverageFooter(overall: OverallAverage, modifier: Modifier = Modifier) {
+    // Mismo margen lateral que las tarjetas
+    Column(modifier.fillMaxWidth().padding(horizontal = 12.dp).padding(top = 10.dp)) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.12f), thickness = 1.dp)
+        val subjects = if (overall.subjects == 1) "1 asignatura" else "${overall.subjects} asignaturas"
+        Text(
+            text = "Media global %.2f · %s".format(overall.value, subjects),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.appColors.muted,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)
+        )
     }
 }

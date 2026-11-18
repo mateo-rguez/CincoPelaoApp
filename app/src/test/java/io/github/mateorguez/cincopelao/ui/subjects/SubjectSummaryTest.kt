@@ -91,4 +91,26 @@ class SubjectSummaryTest {
         assertEquals("DE", subjectBadge(Subject(name = "de")))
         assertEquals("?", subjectBadge(Subject(name = "  ")))
     }
+
+    private fun summary(id: Long, average: Float?, finalGrade: Float? = null) = SubjectSummary(
+        subject = subject.copy(subjectId = id), badge = "", average = average, lastGraded = null,
+        finalGrade = finalGrade, nextEvent = null, pendingTasks = 0
+    )
+
+    @Test
+    fun `la media global cuenta cada asignatura igual y prefiere su nota final`() {
+        val overall = overallAverage(listOf(
+            summary(1, average = 8f),
+            summary(2, average = 9f, finalGrade = 6f), // terminada: cuenta su nota final
+            summary(3, average = null),                // sin notas: no cuenta
+        ))
+        assertEquals(7f, overall?.value ?: -1f, 0.001f)
+        assertEquals(2, overall?.subjects)
+    }
+
+    @Test
+    fun `sin notas no hay media global`() {
+        assertNull(overallAverage(listOf(summary(1, average = null))))
+        assertNull(overallAverage(emptyList()))
+    }
 }
