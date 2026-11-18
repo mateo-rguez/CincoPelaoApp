@@ -38,9 +38,9 @@ ilustración de Asignaturas vacía, las animaciones (pestañas y listas; cerrada
 temas (paletas escritas enteras y colores de nota por paleta). Los recordatorios con alarmas
 ya se han comprobado en el Realme. **Hechas: tipografía** (texto en DM Sans y letra de los
 títulos a elegir en Apariencia) y **más paletas** (11 en total), ambas cerradas. **Después:** el resto de
-la lista. **Al retomar:** preguntar al autor qué tal va la release instalada en el Realme el 18
-de noviembre (si sigue dando tirones, medir con `dumpsys gfxinfo`, ver «Rendimiento del scroll»);
-después, preferencias, copia de seguridad, medir el arranque... Método usado en cada pantalla: capturas con la app en
+la lista. La release instalada en el Realme el 18 de noviembre va perfecta: rendimiento del
+scroll cerrado y medir el arranque descartado. **Al retomar:** Material You (en curso); después,
+preferencias, copia de seguridad... Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -360,9 +360,10 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
 
 - ☐ **Pantalla de preferencias** (idea del autor, 11 de noviembre de 2026): entre otras cosas,
   elegir qué muestra el número grande de la cabecera de una asignatura (nota acumulada o media).
-- ⏳ **Rendimiento del scroll** (notado por el autor el 11 de noviembre de 2026; el 18 dice que la
-  app «va a pedales»): el 18 de noviembre se instaló una **release** en el Realme para que la
-  pruebe en la mano (ver «Probar una release» en CLAUDE.md); falta su impresión. La app antigua
+- ✅ **Rendimiento del scroll** (notado por el autor el 11 de noviembre de 2026; el 18 dice que la
+  app «va a pedales»): el 18 de noviembre se instaló una **release** en el Realme (ver «Probar
+  una release» en CLAUDE.md) y el autor dice que va perfecta: los tirones eran de la debug de
+  Compose. Cerrado sin medir; lo de abajo queda por si vuelve a notarse. La app antigua
   daba tirones al hacer scroll rápido arriba y abajo, sobre todo en el Realme (en el Samsung
   bastante menos). Tras las primeras fases casi desapareció, pero con el pulido de la interfaz
   quizá vuelve a notarse un poco. Medir antes de tocar nada, en todas las listas (Tareas,
@@ -438,7 +439,7 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     (`dumpsys usagestats`: última apertura a las 18:59, la siguiente a las 19:34). La hora no
     coincide con la apuntada porque se volvió a sortear al abrir la app a las 18:58; las alarmas
     siguientes aparecen en `dumpsys alarm` como exactas (`exactAllowReason=policy_permission`).
-- ☐ **Medir el arranque** (pedido por el autor el 16 de noviembre de 2026; abre rápido y no
+- ✖ **Medir el arranque** (descartado por el autor el 18 de noviembre: la release va perfecta) (pedido el 16 de noviembre de 2026; abre rápido y no
   parece preocupante, pero conviene tener el dato): tiempo hasta el primer fotograma en frío
   con `adb shell am start -W -S io.github.mateorguez.cincopelao/.MainActivity` (`TotalTime`),
   en **release** y en los dos móviles. Ojo: desde el 16 de noviembre se precarga el horario al
@@ -520,7 +521,7 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     terminadas.
 - ☐ Copia de seguridad: exportar e importar a archivo.
 - ☐ Media ponderada global por curso.
-- ☐ Material You con colores dinámicos (encajaría como un tema más).
+- ⏳ **Material You** con colores dinámicos (encajaría como un tema más; empezado el 18 de noviembre de 2026).
 - ☐ Publicación: R8/minify activado y firma de release.
 
 ### Aplazado a propósito
