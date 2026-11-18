@@ -189,13 +189,18 @@ fun EventStackList(
                         }
 
                         if (noPuntuables.isNotEmpty()) {
+                            // Franja propia entre dos divisores (el de arriba es el del último
+                            // evento), con el mismo aire arriba y abajo y alineada con los títulos
                             item(key = "no-puntuables") {
-                                Text(
-                                    "No puntuables",
-                                    color = MaterialTheme.appColors.accent,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    modifier = Modifier.animateItem().padding(start = 24.dp, top = 14.dp, bottom = 4.dp)
-                                )
+                                Column(Modifier.animateItem()) {
+                                    Text(
+                                        "No puntuables",
+                                        color = MaterialTheme.appColors.accent,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+                                    )
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.12f), thickness = 1.dp)
+                                }
                             }
 
                             itemsIndexed(noPuntuables, key = { _, event -> event.eventId }) { _, event ->
