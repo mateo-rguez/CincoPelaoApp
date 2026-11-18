@@ -41,7 +41,8 @@ títulos a elegir en Apariencia) y **más paletas** (11 en total), ambas cerrada
 la lista. La release instalada en el Realme el 18 de noviembre va perfecta: rendimiento del
 scroll cerrado y medir el arranque descartado. Material You hecho (paleta «De tu móvil»), la
 pantalla de preferencias sustituida por un toque en la cabecera, media global en Asignaturas.
-**Al retomar:** copia de seguridad (plan acordado en su entrada). Método usado en cada pantalla: capturas con la app en
+**Al retomar:** copia de seguridad (plan acordado en su entrada); después, formulario de
+tarea o publicación, a elegir por el autor. Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -551,6 +552,11 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   - `PalettesTest` la prueba con 14 fondos simulados (12 tonos, uno gris y uno muy saturado).
   - Probada por el autor en el Realme (fondo azul, estilo «Vibrante»): le gusta.
 - ☐ Publicación: R8/minify activado y firma de release.
+  Las releases de prueba se firman hoy con la clave de depuración; para publicar en GitHub haría
+  falta una clave propia del autor, guardada a salvo (sin ella no se puede actualizar la app).
+- ☐ **Formulario de tarea** (anotado el 18 de noviembre de 2026): la única pantalla que no pasó
+  por «Pulir la interfaz»; de paso, la casilla de `TaskInfoSheet` sigue siendo la cuadrada de
+  Material en vez de la redonda del resto.
 
 ### Aplazado a propósito
 - Actualizar versiones de librerías (Compose, Kotlin, AGP…): el autor prefirió no hacerlo aún.
