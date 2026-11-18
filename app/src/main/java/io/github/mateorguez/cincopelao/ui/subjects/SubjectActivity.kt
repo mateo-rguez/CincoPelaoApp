@@ -43,7 +43,8 @@ class SubjectActivity : ComponentActivity() {
                             state = state,
                             onBackClick = { finish() },
                             onEventChanged = viewModel::updateEvent,
-                            onNavigateToStats = { navController.navigate(ROUTE_STATS) }
+                            onNavigateToStats = { navController.navigate(ROUTE_STATS) },
+                            onToggleHeaderGrade = { viewModel.toggleHeaderGrade() }
                         )
                     }
                     composable(

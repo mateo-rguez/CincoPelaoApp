@@ -2,6 +2,7 @@ package io.github.mateorguez.cincopelao.ui.subjects
 
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -10,6 +11,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,6 +54,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.mateorguez.cincopelao.data.local.entity.Event
+import io.github.mateorguez.cincopelao.data.prefs.HeaderGrade
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // Detalle de una asignatura: cabecera con la nota y lista de eventos.
@@ -61,7 +66,8 @@ fun SubjectDetailScreen(
     state: SubjectDetailUiState,
     onBackClick: () -> Unit,
     onEventChanged: (Event) -> Unit,
-    onNavigateToStats: () -> Unit
+    onNavigateToStats: () -> Unit,
+    onToggleHeaderGrade: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -87,7 +93,14 @@ fun SubjectDetailScreen(
 
         Column(modifier = Modifier.padding(innerPadding)) {
 
-            HeaderSection(grade = state.weightedGrade, meanScore = state.meanGrade)
+            HeaderSection(
+                weighted = state.weightedGrade,
+                meanScore = state.meanGrade,
+                shown = state.headerGrade,
+                labelPulse = state.headerLabelPulse,
+                tapHint = state.headerTapHint,
+                onToggle = onToggleHeaderGrade
+            )
 
             HorizontalDivider(
                 thickness = 1.dp,
@@ -133,17 +146,27 @@ fun SubjectTopBar(
 
 @Composable
 fun HeaderSection(
-    grade: Float?,
+    weighted: Float?,
     meanScore: Float?,
+    shown: HeaderGrade,
+    labelPulse: Int,
+    tapHint: Boolean,
+    onToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val headerHeight = screenHeight * 0.20f
+    val texts = headerTexts(weighted, meanScore, shown)
 
-    val gradeText = when {
-        grade == null -> "Sin nota"
-        grade % 1f == 0f -> "%.1f".format(grade)
-        else -> "%.2f".format(grade)
+    // Etiqueta con el nombre de la nota grande: se ve un momento al abrir y al cambiarla, y se
+    // desvanece
+    var labelVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(labelPulse) {
+        if (labelPulse > 0) {
+            labelVisible = true
+            delay(HEADER_LABEL_MILLIS)
+            labelVisible = false
+        }
     }
 
     val appColors = MaterialTheme.appColors
@@ -167,6 +190,14 @@ fun HeaderSection(
             .fillMaxWidth()
             .clipToBounds()
             .height(headerHeight)
+            // Un toque en cualquier parte intercambia ponderada y media; sin onda, que en un
+            // área tan grande queda rara: ya cambian el número y la etiqueta
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClickLabel = "Cambiar entre nota ponderada y nota media",
+                onClick = onToggle
+            )
             .drawBehind {
                 val radius = size.height * 0.8f
 
@@ -194,20 +225,27 @@ fun HeaderSection(
             },
         contentAlignment = Alignment.Center
     ) {
+        AnimatedVisibility(
+            visible = labelVisible,
+            enter = fadeIn(tween(200)) + slideInVertically(tween(200)) { it / 2 },
+            exit = fadeOut(tween(400)),
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 10.dp)
+        ) {
+            Text(
+                text = headerLabel(shown, tapHint),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.appColors.accent
+            )
+        }
+
         // Número animado, centrado
         AnimatedNumber(
-            number = gradeText,
+            number = texts.big,
             modifier = Modifier
         )
 
         // Texto etéreo en la parte inferior (overlay)
-        val status = when {
-            meanScore == null -> "¡Suerte con los exámenes!"
-            meanScore >= 9f -> "¡Excelente! Tu nota media es de %.2f".format(meanScore)
-            meanScore >= 6f -> "Tu nota media es buena: %.2f".format(meanScore)
-            meanScore >= 4f -> "Tu nota media es pocha: %.2f".format(meanScore)
-            else -> "Tu nota media es baja: %.2f".format(meanScore)
-        }
+        val status = texts.status
 
         if (status.isNotEmpty()) {
             Text(
@@ -223,6 +261,9 @@ fun HeaderSection(
     }
 }
 
+
+/** Lo que se ve la etiqueta de la nota grande antes de desvanecerse. */
+private const val HEADER_LABEL_MILLIS = 1500L
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
