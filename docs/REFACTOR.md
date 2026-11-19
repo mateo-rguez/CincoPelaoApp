@@ -605,7 +605,14 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     elegir tarea madre (subtareas de subtareas); Atrás cerraba el formulario sin preguntar.
 
 ### Aplazado a propósito
-- Actualizar versiones de librerías (Compose, Kotlin, AGP…): el autor prefirió no hacerlo aún.
+- Actualizar versiones de librerías (Compose BOM 2024.10, Kotlin 2.0.21, AGP 8.10, targetSdk 35):
+  decidido el 19 de noviembre de 2026 **no hacerlo** mientras la app vaya bien. No aporta nada
+  visible, la app está probada en Android 16 y 17, no hay riesgo de seguridad que lo pida (sin
+  servidor) y saltar casi dos años de Compose cambiaría detalles que se han pulido a mano.
+  Solo se hará si: (1) se publica en Google Play (exige una targetSdk reciente), (2) una mejora
+  o un bug necesita una versión más nueva, o (3) Android Studio deja de compilar con esta AGP.
+  Si se hace: rama aparte y por pasos (Compose y AndroidX → Kotlin, KSP y Hilt → AGP y
+  targetSdk), con los tests y revisando las pantallas en el móvil.
 - Textos de la interfaz a `strings.xml` (~340 textos): la app seguirá solo en español por ahora;
   se hará si se añade otro idioma.
 - Conservar el plegado de los bloques de Tareas al cambiar de pestaña: el autor prefiere el
