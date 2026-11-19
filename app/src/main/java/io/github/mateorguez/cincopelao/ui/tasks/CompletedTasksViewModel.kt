@@ -26,7 +26,9 @@ data class CompletedTasksUiState(
     /** Tareas archivadas de primer nivel, de la completada más recientemente a la más antigua. */
     val items: List<ArchivedTaskItem> = emptyList(),
     val archivedTasks: List<Task> = emptyList(),
-    val allTasks: List<Task> = emptyList()
+    val allTasks: List<Task> = emptyList(),
+    /** Nombre de cada asignatura por id, para la ficha de una tarea. */
+    val subjectNames: Map<Long, String> = emptyMap()
 ) {
     fun task(id: Long): Task? = allTasks.find { it.taskId == id }
 }
@@ -48,7 +50,13 @@ class CompletedTasksViewModel @Inject constructor(
                 if (subtasks.isEmpty() && task.parentTaskId != null) null
                 else ArchivedTaskItem(task, subtasks, task.subjectId?.let { abbrevById[it] })
             }
-        CompletedTasksUiState(isLoaded = true, items = items, archivedTasks = archived, allTasks = taskList)
+        CompletedTasksUiState(
+            isLoaded = true,
+            items = items,
+            archivedTasks = archived,
+            allTasks = taskList,
+            subjectNames = subjectList.associate { it.subjectId to it.name.trim() }
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CompletedTasksUiState())
 
     /** Devuelve la tarea (y sus subtareas) a la lista de pendientes. */

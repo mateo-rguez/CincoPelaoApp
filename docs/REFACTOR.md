@@ -42,7 +42,8 @@ la lista. La release instalada en el Realme el 18 de noviembre va perfecta: rend
 scroll cerrado y medir el arranque descartado. Material You hecho (paleta «De tu móvil»), la
 pantalla de preferencias sustituida por un toque en la cabecera, media global en Asignaturas.
 **Hechas también** (19 de noviembre): frases de los recordatorios en listas y copia de
-seguridad. **Al retomar:** formulario de tarea o publicación, a elegir por el autor. Método usado en cada pantalla: capturas con la app en
+seguridad, y el formulario de tarea. **Al retomar:** publicación (R8 y firma propia) u otra mejora
+que proponga el autor. Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -233,8 +234,8 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
       subtareas, separadores suaves de ancho completo bajo la madre y entre subtareas (el autor
       los quiere), cabeceras con pastilla de pendientes (`pendingCount`) e iconos a la derecha;
       si el nombre no cabe se muestra la abreviatura (`groupTitle`).
-    - Sin tocar: la casilla de la ficha de una tarea (`TaskInfoSheet`) sigue siendo la cuadrada
-      de Material; el formulario de tarea no se ha revisado.
+    - El formulario de tarea y la ficha se revisaron después, como mejora aparte (ver
+      «Formulario de tarea»).
   - **Asignaturas** ✅:
     - `eaf0f83` Lista: tarjeta con sombra de Tareas, pastilla con abreviatura (o iniciales) y
       una fila con dos etiquetas que alternan cada 5 s a la vez en todas: nota (media ↔ último
@@ -575,9 +576,18 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
 - ☐ Publicación: R8/minify activado y firma de release.
   Las releases de prueba se firman hoy con la clave de depuración; para publicar en GitHub haría
   falta una clave propia del autor, guardada a salvo (sin ella no se puede actualizar la app).
-- ☐ **Formulario de tarea** (anotado el 18 de noviembre de 2026): la única pantalla que no pasó
-  por «Pulir la interfaz»; de paso, la casilla de `TaskInfoSheet` sigue siendo la cuadrada de
-  Material en vez de la redonda del resto.
+- ✅ **Formulario de tarea** (anotado el 18 de noviembre de 2026, hecho el 19): la única pantalla
+  que no pasó por «Pulir la interfaz». El autor eligió la propuesta B y la ficha «mínima».
+  - `TaskFormSheet` con el estilo del formulario de evento: encabezado «Nueva tarea · PSI»,
+    fecha en una pastilla con la fecha larga y una ✕ para quitarla, tarea madre en pastillas
+    (solo si hay candidatas, `parentOptions`), mayúscula inicial y textos recortados al guardar,
+    y Atrás / arrastrar / tocar fuera con cambios preguntan antes de descartar.
+  - `TaskInfoSheet`: casilla redonda (`TaskCheckbox`, atenuada si no se puede marcar), fecha con
+    la etiqueta de color de las tarjetas y la fecha completa, y la asignatura (pedida por el
+    autor) o «Tarea general».
+  - `FieldGroup` pasa a `ui/common` para compartirlo con `EventSheet`.
+  - Bugs corregidos: la fecha no se podía quitar una vez puesta; una tarea con subtareas podía
+    elegir tarea madre (subtareas de subtareas); Atrás cerraba el formulario sin preguntar.
 
 ### Aplazado a propósito
 - Actualizar versiones de librerías (Compose, Kotlin, AGP…): el autor prefirió no hacerlo aún.

@@ -50,6 +50,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.github.mateorguez.cincopelao.data.local.entity.Event
 import io.github.mateorguez.cincopelao.ui.common.ChoicePill
+import io.github.mateorguez.cincopelao.ui.common.FieldGroup
 import io.github.mateorguez.cincopelao.ui.theme.appColors
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -337,22 +338,6 @@ fun EventSheet(
             }
         ) {
             DatePicker(state = pickerState, showModeToggle = true)
-        }
-    }
-}
-
-/** Título pequeño encima de un grupo de opciones, con el error debajo si lo hay. */
-@Composable
-private fun FieldGroup(title: String, error: String? = null, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
-            color = if (error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        content()
-        if (error != null) {
-            Text(error, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
         }
     }
 }

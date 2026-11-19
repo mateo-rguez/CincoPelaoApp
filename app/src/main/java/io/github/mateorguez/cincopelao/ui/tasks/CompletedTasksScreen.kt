@@ -78,6 +78,7 @@ fun CompletedTasksScreen(
     infoTaskId?.let { state.task(it) }?.let { task ->
         TaskInfoSheet(
             task = task,
+            subjectName = task.subjectId?.let { state.subjectNames[it] },
             enableCheckbox = false,
             showEdit = false,
             onDismiss = { infoTaskId = null },

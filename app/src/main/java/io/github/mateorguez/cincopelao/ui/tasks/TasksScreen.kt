@@ -74,6 +74,7 @@ fun TasksScreen(viewModel: TasksViewModel = hiltViewModel()) {
     infoTaskId?.let { state.task(it) }?.let { task ->
         TaskInfoSheet(
             task = task,
+            subjectName = state.groups.firstOrNull { task.subjectId != null && it.subject?.subjectId == task.subjectId }?.subject?.name,
             enableCheckbox = !state.hasSubtasks(task),
             showEdit = true,
             onDismiss = { infoTaskId = null },
