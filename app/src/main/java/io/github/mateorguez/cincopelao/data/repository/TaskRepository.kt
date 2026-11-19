@@ -54,6 +54,24 @@ class TaskRepository @Inject constructor(
         }
     }
 
+    /**
+     * Marca como hecha una tarea de cualquier instancia (desde el botón de su aviso), junto con
+     * sus subtareas pendientes: «ya la hice» vale para la tarea entera. Devuelve false si la
+     * tarea o la instancia ya no existen.
+     */
+    suspend fun completeFromReminder(instanceId: String, taskId: Long, now: Long = System.currentTimeMillis()): Boolean {
+        if (instances.instances.value.none { it.id == instanceId }) return false
+        val db = instances.database(instanceId)
+        return db.withTransaction {
+            val task = db.taskDao().getTaskById(taskId) ?: return@withTransaction false
+            (listOf(task) + db.taskDao().getSubTasksOnce(taskId))
+                .filter { !it.isCompleted }
+                .forEach { db.taskDao().updateTask(it.copy(isCompleted = true, completedAt = now)) }
+            task.parentTaskId?.let { db.syncParent(it) }
+            true
+        }
+    }
+
     /** Borra la tarea; sus subtareas se borran en cascada. */
     suspend fun delete(task: Task) {
         val db = db

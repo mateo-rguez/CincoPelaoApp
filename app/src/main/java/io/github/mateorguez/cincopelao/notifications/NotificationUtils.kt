@@ -8,11 +8,15 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import io.github.mateorguez.cincopelao.MainActivity
 import io.github.mateorguez.cincopelao.R
+
+/** Botón «hecha» de un aviso de tarea, con su texto. */
+data class DoneAction(val task: ReminderTaskRef, val label: String)
 
 object NotificationUtils {
 
@@ -30,7 +34,7 @@ object NotificationUtils {
         }
     }
 
-    fun showNotification(context: Context, title: String, message: String, id: Int = 0) {
+    fun showNotification(context: Context, title: String, message: String, id: Int = 0, doneAction: DoneAction? = null) {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
@@ -48,6 +52,20 @@ object NotificationUtils {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+
+        doneAction?.let { action ->
+            val done = Intent(context, TaskDoneReceiver::class.java)
+                .setAction(TaskDoneReceiver.ACTION_DONE)
+                // Un intent distinto por aviso, para que cada botón lleve su tarea
+                .setData(Uri.Builder().scheme("cincopelao-done").opaquePart("${action.task.instanceId}:${action.task.taskId}:$id").build())
+                .putExtra(TaskDoneReceiver.EXTRA_INSTANCE, action.task.instanceId)
+                .putExtra(TaskDoneReceiver.EXTRA_TASK, action.task.taskId)
+                .putExtra(ReminderReceiver.EXTRA_ID, id)
+            val donePending = PendingIntent.getBroadcast(
+                context, id, done, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            builder.addAction(R.drawable.cinco_pelao_vector, action.label, donePending)
+        }
 
         // Desde Android 13 hace falta el permiso POST_NOTIFICATIONS; sin él no se muestra nada
         if (!hasNotificationPermission(context)) return

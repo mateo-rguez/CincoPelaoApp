@@ -181,4 +181,28 @@ class RepositoriesTest {
         assertTrue(task.isCompleted && task.archived)
         db.close()
     }
+
+    @Test
+    fun `marcar hecha desde el aviso completa la tarea y sus subtareas en otra instancia`() = runBlocking {
+        val activa = instances.currentInstanceId.value
+        val data = DataToSend(
+            tasks = listOf(
+                Task(taskId = 1, title = "madre"),
+                Task(taskId = 2, title = "hija", parentTaskId = 1),
+                Task(taskId = 3, title = "otra")
+            )
+        )
+        val id = instances.importAsNewInstance("Otra", data, select = false)
+
+        assertTrue(tasks.completeFromReminder(id, 1, now = 50L))
+
+        assertEquals(activa, instances.currentInstanceId.value)
+        val guardadas = instances.database(id).taskDao().getAllTasksOnce().associateBy { it.taskId }
+        assertTrue(guardadas.getValue(1).isCompleted && guardadas.getValue(2).isCompleted)
+        assertEquals(50L, guardadas.getValue(2).completedAt)
+        assertFalse(guardadas.getValue(3).isCompleted)
+        assertFalse(tasks.completeFromReminder(id, 99))
+        assertFalse(tasks.completeFromReminder("no-existe", 1))
+        instances.database(id).close()
+    }
 }

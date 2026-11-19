@@ -72,6 +72,16 @@ internal object ReminderPhrases {
         "{dias} días de margen, pero no te confíes 😏"
     )
 
+    /** Texto del botón que marca la tarea como hecha desde su aviso. */
+    val doneActions = listOf(
+        "Está hecha ✅",
+        "Ya la hice",
+        "Completada",
+        "Hecha y bien hecha",
+        "Tachada ✍️",
+        "Lista 💪"
+    )
+
     /** Artículo de cada tipo de evento (los de `EventSheet`). */
     private val articleByType = mapOf(
         "examen" to "el",

@@ -236,4 +236,27 @@ class ReminderPlannerTest {
             assertTrue(frase, "{dias}" !in frase)
         }
     }
+
+    // --- Botón «hecha» --------------------------------------------------------------------------
+
+    @Test
+    fun `la clave de un aviso de tarea lleva a su tarea y la de un evento no`() {
+        val reminders = plan(
+            events = listOf(Event(eventId = 5, subjectId = 1, name = "Parcial", type = "Examen", date = future)),
+            tasks = listOf(Task(taskId = 7, title = "Entrega", dueDate = future))
+        )
+        val (tareas, eventos) = reminders.partition { ":task:" in it.key }
+
+        assertTrue(tareas.all { ReminderPlanner.taskOf(it.key) == ReminderTaskRef("inst", 7) })
+        assertTrue(eventos.all { ReminderPlanner.taskOf(it.key) == null })
+        assertNull(ReminderPlanner.taskOf("basura"))
+        assertNull(ReminderPlanner.taskOf("inst:task:x:1"))
+        assertEquals(ReminderTaskRef("cinco_pelao_db", 3), ReminderPlanner.taskOf("cinco_pelao_db:task:3:1"))
+    }
+
+    @Test
+    fun `los textos del boton no tienen huecos`() {
+        assertTrue(ReminderPhrases.doneActions.all { ReminderPhrases.placeholdersOf(it).isEmpty() })
+        assertTrue(ReminderPhrases.doneActions.all { it.length <= 20 })
+    }
 }

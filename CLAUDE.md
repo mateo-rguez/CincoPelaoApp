@@ -43,17 +43,23 @@ El proyecto está en pleno refactor por fases: **el plan, lo hecho y lo pendient
 - `data/repository` — `SubjectRepository`, `EventRepository`, `TaskRepository` (Flows que siguen
   a la instancia activa con `flatMapLatest`; operaciones compuestas en una transacción),
   `TaskMaintenance`, reglas puras (`TaskRules`, `DataIntegrity`).
+- `data/backup` — copia de seguridad: `BackupFormat` (ZIP con el JSON de la compartición y el
+  horario por instancia; puro, con tests) y `BackupRepository` (exportar / importar como
+  instancias nuevas).
 - `data/prefs` — DataStore: tema, ajustes de recordatorios, estado del horario.
 - `domain/stats` — cálculo de notas y estadísticas (puro, con tests).
 - `notifications` — `ReminderPlanner` y `ReminderSync` (puros) + `ReminderManager`, que reconcilia
   con alarmas exactas de `AlarmManager` (`ReminderAlarms`, `ReminderReceiver`; no con WorkManager,
   que ColorOS congela con la app cerrada).
   **La UI nunca programa ni cancela recordatorios**: se sincronizan solos al cambiar los datos.
+  Las frases de los avisos están en `ReminderPhrases` (listas con huecos `{nombre}`, `{asig}`…);
+  los de tareas llevan un botón «hecha» que atiende `TaskDoneReceiver`.
 - `sharing` — compartición: `protocol` (tramas, mensajes, selección; puro), `session` (emisor/receptor,
   fases, permisos; puro), `ble` y `wifidirect` (transportes), `ShareEnvironment`. Cómo funciona por dentro:
   [`docs/COMPARTICION.md`](docs/COMPARTICION.md).
 - `ui/<pantalla>` — una pantalla = `XxxScreen` + `XxxViewModel` con un `uiState: StateFlow`
-  (`collectAsStateWithLifecycle`); componentes en archivos propios del mismo paquete.
+  (`collectAsStateWithLifecycle`); componentes en archivos propios del mismo paquete; los
+  compartidos entre pantallas, en `ui/common`.
   `ui/theme`: `CincoPelaoTheme`/`CincoPelaoAppTheme`, `LocalDarkTheme`, tipografía (`Type.kt`) y una
   paleta por archivo (`PaletteXxx.kt`, claro y oscuro con todos los colores de `ColorScheme` y
   `AppColors`); cómo añadir una, en `Palettes.kt`.

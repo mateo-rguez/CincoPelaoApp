@@ -30,6 +30,7 @@ class ReminderAlarms(private val context: Context) {
             .putExtra(ReminderReceiver.EXTRA_TITLE, reminder.title)
             .putExtra(ReminderReceiver.EXTRA_MESSAGE, reminder.message)
             .putExtra(ReminderReceiver.EXTRA_ID, reminder.key.hashCode())
+            .putExtra(ReminderReceiver.EXTRA_KEY, reminder.key)
         val operation = PendingIntent.getBroadcast(
             context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

@@ -34,8 +34,22 @@ data class PlannedReminder(
     val spec: String get() = listOf(targetTime, offsetDays, startHour, endHour, title, message).joinToString("|").hashCode().toString()
 }
 
+/** Tarea a la que se refiere un recordatorio (para el botón «hecha» de su aviso). */
+data class ReminderTaskRef(val instanceId: String, val taskId: Long)
+
 /** Lógica pura de recordatorios: qué avisos tocan y a qué hora. Sin Android, para poder probarla. */
 object ReminderPlanner {
+
+    /** Clave del recordatorio de una tarea: «instancia:task:id:días». */
+    internal fun taskReminderKey(instanceId: String, taskId: Long, offsetDays: Int) = "$instanceId:task:$taskId:$offsetDays"
+
+    /** La tarea de un recordatorio, o null si es de un evento (o la clave no se entiende). */
+    fun taskOf(key: String): ReminderTaskRef? {
+        val parts = key.split(":")
+        if (parts.size != 4 || parts[1] != "task" || parts[0].isEmpty()) return null
+        val taskId = parts[2].toLongOrNull() ?: return null
+        return ReminderTaskRef(parts[0], taskId)
+    }
 
     /**
      * Recordatorios que deberían existir: eventos futuros y tareas futuras pendientes
@@ -77,7 +91,7 @@ object ReminderPlanner {
                 task.subjectId?.let { abbrevById[it] }?.let { put("asig", it) }
             }
             taskSettings.daysBefore.distinct().map { offset ->
-                val key = "$instanceId:task:${task.taskId}:$offset"
+                val key = taskReminderKey(instanceId, task.taskId, offset)
                 PlannedReminder(
                     key, due, offset, taskSettings.startHour, taskSettings.endHour,
                     title = ReminderPhrases.pick(ReminderPhrases.taskTitles, values, key),

@@ -60,6 +60,9 @@
             android:name=".notifications.ReminderReceiver"
             android:exported="false" />
         <receiver
+            android:name=".notifications.TaskDoneReceiver"
+            android:exported="false" />
+        <receiver
             android:name=".notifications.ReminderBootReceiver"
             android:exported="true">
             <intent-filter>

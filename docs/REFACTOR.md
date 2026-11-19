@@ -42,8 +42,9 @@ la lista. La release instalada en el Realme el 18 de noviembre va perfecta: rend
 scroll cerrado y medir el arranque descartado. Material You hecho (paleta «De tu móvil»), la
 pantalla de preferencias sustituida por un toque en la cabecera, media global en Asignaturas.
 **Hechas también** (19 de noviembre): frases de los recordatorios en listas y copia de
-seguridad, y el formulario de tarea. **Al retomar:** publicación (R8 y firma propia) u otra mejora
-que proponga el autor. Método usado en cada pantalla: capturas con la app en
+seguridad, el formulario de tarea y el botón «hecha» en los avisos de tareas. **Al retomar:**
+README para GitHub con capturas sobre una instancia de mockup; después, publicación (R8 y
+firma propia). Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -573,6 +574,20 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     lo justo para cumplir el contraste.
   - `PalettesTest` la prueba con 14 fondos simulados (12 tonos, uno gris y uno muy saturado).
   - Probada por el autor en el Realme (fondo azul, estilo «Vibrante»): le gusta.
+- ✅ **Marcar tareas como hechas desde el aviso** (19 de noviembre de 2026): de las ideas
+  propuestas, el autor eligió solo esta. Los avisos de tareas (no los de eventos) llevan un
+  botón con un texto de `ReminderPhrases.doneActions` («Está hecha ✅», «Ya la hice»…). Lo
+  atiende `TaskDoneReceiver`: marca la tarea y sus subtareas pendientes
+  (`TaskRepository.completeFromReminder`, en cualquier instancia y sin cambiar la activa), quita
+  el aviso y sincroniza los recordatorios en el momento (con la app cerrada, el proceso podía
+  morir antes de la sincronización con retardo y quedar alarmas de otros días). Sin cambios en
+  la base de datos. Probado con tests (Robolectric para el aviso); falta verlo en un aviso real.
+  - Otras ideas propuestas y no elegidas (por si se retoman): copia automática semanal, resumen
+    semanal el lunes, accesos directos del icono, exportar exámenes al calendario / `.ics`,
+    tareas que se repiten (necesita migración) y buscador.
+- ☐ **README para GitHub** (pedido el 19 de noviembre de 2026, para otra sesión): con capturas de
+  varias pantallas hechas sobre una instancia entera con datos de mockup (crearla con la copia
+  de seguridad o a mano y borrarla después, sin tocar las del autor).
 - ☐ Publicación: R8/minify activado y firma de release.
   Las releases de prueba se firman hoy con la clave de depuración; para publicar en GitHub haría
   falta una clave propia del autor, guardada a salvo (sin ella no se puede actualizar la app).
