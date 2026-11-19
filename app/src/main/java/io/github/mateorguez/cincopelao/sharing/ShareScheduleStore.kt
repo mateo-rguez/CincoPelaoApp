@@ -25,8 +25,11 @@ class ShareScheduleStore @Inject constructor(
     private val instances: InstanceRepository
 ) {
     /** PNG del horario de la instancia activa, o null si no tiene. */
-    suspend fun exportCurrent(): ByteArray? {
-        val uri = getScheduleState(context, instances.currentInstanceId.value).first().first ?: return null
+    suspend fun exportCurrent(): ByteArray? = export(instances.currentInstanceId.value)
+
+    /** PNG del horario de [instanceId], o null si no tiene (o ya no se puede abrir). */
+    suspend fun export(instanceId: String): ByteArray? {
+        val uri = getScheduleState(context, instanceId).first().first ?: return null
         val bitmap = ScheduleFileLoader.load(context, Uri.parse(uri)) ?: return null
         return withContext(Dispatchers.Default) {
             ByteArrayOutputStream().use { out ->

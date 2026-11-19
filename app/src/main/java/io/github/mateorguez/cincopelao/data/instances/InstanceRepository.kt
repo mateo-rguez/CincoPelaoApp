@@ -119,10 +119,15 @@ class InstanceRepository @Inject constructor(
     }
 
     /**
-     * Crea una instancia nueva con los datos recibidos y la activa.
+     * Crea una instancia nueva con los datos recibidos y, si [select], la activa.
      * Si la importación falla, no queda ninguna instancia a medias.
      */
-    suspend fun importAsNewInstance(name: String, data: DataToSend): String {
+    suspend fun importAsNewInstance(
+        name: String,
+        data: DataToSend,
+        titulation: String? = null,
+        select: Boolean = true
+    ): String {
         val id = UUID.randomUUID().toString()
         val clean = data.withoutDanglingReferences()
         val db = database(id)
@@ -140,9 +145,9 @@ class InstanceRepository @Inject constructor(
             }
             throw e
         }
-        _instances.update { it + DatabaseInstance(id = id, name = name) }
+        _instances.update { it + DatabaseInstance(id = id, name = name, titulation = titulation) }
         saveInstances()
-        select(id)
+        if (select) select(id)
         return id
     }
 

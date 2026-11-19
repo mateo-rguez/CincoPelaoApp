@@ -20,6 +20,9 @@ interface SubjectDao {
     @Query("SELECT * FROM subjects ORDER BY name ASC")
     fun getAllSubjects(): Flow<List<Subject>>
 
+    @Query("SELECT * FROM subjects ORDER BY name ASC")
+    suspend fun getAllSubjectsOnce(): List<Subject>
+
     @Query("SELECT COUNT(*) FROM subjects")
     suspend fun count(): Int
 

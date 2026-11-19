@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DataArray
 import androidx.compose.material.icons.filled.Notifications
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.scale
 import io.github.mateorguez.cincopelao.R
 import io.github.mateorguez.cincopelao.ui.appearance.AppearanceActivity
+import io.github.mateorguez.cincopelao.ui.backup.BackupActivity
 import io.github.mateorguez.cincopelao.ui.instances.InstancesActivity
 import io.github.mateorguez.cincopelao.ui.notifications.NotificationsActivity
 import io.github.mateorguez.cincopelao.ui.theme.appColors
@@ -123,6 +125,7 @@ fun AppDrawer(
         DrawerRow(Icons.Default.Palette, "Apariencia", onClick = { open(AppearanceActivity::class.java) })
         DrawerRow(Icons.Default.DataArray, "Instancias", onClick = { open(InstancesActivity::class.java) })
         DrawerRow(Icons.Default.Notifications, "Notificaciones", onClick = { open(NotificationsActivity::class.java) })
+        DrawerRow(Icons.Default.SettingsBackupRestore, "Copia de seguridad", onClick = { open(BackupActivity::class.java) })
 
         Spacer(Modifier.weight(1f))
 

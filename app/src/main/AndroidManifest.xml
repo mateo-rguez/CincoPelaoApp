@@ -79,6 +79,11 @@
             android:label="Apariencia"
             android:theme="@style/Theme.CincoPelao" />
         <activity
+            android:name=".ui.backup.BackupActivity"
+            android:exported="false"
+            android:label="Copia de seguridad"
+            android:theme="@style/Theme.CincoPelao" />
+        <activity
             android:name=".ui.instances.InstancesActivity"
             android:exported="false"
             android:label="@string/title_activity_instances"

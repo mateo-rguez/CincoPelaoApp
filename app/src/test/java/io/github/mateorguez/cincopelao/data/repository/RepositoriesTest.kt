@@ -161,4 +161,24 @@ class RepositoriesTest {
 
         assertEquals(before, instances.instances.value)
     }
+
+    @Test
+    fun `importar sin activar conserva la instancia activa, la titulacion y todo el progreso`() = runBlocking {
+        val before = instances.currentInstanceId.value
+        val data = DataToSend(
+            subjects = listOf(Subject(subjectId = 3, name = "Cálculo", abbrev = "CAL")),
+            events = listOf(Event(eventId = 4, subjectId = 3, name = "Parcial", type = "Examen", date = 1L, isPuntuable = true, score = 7.5f)),
+            tasks = listOf(Task(taskId = 8, title = "hecha", isCompleted = true, completedAt = 2L, archived = true))
+        )
+
+        val id = instances.importAsNewInstance("Copia", data, titulation = "Teleco", select = false)
+
+        assertEquals(before, instances.currentInstanceId.value)
+        assertEquals("Teleco", instances.instances.value.single { it.id == id }.titulation)
+        val db = instances.database(id)
+        assertEquals(7.5f, db.eventDao().getAllEventsOnce().single().score)
+        val task = db.taskDao().getAllTasksOnce().single()
+        assertTrue(task.isCompleted && task.archived)
+        db.close()
+    }
 }

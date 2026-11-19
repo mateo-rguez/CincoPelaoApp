@@ -41,8 +41,8 @@ títulos a elegir en Apariencia) y **más paletas** (11 en total), ambas cerrada
 la lista. La release instalada en el Realme el 18 de noviembre va perfecta: rendimiento del
 scroll cerrado y medir el arranque descartado. Material You hecho (paleta «De tu móvil»), la
 pantalla de preferencias sustituida por un toque en la cabecera, media global en Asignaturas.
-**Al retomar:** copia de seguridad (plan acordado en su entrada); después, formulario de
-tarea o publicación, a elegir por el autor. Método usado en cada pantalla: capturas con la app en
+**Hechas también** (19 de noviembre): frases de los recordatorios en listas y copia de
+seguridad. **Al retomar:** formulario de tarea o publicación, a elegir por el autor. Método usado en cada pantalla: capturas con la app en
 primer plano, 3–5 propuestas concretas, el autor elige, se instala, se prueba y se ajusta. La fase 6 está probada por el autor con un Realme
 (Android 16) y un Samsung Galaxy A56 (Android 17): todas las pruebas de la lista pasan.
 
@@ -539,12 +539,24 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
   palabras sueltas y se sustituían dentro de los nombres («Prototipo» → «Protoexamen»); las
   tareas sin asignatura decían «asignatura eliminada? ta mal hecho esto entonces»; «del
   presentación» (ahora el tipo lleva su artículo); el título de la tarea entero en minúsculas
-  (ahora solo la primera letra, y las siglas se respetan); un `!!`.
-- ⏳ **Copia de seguridad** (siguiente, acordado el 18 de noviembre de 2026): entrada en el menú
-  lateral con su pantalla, Exportar e Importar con el selector de archivos del sistema (sin
-  permisos), formato de la compartición (`SharePayload`: JSON + imagen del horario), todas las
-  instancias por defecto con casillas para elegir, e importar siempre como instancia nueva
-  (nunca sobrescribe).
+  (ahora solo la primera letra, y las siglas se respetan); un `!!`. Commit `c30de9f`.
+- ✅ **Copia de seguridad** (acordada el 18 de noviembre de 2026, hecha el 19): «Copia de
+  seguridad» en el menú lateral (`ui/backup`). Exportar e Importar con el selector de archivos
+  del sistema (sin permisos).
+  - Archivo ZIP (`data/backup/BackupFormat.kt`, puro y con tests): `copia.json` (formato,
+    versión, fecha, versión de la app y resumen de cada instancia) y una carpeta por instancia
+    con `datos.json` (`DataToSend`, el JSON de la compartición) y `horario.png`. A diferencia de
+    la compartición guarda todo: notas, eventos hechos, tareas completadas y archivadas y la
+    titulación. Lectura con topes de tamaño; rechaza con mensaje claro lo que no es una copia,
+    está dañado o es de una versión más nueva.
+  - Exportar: todas las instancias marcadas por defecto, con casillas; nombre propuesto
+    `CincoPelao-AAAA-MM-DD.zip`; si falla al escribir se borra el archivo a medias.
+  - Importar: muestra qué trae la copia (fecha, instancias con resumen, todas marcadas) y añade
+    las elegidas como instancias nuevas sin cambiar la activa; un nombre repetido entra como
+    «Nombre (2)» (`importedName`). Cada instancia es su propia base de datos con id nuevo, así
+    que las ids internas de la copia no chocan con las existentes.
+  - Tarjetas con el estilo de Tareas (`TaskCardFrame`) y casillas redondas.
+  - Sin probar aún en el móvil el ciclo completo exportar → importar (lo probará el autor).
 - ✅ **Media global** (18 de noviembre de 2026, `630d110`): pie al final de la lista de
   Asignaturas con un divisor y «Media global 7,12 · 6 asignaturas». Cada asignatura cuenta igual
   (no hay créditos): su nota final si está terminada y, si no, la media de sus notas; las que no
