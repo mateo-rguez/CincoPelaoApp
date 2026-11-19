@@ -5,7 +5,6 @@ import io.github.mateorguez.cincopelao.data.local.entity.Subject
 import io.github.mateorguez.cincopelao.data.local.entity.Task
 import java.util.Calendar
 import java.util.TimeZone
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.random.Random
 
@@ -38,22 +37,6 @@ data class PlannedReminder(
 /** Lógica pura de recordatorios: qué avisos tocan y a qué hora. Sin Android, para poder probarla. */
 object ReminderPlanner {
 
-    private val eventTemplates = listOf(
-        "Recuerda que tienes el evento de abbrev",
-        "Queda poco para el evento",
-        "No te olvides del tipo de abbrev",
-        "Vete pensando en lo de abbrev"
-    )
-
-    private val taskTemplates = listOf(
-        "Recuerda que tienes que tarea",
-        "Queda poco para tarea",
-        "No te olvides de tarea para abbrev",
-        "Vete pensando en tarea"
-    )
-
-    private const val MISSING_SUBJECT = "asignatura eliminada? ta mal hecho esto entonces"
-
     /**
      * Recordatorios que deberían existir: eventos futuros y tareas futuras pendientes
      * (ni completadas ni archivadas), uno por cada día de antelación configurado.
@@ -70,33 +53,41 @@ object ReminderPlanner {
         val abbrevById = subjects.associate { it.subjectId to it.abbrev }
 
         val eventReminders = events.filter { it.date > now }.flatMap { event ->
+            val values = buildMap {
+                put("nombre", event.name.trim())
+                abbrevById[event.subjectId]?.let { put("asig", it) }
+                ReminderPhrases.typeWithArticle(event.type)?.let { put("el_tipo", it) }
+            }
             eventSettings.daysBefore.distinct().map { offset ->
                 val key = "$instanceId:event:${event.eventId}:$offset"
-                val title = pick(eventTemplates, key)
-                    .replace("evento", event.name)
-                    .replace("tipo", event.type.lowercase())
-                    .replace("abbrev", abbrevById[event.subjectId] ?: MISSING_SUBJECT)
-                PlannedReminder(key, event.date, offset, eventSettings.startHour, eventSettings.endHour, title, reminderMessageFor(offset))
+                PlannedReminder(
+                    key, event.date, offset, eventSettings.startHour, eventSettings.endHour,
+                    title = ReminderPhrases.pick(ReminderPhrases.eventTitles, values, key),
+                    message = reminderMessageFor(offset, key)
+                )
             }
         }
 
-        val taskReminders = tasks
-            .filter { !it.isCompleted && !it.archived && (it.dueDate ?: 0L) > now }
-            .flatMap { task ->
-                taskSettings.daysBefore.distinct().map { offset ->
-                    val key = "$instanceId:task:${task.taskId}:$offset"
-                    val title = pick(taskTemplates, key)
-                        .replace("tarea", task.title.lowercase())
-                        .replace("abbrev", task.subjectId?.let { abbrevById[it] } ?: MISSING_SUBJECT)
-                    PlannedReminder(key, task.dueDate!!, offset, taskSettings.startHour, taskSettings.endHour, title, reminderMessageFor(offset))
-                }
+        val taskReminders = tasks.mapNotNull { task ->
+            val due = task.dueDate
+            if (task.isCompleted || task.archived || due == null || due <= now) null else task to due
+        }.flatMap { (task, due) ->
+            val values = buildMap {
+                put("nombre", ReminderPhrases.lowerFirst(task.title))
+                task.subjectId?.let { abbrevById[it] }?.let { put("asig", it) }
             }
+            taskSettings.daysBefore.distinct().map { offset ->
+                val key = "$instanceId:task:${task.taskId}:$offset"
+                PlannedReminder(
+                    key, due, offset, taskSettings.startHour, taskSettings.endHour,
+                    title = ReminderPhrases.pick(ReminderPhrases.taskTitles, values, key),
+                    message = reminderMessageFor(offset, key)
+                )
+            }
+        }
 
         return eventReminders + taskReminders
     }
-
-    /** Elige una plantilla de forma determinista: el mismo recordatorio siempre usa la misma. */
-    private fun pick(templates: List<String>, key: String) = templates[abs(key.hashCode() % templates.size)]
 
     /**
      * Calcula el instante en que debe saltar un recordatorio: un momento aleatorio dentro de la
@@ -137,11 +128,7 @@ object ReminderPlanner {
         return from + random.nextLong(windowEnd - from)
     }
 
-    /** Texto del recordatorio según los días que faltan. */
-    internal fun reminderMessageFor(offsetDays: Int): String = when {
-        offsetDays == 1 -> "Es mañana, ¿Preparado? 💪"
-        offsetDays <= 3 -> "Quedan $offsetDays unidades de día, tocó cookear 🐐"
-        offsetDays < 7 -> "Faltan $offsetDays días, habrá que ir espabilando 🙄"
-        else -> "Aún quedan $offsetDays días, hay tiempo 🥱"
-    }
+    /** Texto del recordatorio según los días que faltan; [key] elige la frase de forma estable. */
+    internal fun reminderMessageFor(offsetDays: Int, key: String): String =
+        ReminderPhrases.pick(ReminderPhrases.messagesFor(offsetDays), mapOf("dias" to "$offsetDays"), "$key:msg")
 }

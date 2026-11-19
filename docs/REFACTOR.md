@@ -531,6 +531,15 @@ Estado: ⏳ en curso · ☐ pendiente · ✅ hecha.
     le terminó de convencer; se quedan las animaciones del sistema.
   - B1 (tarjeta que se transforma en el detalle): no se hace, el autor da las animaciones por
     terminadas.
+- ✅ **Frases de los recordatorios** (19 de noviembre de 2026): salen de
+  `notifications/ReminderPhrases.kt`, listas de títulos (eventos y tareas) y de textos por tramo
+  de días (mañana, 2–3, 4–6, 7 o más), con huecos `{nombre}`, `{asig}`, `{el_tipo}` y `{dias}`;
+  cada aviso elige una de forma estable. Cambiar o añadir una frase es tocar una lista. Se
+  reescribieron y ampliaron (conservando las del texto). Bugs corregidos: los huecos eran
+  palabras sueltas y se sustituían dentro de los nombres («Prototipo» → «Protoexamen»); las
+  tareas sin asignatura decían «asignatura eliminada? ta mal hecho esto entonces»; «del
+  presentación» (ahora el tipo lleva su artículo); el título de la tarea entero en minúsculas
+  (ahora solo la primera letra, y las siglas se respetan); un `!!`.
 - ⏳ **Copia de seguridad** (siguiente, acordado el 18 de noviembre de 2026): entrada en el menú
   lateral con su pantalla, Exportar e Importar con el selector de archivos del sistema (sin
   permisos), formato de la compartición (`SharePayload`: JSON + imagen del horario), todas las
